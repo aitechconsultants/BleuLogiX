@@ -106,8 +106,8 @@ export default function Index() {
           </div>
         </section>
 
-        {/* Features Section - Templates */}
-        <section id="templates" id="features" className="py-24 px-4 md:px-8 border-t border-border">
+        {/* Features Section */}
+        <section id="features" className="py-24 px-4 md:px-8 border-t border-border">
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
