@@ -124,7 +124,15 @@ export default function Generator() {
           videos={generatedVideos}
           onView={handleViewVideo}
           onDownload={handleDownloadVideo}
+          onDownloadBlocked={handleDownloadBlocked}
           onDelete={handleDeleteVideo}
+          isPremium={isPremium}
+        />
+        <UpgradeModal
+          isOpen={isUpgradeModalOpen}
+          reason={upgradeReason}
+          onClose={() => setIsUpgradeModalOpen(false)}
+          onSelectPlan={handleSelectPlan}
         />
       </div>
     </Layout>
