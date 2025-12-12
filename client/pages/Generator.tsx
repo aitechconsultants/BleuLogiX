@@ -172,14 +172,13 @@ export default function Generator() {
       console.log("Download URL:", data.url);
       window.open(data.url, "_blank");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to download";
-
-      // Check if it's an entitlement error
-      if (message.includes("HD downloads")) {
-        handleDownloadBlocked(message);
+      if (err instanceof APIError && err.status === 403) {
+        // Insufficient permissions/entitlements
+        handleDownloadBlocked(err.message);
         return;
       }
 
+      const message = err instanceof Error ? err.message : "Failed to download";
       setError(message);
       console.error("Download error:", err);
     }
