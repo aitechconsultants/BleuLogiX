@@ -1,0 +1,71 @@
+import { getPool } from "./db";
+
+export async function runMigrations() {
+  const pool = getPool();
+
+  try {
+    // Create subscriptions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscriptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL UNIQUE,
+        stripe_customer_id TEXT,
+        stripe_subscription_id TEXT,
+        plan TEXT CHECK (plan IN ('free', 'pro', 'enterprise')) DEFAULT 'free',
+        status TEXT CHECK (status IN ('active', 'trialing', 'canceled', 'past_due')) DEFAULT 'active',
+        current_period_end TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Create credit_ledger table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS credit_ledger (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL,
+        delta INT NOT NULL,
+        reason TEXT NOT NULL,
+        related_generation_id UUID,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Create generations table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS generations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL,
+        template_id TEXT NOT NULL,
+        input_json JSONB,
+        voice_id TEXT,
+        caption_style TEXT,
+        status TEXT CHECK (status IN ('queued', 'rendering', 'complete', 'failed')) DEFAULT 'queued',
+        preview_url TEXT,
+        output_url TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Create indexes
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_credit_ledger_user_created 
+      ON credit_ledger (user_id, created_at DESC);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_generations_user_created 
+      ON generations (user_id, created_at DESC);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id 
+      ON subscriptions (user_id);
+    `);
+
+    console.log("Migrations completed successfully");
+  } catch (error) {
+    console.error("Migration error:", error);
+    throw error;
+  }
+}
