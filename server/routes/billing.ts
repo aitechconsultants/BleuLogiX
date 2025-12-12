@@ -82,9 +82,9 @@ export const handleCreateCheckoutSession: RequestHandler = async (
 
   try {
     const { plan } = req.body as { plan: string };
-    const userId = (req as any).user?.id;
+    const auth = (req as any).auth;
 
-    if (!userId) {
+    if (!auth || !auth.clerkUserId) {
       logError(
         { correlationId },
         "Checkout session requested without authentication"
@@ -94,6 +94,10 @@ export const handleCreateCheckoutSession: RequestHandler = async (
         correlationId,
       });
     }
+
+    // Upsert user and get internal UUID
+    const user = await upsertUser(auth.clerkUserId, auth.email);
+    const userId = user.id;
 
     if (!["pro", "enterprise"].includes(plan)) {
       return res.status(400).json({
