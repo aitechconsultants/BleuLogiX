@@ -2,17 +2,29 @@ import { Zap, Loader } from "lucide-react";
 
 interface GenerateBarProps {
   onGenerate: () => void;
+  onGenerateBlocked: (reason: string) => void;
   isGenerating: boolean;
   creditsRemaining: number;
 }
 
 export default function GenerateBar({
   onGenerate,
+  onGenerateBlocked,
   isGenerating,
   creditsRemaining,
 }: GenerateBarProps) {
   const creditCost = 10;
   const canGenerate = creditsRemaining >= creditCost && !isGenerating;
+
+  const handleGenerateClick = () => {
+    if (creditsRemaining < creditCost) {
+      onGenerateBlocked(
+        `Video generation costs ${creditCost} credits. You have ${creditsRemaining} credits remaining.`
+      );
+    } else {
+      onGenerate();
+    }
+  };
 
   return (
     <div className="sticky bottom-0 border-t border-border bg-card/95 backdrop-blur-sm">
