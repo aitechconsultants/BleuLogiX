@@ -25,6 +25,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/generator" element={<Generator />} />
           <Route path="/video-generator" element={<VideoGenerator />} />
           <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
