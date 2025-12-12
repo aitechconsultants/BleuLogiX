@@ -61,11 +61,20 @@ function getBillingStatus(
 }
 
 export const handleGetMe: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
   try {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      logError(
+        { correlationId },
+        "Get me requested without authentication"
+      );
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
     }
 
     const sub = await getOrCreateSubscription(userId);
@@ -77,8 +86,15 @@ export const handleGetMe: RequestHandler = async (req, res) => {
       billingStatus: getBillingStatus(sub.plan),
     });
   } catch (error) {
-    console.error("Get me error:", error);
-    res.status(500).json({ error: "Failed to fetch user data" });
+    logError(
+      { correlationId },
+      "Failed to fetch user data",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    res.status(500).json({
+      error: "Failed to fetch user data",
+      correlationId,
+    });
   }
 };
 
