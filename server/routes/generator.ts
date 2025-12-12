@@ -230,9 +230,9 @@ export const handleDownload: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
 
   try {
-    const userId = (req as any).user?.id;
+    const auth = (req as any).auth;
 
-    if (!userId) {
+    if (!auth || !auth.clerkUserId) {
       logError(
         { correlationId },
         "Download requested without authentication"
@@ -242,6 +242,10 @@ export const handleDownload: RequestHandler = async (req, res) => {
         correlationId,
       });
     }
+
+    // Upsert user and get internal UUID
+    const user = await upsertUser(auth.clerkUserId, auth.email);
+    const userId = user.id;
 
     const { generationId, quality } = req.body as {
       generationId: string;
