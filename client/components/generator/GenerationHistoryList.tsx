@@ -12,7 +12,9 @@ interface GenerationHistoryListProps {
   videos: GeneratedVideo[];
   onView: (id: string) => void;
   onDownload: (id: string) => void;
+  onDownloadBlocked: (reason: string) => void;
   onDelete: (id: string) => void;
+  isPremium?: boolean;
 }
 
 export default function GenerationHistoryList({
