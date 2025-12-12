@@ -23,6 +23,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/generator" element={<Generator />} />
           <Route path="/video-generator" element={<VideoGenerator />} />
           <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
           <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
