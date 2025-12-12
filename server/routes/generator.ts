@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { queryOne, queryAll, query } from "../db";
 import { logError } from "../logging";
+import { upsertUser } from "../users";
 
 interface Subscription {
   id: string;
