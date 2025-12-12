@@ -12,10 +12,21 @@ import UpgradeModal from "@/components/generator/UpgradeModal";
 
 interface GeneratedVideo {
   id: string;
-  headline: string;
-  template: string;
-  createdAt: Date;
-  status: "completed" | "failed";
+  user_id: string;
+  template_id: string;
+  voice_id: string;
+  caption_style: string;
+  status: "queued" | "rendering" | "complete" | "failed";
+  preview_url: string | null;
+  output_url: string | null;
+  created_at: string;
+  input_json?: any;
+}
+
+interface UserData {
+  plan: "free" | "pro" | "enterprise";
+  creditsRemaining: number;
+  billingStatus: "free" | "pro" | "enterprise";
 }
 
 export default function Generator() {
@@ -26,13 +37,15 @@ export default function Generator() {
   const [enableCaptions, setEnableCaptions] = useState(true);
   const [selectedCaptionStyle, setSelectedCaptionStyle] = useState("classic");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [creditsRemaining, setCreditsRemaining] = useState(42);
+  const [isLoading, setIsLoading] = useState(true);
+  const [creditsRemaining, setCreditsRemaining] = useState(0);
   const [generatedVideos, setGeneratedVideos] = useState<GeneratedVideo[]>([]);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState("");
   const [billingStatus, setBillingStatus] = useState<
     "free" | "checkout_pending" | "pro" | "enterprise"
   >("free");
+  const [error, setError] = useState<string | null>(null);
 
   const premiumAccess = billingStatus === "pro" || billingStatus === "enterprise";
 
