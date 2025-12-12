@@ -21,8 +21,19 @@ export default function GenerationHistoryList({
   videos,
   onView,
   onDownload,
+  onDownloadBlocked,
   onDelete,
+  isPremium = false,
 }: GenerationHistoryListProps) {
+  const handleDownloadClick = (id: string) => {
+    if (!isPremium) {
+      onDownloadBlocked(
+        "Video downloads are only available with a Pro or Enterprise plan."
+      );
+    } else {
+      onDownload(id);
+    }
+  };
   if (videos.length === 0) {
     return (
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-12 border-t border-border space-y-6">
