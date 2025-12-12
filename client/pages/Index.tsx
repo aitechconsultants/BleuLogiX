@@ -107,7 +107,7 @@ export default function Index() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 px-4 md:px-8 border-t border-border">
+        <section id="features" className="py-24 px-4 md:px-8 border-t border-border">
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -141,7 +141,7 @@ export default function Index() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20 px-4 md:px-8 border-t border-border">
+        <section className="py-24 px-4 md:px-8 border-t border-border">
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -192,7 +192,7 @@ export default function Index() {
         </section>
 
         {/* Pricing Preview Section */}
-        <section className="py-20 px-4 md:px-8 border-t border-border">
+        <section id="pricing" className="py-24 px-4 md:px-8 border-t border-border">
           <div className="max-w-6xl mx-auto space-y-12">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -304,7 +304,7 @@ export default function Index() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 px-4 md:px-8 border-t border-border">
+        <section className="py-24 px-4 md:px-8 border-t border-border">
           <div className="max-w-4xl mx-auto">
             <div className="rounded-lg border border-accent-blue/30 bg-accent-blue/5 p-12 text-center space-y-6">
               <h2 className="font-display text-4xl font-bold text-foreground">
