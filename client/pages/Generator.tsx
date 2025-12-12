@@ -102,15 +102,14 @@ export default function Generator() {
       setGeneratedVideos((prev) => [newGeneration, ...prev]);
       setCreditsRemaining((prev) => Math.max(0, prev - 10));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to generate video";
-
-      // Check if it's an insufficient credits error
-      if (message.includes("Insufficient credits")) {
-        handleGenerateBlocked(message);
+      if (err instanceof APIError && err.status === 402) {
+        // Insufficient credits
+        handleGenerateBlocked(err.message);
         setIsGenerating(false);
         return;
       }
 
+      const message = err instanceof Error ? err.message : "Failed to generate video";
       setError(message);
       console.error("Generate error:", err);
     } finally {
