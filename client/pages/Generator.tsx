@@ -30,7 +30,11 @@ export default function Generator() {
   const [generatedVideos, setGeneratedVideos] = useState<GeneratedVideo[]>([]);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState("");
-  const [isPremium, setIsPremium] = useState(false);
+  const [billingStatus, setBillingStatus] = useState<
+    "free" | "checkout_pending" | "pro" | "enterprise"
+  >("free");
+
+  const premiumAccess = billingStatus === "pro" || billingStatus === "enterprise";
 
   const handleGenerate = () => {
     setIsGenerating(true);
