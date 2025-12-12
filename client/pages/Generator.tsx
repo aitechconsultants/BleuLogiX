@@ -1,16 +1,107 @@
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
+import GeneratorHeader from "@/components/generator/GeneratorHeader";
+import GeneratorTemplatePicker from "@/components/generator/GeneratorTemplatePicker";
+import GeneratorInputsForm from "@/components/generator/GeneratorInputsForm";
+import VoiceoverSelector from "@/components/generator/VoiceoverSelector";
+import CaptionsSelector from "@/components/generator/CaptionsSelector";
+import GeneratorPreviewPanel from "@/components/generator/GeneratorPreviewPanel";
+import GenerateBar from "@/components/generator/GenerateBar";
+import GenerationHistoryList from "@/components/generator/GenerationHistoryList";
+
+interface GeneratedVideo {
+  id: string;
+  headline: string;
+  template: string;
+  createdAt: Date;
+  status: "completed" | "failed";
+}
 
 export default function Generator() {
+  const [selectedTemplate, setSelectedTemplate] = useState("product-promo");
+  const [scriptText, setScriptText] = useState("");
+  const [headlineText, setHeadlineText] = useState("");
+  const [selectedVoice, setSelectedVoice] = useState("voice-1");
+  const [enableCaptions, setEnableCaptions] = useState(true);
+  const [selectedCaptionStyle, setSelectedCaptionStyle] = useState("classic");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [creditsRemaining, setCreditsRemaining] = useState(42);
+  const [generatedVideos, setGeneratedVideos] = useState<GeneratedVideo[]>([]);
+
+  const handleGenerate = () => {
+    if (creditsRemaining < 10) return;
+
+    setIsGenerating(true);
+    setCreditsRemaining((prev) => Math.max(0, prev - 10));
+
+    setTimeout(() => {
+      const newVideo: GeneratedVideo = {
+        id: `video-${Date.now()}`,
+        headline: headlineText || "Untitled",
+        template: selectedTemplate,
+        createdAt: new Date(),
+        status: "completed",
+      };
+
+      setGeneratedVideos((prev) => [newVideo, ...prev]);
+      setIsGenerating(false);
+    }, 3000);
+  };
+
+  const handleViewVideo = (id: string) => {
+    console.log("View video:", id);
+  };
+
+  const handleDownloadVideo = (id: string) => {
+    console.log("Download video:", id);
+  };
+
+  const handleDeleteVideo = (id: string) => {
+    setGeneratedVideos((prev) => prev.filter((v) => v.id !== id));
+  };
+
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-        <section className="py-24 px-4 md:px-8">
-          <div className="max-w-6xl mx-auto">
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground">
-              Generator
-            </h1>
-          </div>
-        </section>
+        <GeneratorHeader />
+        <GeneratorTemplatePicker
+          selectedTemplate={selectedTemplate}
+          onSelectTemplate={setSelectedTemplate}
+        />
+        <GeneratorInputsForm
+          scriptText={scriptText}
+          onScriptChange={setScriptText}
+          headlineText={headlineText}
+          onHeadlineChange={setHeadlineText}
+        />
+        <VoiceoverSelector
+          selectedVoice={selectedVoice}
+          onSelectVoice={setSelectedVoice}
+        />
+        <CaptionsSelector
+          selectedStyle={selectedCaptionStyle}
+          onSelectStyle={setSelectedCaptionStyle}
+          enableCaptions={enableCaptions}
+          onToggleCaptions={setEnableCaptions}
+        />
+        <GeneratorPreviewPanel
+          headlineText={headlineText}
+          scriptText={scriptText}
+          selectedTemplate={selectedTemplate}
+          selectedVoice={selectedVoice}
+          selectedCaptionStyle={selectedCaptionStyle}
+        />
+        <GenerateBar
+          onGenerate={handleGenerate}
+          isGenerating={isGenerating}
+          creditsRemaining={creditsRemaining}
+        />
+        <GenerationHistoryList
+          videos={generatedVideos}
+          onView={handleViewVideo}
+          onDownload={handleDownloadVideo}
+          onDelete={handleDeleteVideo}
+        />
       </div>
     </Layout>
   );
