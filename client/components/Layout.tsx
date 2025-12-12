@@ -11,12 +11,12 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-background sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center pl-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 flex items-center justify-between">
+          <Link to="/" className="flex items-center pl-5 pt-6">
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F54f45d34be3943c08a0aecacd9df4dac?format=webp&width=800"
               alt="BleuLogiX"
-              className="h-32 md:h-44 object-contain"
+              className="h-40 md:h-56 object-contain"
             />
           </Link>
 
