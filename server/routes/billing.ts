@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import Stripe from "stripe";
 import { queryOne, queryAll, query } from "../db";
 import { LogContext, logWebhookProcessing, logError } from "../logging";
+import { upsertUser, getUserByClerkId } from "../users";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-11-20",
