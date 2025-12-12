@@ -181,11 +181,20 @@ export const handleGetHistory: RequestHandler = async (req, res) => {
 };
 
 export const handleDownload: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
   try {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      logError(
+        { correlationId },
+        "Download requested without authentication"
+      );
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
     }
 
     const { generationId, quality } = req.body as {
@@ -194,35 +203,70 @@ export const handleDownload: RequestHandler = async (req, res) => {
     };
 
     if (!generationId) {
-      return res.status(400).json({ error: "generationId is required" });
+      return res.status(400).json({
+        error: "generationId is required",
+        correlationId,
+      });
     }
 
-    // Verify generation belongs to user
+    if (!["watermarked", "hd"].includes(quality)) {
+      return res.status(400).json({
+        error: "quality must be 'watermarked' or 'hd'",
+        correlationId,
+      });
+    }
+
+    // Verify generation belongs to this user (prevent access to other users' videos)
     const generation = await queryOne<Generation>(
       `SELECT * FROM generations WHERE id = $1 AND user_id = $2`,
       [generationId, userId]
     );
 
     if (!generation) {
-      return res.status(404).json({ error: "Generation not found" });
+      logError(
+        { correlationId, userId },
+        "Attempted to download non-existent or unauthorized generation",
+        undefined,
+        { generationId }
+      );
+      return res.status(404).json({
+        error: "Generation not found",
+        correlationId,
+      });
     }
 
-    // Check entitlements
+    // Check entitlements based on plan
     if (quality === "hd") {
       const sub = await getOrCreateSubscription(userId);
+
+      // Only Pro and Enterprise can download without watermark
       if (sub.plan === "free") {
+        logError(
+          { correlationId, userId },
+          "Free user attempted HD download",
+          undefined,
+          { generationId }
+        );
         return res.status(403).json({
           error: "HD downloads require Pro or Enterprise plan",
+          correlationId,
         });
       }
     }
 
-    // Generate mock download URL (in production, this would return a signed S3 URL)
+    // Generate mock download URL (in production, this would return a signed S3/CloudFront URL)
     const downloadUrl = `https://api.example.com/downloads/${generationId}?quality=${quality}&token=${Date.now()}`;
 
     res.json({ url: downloadUrl });
   } catch (error) {
-    console.error("Download error:", error);
-    res.status(500).json({ error: "Failed to generate download URL" });
+    logError(
+      { correlationId },
+      "Failed to generate download URL",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    res.status(500).json({
+      error: "Failed to generate download URL",
+      correlationId,
+    });
   }
 };
