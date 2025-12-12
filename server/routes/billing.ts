@@ -409,9 +409,9 @@ export const handleCreatePortalSession: RequestHandler = async (
   const correlationId = (req as any).correlationId || "unknown";
 
   try {
-    const userId = (req as any).user?.id;
+    const auth = (req as any).auth;
 
-    if (!userId) {
+    if (!auth || !auth.clerkUserId) {
       logError(
         { correlationId },
         "Portal session requested without authentication"
@@ -421,6 +421,10 @@ export const handleCreatePortalSession: RequestHandler = async (
         correlationId,
       });
     }
+
+    // Upsert user and get internal UUID
+    const user = await upsertUser(auth.clerkUserId, auth.email);
+    const userId = user.id;
 
     const sub = await getOrCreateSubscription(userId);
 
