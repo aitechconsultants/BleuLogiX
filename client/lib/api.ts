@@ -15,15 +15,14 @@ export class APIError extends Error {
  */
 export function useApiClient() {
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-  let getToken = null;
+  let auth = null;
 
-  // Only use Clerk hook if it's available
+  // Only call useAuth hook if Clerk is configured
   if (hasClerkKey) {
     try {
-      const auth = useAuth();
-      getToken = auth.getToken;
+      auth = useAuth();
     } catch (e) {
-      // Clerk not available
+      // Clerk not available or not within ClerkProvider
     }
   }
 
@@ -31,9 +30,9 @@ export function useApiClient() {
     const headers = new Headers(options.headers || {});
 
     // Add Clerk token if available
-    if (getToken) {
+    if (auth && auth.getToken) {
       try {
-        const token = await getToken();
+        const token = await auth.getToken();
         if (token) {
           headers.set("Authorization", `Bearer ${token}`);
         }
