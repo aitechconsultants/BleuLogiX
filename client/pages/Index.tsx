@@ -40,7 +40,7 @@ export default function Index() {
             <div className="absolute top-20 right-10 w-80 h-80 bg-gradient-to-br from-accent-blue/10 to-highlight-blue/5 rounded-3xl blur-2xl -z-10 transform rotate-45" />
 
             <div className="space-y-6 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent-blue/30 bg-accent-blue/5 w-fit">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent-blue/30 bg-accent-blue/5 w-fit" style={{ marginTop: "-20px", marginLeft: "-15px" }}>
                 <Sparkles className="w-4 h-4 text-accent-blue" />
                 <span className="text-sm font-medium text-accent-blue">Powered by Advanced AI</span>
               </div>
