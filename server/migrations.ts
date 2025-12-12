@@ -4,6 +4,18 @@ export async function runMigrations() {
   const pool = getPool();
 
   try {
+    // Create users table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        clerk_user_id TEXT NOT NULL UNIQUE,
+        email TEXT,
+        role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'superadmin')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
     // Create subscriptions table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS subscriptions (
