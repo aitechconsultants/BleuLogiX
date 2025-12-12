@@ -116,6 +116,7 @@ export default function Generator() {
         />
         <GenerateBar
           onGenerate={handleGenerate}
+          onGenerateBlocked={handleGenerateBlocked}
           isGenerating={isGenerating}
           creditsRemaining={creditsRemaining}
         />
