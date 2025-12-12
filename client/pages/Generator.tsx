@@ -32,6 +32,9 @@ interface UserData {
 }
 
 export default function Generator() {
+  const api = useApiClient();
+  const { getToken } = useAuth();
+
   const [selectedTemplate, setSelectedTemplate] = useState("product-promo");
   const [scriptText, setScriptText] = useState("");
   const [headlineText, setHeadlineText] = useState("");
@@ -59,21 +62,12 @@ export default function Generator() {
         setError(null);
 
         // Fetch user data
-        const meResponse = await fetch("/api/generator/me");
-        if (!meResponse.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-        const userData: UserData = await meResponse.json();
-
+        const userData: UserData = await api("/api/generator/me");
         setCreditsRemaining(userData.creditsRemaining);
         setBillingStatus(userData.billingStatus);
 
         // Fetch generation history
-        const historyResponse = await fetch("/api/generator/history");
-        if (!historyResponse.ok) {
-          throw new Error("Failed to fetch generation history");
-        }
-        const history: GeneratedVideo[] = await historyResponse.json();
+        const history: GeneratedVideo[] = await api("/api/generator/history");
         setGeneratedVideos(history);
       } catch (err) {
         const message = err instanceof Error ? err.message : "Failed to load data";
@@ -85,7 +79,7 @@ export default function Generator() {
     };
 
     loadUserData();
-  }, []);
+  }, [api]);
 
   const handleGenerate = async () => {
     try {
