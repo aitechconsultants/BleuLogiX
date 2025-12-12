@@ -14,7 +14,7 @@ interface GenerationHistoryListProps {
   onDownload: (id: string) => void;
   onDownloadBlocked: (reason: string) => void;
   onDelete: (id: string) => void;
-  isPremium?: boolean;
+  billingStatus: "free" | "checkout_pending" | "pro" | "enterprise";
 }
 
 export default function GenerationHistoryList({
@@ -23,14 +23,24 @@ export default function GenerationHistoryList({
   onDownload,
   onDownloadBlocked,
   onDelete,
-  isPremium = false,
+  billingStatus,
 }: GenerationHistoryListProps) {
-  const handleDownloadClick = (id: string) => {
+  const isPremium = billingStatus === "pro" || billingStatus === "enterprise";
+
+  const handleDownloadWatermarked = (id: string) => {
+    // Simulate watermarked download with query param
+    console.log("Download watermarked version:", `${id}?watermark=1`);
+    onDownload(id);
+  };
+
+  const handleDownloadHD = (id: string) => {
     if (!isPremium) {
       onDownloadBlocked(
-        "Video downloads are only available with a Pro or Enterprise plan."
+        "HD downloads without watermark are only available with a Pro or Enterprise plan."
       );
     } else {
+      // Simulate HD download without watermark
+      console.log("Download HD version:", `${id}?hd=1`);
       onDownload(id);
     }
   };
