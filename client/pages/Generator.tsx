@@ -65,14 +65,20 @@ export default function Generator() {
   };
 
   const handleSelectPlan = (plan: string) => {
-    // Simulate plan upgrade
-    if (plan === "pro") {
-      setIsPremium(true);
-      setCreditsRemaining(500);
-    } else if (plan === "enterprise") {
-      setIsPremium(true);
-      setCreditsRemaining(9999);
-    }
+    // Simulate checkout flow
+    setBillingStatus("checkout_pending");
+
+    // Simulate 3-second checkout redirect and completion
+    setTimeout(() => {
+      if (plan === "pro") {
+        setBillingStatus("pro");
+        setCreditsRemaining(500);
+      } else if (plan === "enterprise") {
+        setBillingStatus("enterprise");
+        setCreditsRemaining(9999);
+      }
+      setIsUpgradeModalOpen(false);
+    }, 3000);
   };
 
   const handleViewVideo = (id: string) => {
