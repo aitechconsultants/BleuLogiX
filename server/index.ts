@@ -59,9 +59,12 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
-  // Authentication middleware for protected routes
-  app.use("/api/billing", authMiddleware);
-  app.use("/api/generator", authMiddleware);
+  // Auth routes
+  app.post("/api/auth/sync", requireClerkAuth, handleSync);
+
+  // Protected routes - use Clerk authentication middleware
+  app.use("/api/billing", requireClerkAuth);
+  app.use("/api/generator", requireClerkAuth);
 
   // Billing routes
   app.post("/api/billing/create-checkout-session", handleCreateCheckoutSession);
