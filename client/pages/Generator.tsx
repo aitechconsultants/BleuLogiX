@@ -33,8 +33,6 @@ export default function Generator() {
   const [isPremium, setIsPremium] = useState(false);
 
   const handleGenerate = () => {
-    if (creditsRemaining < 10) return;
-
     setIsGenerating(true);
     setCreditsRemaining((prev) => Math.max(0, prev - 10));
 
@@ -50,6 +48,27 @@ export default function Generator() {
       setGeneratedVideos((prev) => [newVideo, ...prev]);
       setIsGenerating(false);
     }, 3000);
+  };
+
+  const handleGenerateBlocked = (reason: string) => {
+    setUpgradeReason(reason);
+    setIsUpgradeModalOpen(true);
+  };
+
+  const handleDownloadBlocked = (reason: string) => {
+    setUpgradeReason(reason);
+    setIsUpgradeModalOpen(true);
+  };
+
+  const handleSelectPlan = (plan: string) => {
+    // Simulate plan upgrade
+    if (plan === "pro") {
+      setIsPremium(true);
+      setCreditsRemaining(500);
+    } else if (plan === "enterprise") {
+      setIsPremium(true);
+      setCreditsRemaining(9999);
+    }
   };
 
   const handleViewVideo = (id: string) => {
