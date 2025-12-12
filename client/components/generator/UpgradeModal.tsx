@@ -1,4 +1,4 @@
-import { X, Check } from "lucide-react";
+import { X, Check, Loader } from "lucide-react";
 
 interface Plan {
   name: string;
@@ -12,6 +12,7 @@ interface UpgradeModalProps {
   reason: string;
   onClose: () => void;
   onSelectPlan: (plan: string) => void;
+  billingStatus: "free" | "checkout_pending" | "pro" | "enterprise";
 }
 
 const PLANS: Record<string, Plan> = {
