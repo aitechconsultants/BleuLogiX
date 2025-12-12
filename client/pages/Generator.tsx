@@ -49,22 +49,83 @@ export default function Generator() {
 
   const premiumAccess = billingStatus === "pro" || billingStatus === "enterprise";
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setCreditsRemaining((prev) => Math.max(0, prev - 10));
+  // Load initial user data and history on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-    setTimeout(() => {
-      const newVideo: GeneratedVideo = {
-        id: `video-${Date.now()}`,
-        headline: headlineText || "Untitled",
-        template: selectedTemplate,
-        createdAt: new Date(),
-        status: "completed",
-      };
+        // Fetch user data
+        const meResponse = await fetch("/api/generator/me");
+        if (!meResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const userData: UserData = await meResponse.json();
 
-      setGeneratedVideos((prev) => [newVideo, ...prev]);
+        setCreditsRemaining(userData.creditsRemaining);
+        setBillingStatus(userData.billingStatus);
+
+        // Fetch generation history
+        const historyResponse = await fetch("/api/generator/history");
+        if (!historyResponse.ok) {
+          throw new Error("Failed to fetch generation history");
+        }
+        const history: GeneratedVideo[] = await historyResponse.json();
+        setGeneratedVideos(history);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to load data";
+        setError(message);
+        console.error("Load error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, []);
+
+  const handleGenerate = async () => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const response = await fetch("/api/generator/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateId: selectedTemplate,
+          voiceId: selectedVoice,
+          captionStyle: selectedCaptionStyle,
+          inputJson: {
+            script: scriptText,
+            headline: headlineText,
+          },
+        }),
+      });
+
+      if (response.status === 402) {
+        // Insufficient credits
+        const data = await response.json();
+        handleGenerateBlocked(data.error);
+        setIsGenerating(false);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to generate video");
+      }
+
+      const newGeneration: GeneratedVideo = await response.json();
+      setGeneratedVideos((prev) => [newGeneration, ...prev]);
+      setCreditsRemaining((prev) => Math.max(0, prev - 10));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to generate video";
+      setError(message);
+      console.error("Generate error:", err);
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const handleGenerateBlocked = (reason: string) => {
@@ -77,29 +138,74 @@ export default function Generator() {
     setIsUpgradeModalOpen(true);
   };
 
-  const handleSelectPlan = (plan: string) => {
-    // Simulate checkout flow
-    setBillingStatus("checkout_pending");
+  const handleSelectPlan = async (plan: string) => {
+    try {
+      setBillingStatus("checkout_pending");
+      setError(null);
 
-    // Simulate 3-second checkout redirect and completion
-    setTimeout(() => {
-      if (plan === "pro") {
-        setBillingStatus("pro");
-        setCreditsRemaining(500);
-      } else if (plan === "enterprise") {
-        setBillingStatus("enterprise");
-        setCreditsRemaining(9999);
+      const response = await fetch("/api/billing/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
       }
-      setIsUpgradeModalOpen(false);
-    }, 3000);
+
+      const data = await response.json();
+
+      // Redirect to Stripe checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to upgrade";
+      setError(message);
+      setBillingStatus("free");
+      console.error("Upgrade error:", err);
+    }
   };
 
   const handleViewVideo = (id: string) => {
     console.log("View video:", id);
   };
 
-  const handleDownloadVideo = (id: string) => {
-    console.log("Download video:", id);
+  const handleDownloadVideo = async (
+    id: string,
+    quality: "watermarked" | "hd"
+  ) => {
+    try {
+      const response = await fetch("/api/generator/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          generationId: id,
+          quality,
+        }),
+      });
+
+      if (response.status === 403) {
+        const data = await response.json();
+        handleDownloadBlocked(data.error);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to generate download URL");
+      }
+
+      const data = await response.json();
+      // In production, this would trigger a download
+      console.log("Download URL:", data.url);
+      window.open(data.url, "_blank");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to download";
+      setError(message);
+      console.error("Download error:", err);
+    }
   };
 
   const handleDeleteVideo = (id: string) => {
