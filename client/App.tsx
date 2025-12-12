@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import VideoGenerator from "./pages/VideoGenerator";
 import VideoGeneratorCreate from "./pages/VideoGeneratorCreate";
 import VideoGeneratorHistory from "./pages/VideoGeneratorHistory";
+import Generator from "./pages/Generator";
 
 const queryClient = new QueryClient();
 
