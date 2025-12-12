@@ -33,13 +33,13 @@ export default function Index() {
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-32 md:pt-40 pb-20 px-4 md:px-8">
+        <section className="relative overflow-hidden pt-24 md:pt-32 pb-20 px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
             {/* Background gradient accent - right side geometric */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-accent-blue/5 rounded-full blur-3xl -z-10" />
             <div className="absolute top-20 right-10 w-80 h-80 bg-gradient-to-br from-accent-blue/10 to-highlight-blue/5 rounded-3xl blur-2xl -z-10 transform rotate-45" />
 
-            <div className="space-y-8 max-w-3xl">
+            <div className="space-y-6 max-w-3xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent-blue/30 bg-accent-blue/5 w-fit">
                 <Sparkles className="w-4 h-4 text-accent-blue" />
                 <span className="text-sm font-medium text-accent-blue">Powered by Advanced AI</span>
@@ -47,7 +47,7 @@ export default function Index() {
 
               {/* Headline with subtle glow background */}
               <div className="relative">
-                <div className="absolute -inset-8 bg-gradient-to-r from-accent-blue/10 via-highlight-blue/5 to-transparent rounded-2xl blur-2xl opacity-50 -z-10" />
+                <div className="absolute -inset-8 bg-gradient-to-r from-accent-blue/10 via-highlight-blue/5 to-transparent rounded-2xl blur-2xl opacity-10 -z-10" />
                 <h1 className="font-display text-6xl md:text-7xl font-bold leading-[1.1]">
                   <span className="text-gradient-blue">Create Amazing Videos</span>
                   <br />
@@ -59,15 +59,15 @@ export default function Index() {
                 BleuLogiX transforms your ideas into professional, engaging short-form videos with AI-powered templates, premium voices, and intelligent editing.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-8">
+              <div className="flex flex-col sm:flex-row gap-6 pt-7">
                 <Link
                   to="/video-generator"
-                  className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors glow-blue text-lg"
+                  className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors glow-blue text-base"
                 >
                   <Zap className="w-6 h-6" />
                   Start Creating Free
                 </Link>
-                <button className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg border-2 border-accent-blue/50 text-accent-blue font-semibold hover:bg-accent-blue/10 transition-colors">
+                <button className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg border-2 border-accent-blue/50 text-accent-blue font-semibold hover:bg-accent-blue/10 transition-colors text-base">
                   <Play className="w-5 h-5" />
                   Watch Demo
                 </button>
