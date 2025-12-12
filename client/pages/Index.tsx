@@ -79,7 +79,7 @@ export default function Index() {
               </p>
 
               {/* Trust Badges with Icons */}
-              <div className="flex flex-col md:flex-row gap-8 pt-12 md:pt-8">
+              <div className="flex flex-col md:flex-row gap-8 pt-8 md:pt-6">
                 <div className="flex items-start gap-3">
                   <Users className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
