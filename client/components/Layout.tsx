@@ -1,7 +1,23 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import CreditsBadge from "./CreditsBadge";
+
+// Dynamically load Clerk components if available
+let SignedIn: any = null;
+let SignedOut: any = null;
+let UserButton: any = null;
+
+const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+if (hasClerkKey) {
+  try {
+    const clerkModules = require("@clerk/clerk-react");
+    SignedIn = clerkModules.SignedIn;
+    SignedOut = clerkModules.SignedOut;
+    UserButton = clerkModules.UserButton;
+  } catch (e) {
+    // Clerk not available
+  }
+}
 
 interface LayoutProps {
   children: ReactNode;
