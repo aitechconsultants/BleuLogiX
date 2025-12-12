@@ -51,10 +51,10 @@ export default function GenerateBar({
         </div>
 
         <button
-          onClick={onGenerate}
-          disabled={!canGenerate}
+          onClick={handleGenerateClick}
+          disabled={isGenerating}
           className={`flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition-all ${
-            canGenerate
+            !isGenerating
               ? "bg-accent-blue text-black hover:bg-highlight-blue glow-blue cursor-pointer"
               : "bg-muted text-muted-foreground cursor-not-allowed"
           }`}
