@@ -72,56 +72,67 @@ export default function UpgradeModal({
           </button>
         </div>
 
-        {/* Plans */}
+        {/* Content */}
         <div className="p-8 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(PLANS).map(([key, plan]) => (
-              <div
-                key={key}
-                className="rounded-lg border-2 border-border bg-card/50 p-6 space-y-6 hover:border-accent-blue/50 transition-all"
-              >
-                <div>
-                  <h3 className="font-display text-2xl font-bold text-foreground">
-                    {plan.name}
-                  </h3>
-                  <p className="text-3xl font-bold text-accent-blue mt-2">
-                    {plan.price}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {plan.credits} credits/month
-                  </p>
-                </div>
+          {isCheckingOut ? (
+            <div className="py-12 text-center space-y-4">
+              <Loader className="w-12 h-12 text-accent-blue mx-auto animate-spin" />
+              <p className="text-lg font-semibold text-foreground">
+                Redirecting to checkout…
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Please wait while we prepare your payment.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Object.entries(PLANS).map(([key, plan]) => (
+                  <div
+                    key={key}
+                    className="rounded-lg border-2 border-border bg-card/50 p-6 space-y-6 hover:border-accent-blue/50 transition-all"
+                  >
+                    <div>
+                      <h3 className="font-display text-2xl font-bold text-foreground">
+                        {plan.name}
+                      </h3>
+                      <p className="text-3xl font-bold text-accent-blue mt-2">
+                        {plan.price}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {plan.credits} credits/month
+                      </p>
+                    </div>
 
-                <ul className="space-y-3">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-3 text-sm">
-                      <Check className="w-4 h-4 text-accent-blue flex-shrink-0" />
-                      <span className="text-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                    <ul className="space-y-3">
+                      {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center gap-3 text-sm">
+                          <Check className="w-4 h-4 text-accent-blue flex-shrink-0" />
+                          <span className="text-foreground">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                <button
-                  onClick={() => {
-                    onSelectPlan(key);
-                    onClose();
-                  }}
-                  className="w-full py-3 px-4 rounded-lg font-semibold transition-all bg-accent-blue text-black hover:bg-highlight-blue glow-blue"
-                >
-                  Choose {plan.name}
-                </button>
+                    <button
+                      onClick={() => onSelectPlan(key)}
+                      className="w-full py-3 px-4 rounded-lg font-semibold transition-all bg-accent-blue text-black hover:bg-highlight-blue glow-blue"
+                    >
+                      Choose {plan.name}
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div className="p-4 rounded-lg bg-accent-blue/10 border border-accent-blue/30 text-center">
-            <p className="text-sm text-foreground">
-              Need a custom solution?{" "}
-              <button className="font-semibold text-accent-blue hover:underline">
-                Contact sales
-              </button>
-            </p>
-          </div>
+              <div className="p-4 rounded-lg bg-accent-blue/10 border border-accent-blue/30 text-center">
+                <p className="text-sm text-foreground">
+                  Need a custom solution?{" "}
+                  <button className="font-semibold text-accent-blue hover:underline">
+                    Contact sales
+                  </button>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
