@@ -114,24 +114,50 @@ export default function GenerationHistoryList({
                 >
                   <Eye className="w-5 h-5 text-muted-foreground hover:text-accent-blue" />
                 </button>
-                <button
-                  onClick={() => handleDownloadClick(video.id)}
-                  disabled={!isPremium}
-                  className={`p-2 rounded transition-colors ${
-                    isPremium
-                      ? "hover:bg-muted"
-                      : "cursor-not-allowed opacity-50"
-                  }`}
-                  title={isPremium ? "Download" : "Premium only"}
-                >
-                  <Download
-                    className={`w-5 h-5 ${
-                      isPremium
-                        ? "text-muted-foreground hover:text-accent-blue"
-                        : "text-muted-foreground"
-                    }`}
-                  />
-                </button>
+
+                {/* Download dropdown menu */}
+                <div className="relative group">
+                  <button
+                    className="p-2 hover:bg-muted rounded transition-colors"
+                    title="Download options"
+                  >
+                    <Download className="w-5 h-5 text-muted-foreground hover:text-accent-blue" />
+                  </button>
+
+                  <div className="absolute right-0 mt-0 w-56 bg-card border-2 border-border rounded-lg shadow-lg hidden group-hover:block z-10">
+                    <button
+                      onClick={() => handleDownloadWatermarked(video.id)}
+                      className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border first:rounded-t-md"
+                    >
+                      <p className="font-semibold text-foreground text-sm">
+                        Download Preview
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        720p + watermark
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => handleDownloadHD(video.id)}
+                      disabled={!isPremium}
+                      className={`w-full text-left px-4 py-3 transition-colors last:rounded-b-md ${
+                        isPremium
+                          ? "hover:bg-muted cursor-pointer"
+                          : "cursor-not-allowed opacity-50"
+                      }`}
+                    >
+                      <p className="font-semibold text-foreground text-sm">
+                        Download HD
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {isPremium
+                          ? "1080p + no watermark"
+                          : "Pro/Enterprise only"}
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => onDelete(video.id)}
                   className="p-2 hover:bg-muted rounded transition-colors"
