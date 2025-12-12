@@ -11,8 +11,8 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-background sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-3 md:px-4 py-8 flex items-center gap-8" style={{ minHeight: "120px" }}>
-          <Link to="/" className="flex items-center justify-center flex-shrink-0" style={{ paddingLeft: "50px" }}>
+        <div className="max-w-6xl mx-auto px-3 md:px-4 py-6 flex items-center gap-8" style={{ minHeight: "120px" }}>
+          <Link to="/" className="flex items-center justify-center flex-shrink-0" style={{ paddingLeft: "50px", marginTop: "25px" }}>
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F54f45d34be3943c08a0aecacd9df4dac?format=webp&width=800"
               alt="BleuLogiX"
