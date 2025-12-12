@@ -86,9 +86,8 @@ export default function Generator() {
       setIsGenerating(true);
       setError(null);
 
-      const response = await fetch("/api/generator/generate", {
+      const newGeneration: GeneratedVideo = await api("/api/generator/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           templateId: selectedTemplate,
           voiceId: selectedVoice,
@@ -100,23 +99,18 @@ export default function Generator() {
         }),
       });
 
-      if (response.status === 402) {
-        // Insufficient credits
-        const data = await response.json();
-        handleGenerateBlocked(data.error);
-        setIsGenerating(false);
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to generate video");
-      }
-
-      const newGeneration: GeneratedVideo = await response.json();
       setGeneratedVideos((prev) => [newGeneration, ...prev]);
       setCreditsRemaining((prev) => Math.max(0, prev - 10));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to generate video";
+
+      // Check if it's an insufficient credits error
+      if (message.includes("Insufficient credits")) {
+        handleGenerateBlocked(message);
+        setIsGenerating(false);
+        return;
+      }
+
       setError(message);
       console.error("Generate error:", err);
     } finally {
