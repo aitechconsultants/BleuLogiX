@@ -28,6 +28,9 @@ export default function Generator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [creditsRemaining, setCreditsRemaining] = useState(42);
   const [generatedVideos, setGeneratedVideos] = useState<GeneratedVideo[]>([]);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState("");
+  const [isPremium, setIsPremium] = useState(false);
 
   const handleGenerate = () => {
     if (creditsRemaining < 10) return;
