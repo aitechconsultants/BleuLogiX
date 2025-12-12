@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -15,9 +16,6 @@ export default function RequireAuth({ children }: RequireAuthProps) {
   }
 
   // If Clerk is configured, use Clerk's authentication
-  // Dynamically import to avoid issues when Clerk is not available
-  const { SignedIn, SignedOut, RedirectToSignIn } = require("@clerk/clerk-react");
-
   return (
     <>
       <SignedIn>{children}</SignedIn>
