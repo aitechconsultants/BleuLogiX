@@ -83,11 +83,20 @@ export const handleGetMe: RequestHandler = async (req, res) => {
 };
 
 export const handleGenerate: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
   try {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      logError(
+        { correlationId },
+        "Generate requested without authentication"
+      );
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
     }
 
     const {
@@ -104,7 +113,10 @@ export const handleGenerate: RequestHandler = async (req, res) => {
 
     // Validate input
     if (!templateId) {
-      return res.status(400).json({ error: "templateId is required" });
+      return res.status(400).json({
+        error: "templateId is required",
+        correlationId,
+      });
     }
 
     const creditCost = 10;
@@ -113,6 +125,7 @@ export const handleGenerate: RequestHandler = async (req, res) => {
     if (creditsRemaining < creditCost) {
       return res.status(402).json({
         error: `Insufficient credits. Required: ${creditCost}, Available: ${creditsRemaining}`,
+        correlationId,
       });
     }
 
@@ -135,8 +148,15 @@ export const handleGenerate: RequestHandler = async (req, res) => {
 
     res.status(201).json(generation);
   } catch (error) {
-    console.error("Generate error:", error);
-    res.status(500).json({ error: "Failed to generate video" });
+    logError(
+      { correlationId },
+      "Failed to generate video",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    res.status(500).json({
+      error: "Failed to generate video",
+      correlationId,
+    });
   }
 };
 
