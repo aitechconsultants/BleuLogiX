@@ -92,6 +92,16 @@ export async function runMigrations() {
       ON stripe_events (stripe_event_id);
     `);
 
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_users_clerk_id
+      ON users (clerk_user_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_users_email
+      ON users (email);
+    `);
+
     console.log("Migrations completed successfully");
   } catch (error) {
     console.error("Migration error:", error);
