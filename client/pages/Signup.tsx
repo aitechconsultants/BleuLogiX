@@ -40,7 +40,7 @@ export default function Signup() {
     <Layout>
       <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <SignUp routing="path" path="/signup" redirectUrl="/generator" />
+          <SignUp routing="path" path="/signup" signInUrl="/login" redirectUrl="/generator" />
         </div>
       </div>
     </Layout>
