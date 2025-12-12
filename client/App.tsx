@@ -12,6 +12,8 @@ import VideoGenerator from "./pages/VideoGenerator";
 import VideoGeneratorCreate from "./pages/VideoGeneratorCreate";
 import VideoGeneratorHistory from "./pages/VideoGeneratorHistory";
 import Generator from "./pages/Generator";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
