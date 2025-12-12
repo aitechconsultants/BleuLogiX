@@ -161,31 +161,26 @@ export default function Generator() {
     quality: "watermarked" | "hd"
   ) => {
     try {
-      const response = await fetch("/api/generator/download", {
+      const data = await api("/api/generator/download", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           generationId: id,
           quality,
         }),
       });
 
-      if (response.status === 403) {
-        const data = await response.json();
-        handleDownloadBlocked(data.error);
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to generate download URL");
-      }
-
-      const data = await response.json();
       // In production, this would trigger a download
       console.log("Download URL:", data.url);
       window.open(data.url, "_blank");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to download";
+
+      // Check if it's an entitlement error
+      if (message.includes("HD downloads")) {
+        handleDownloadBlocked(message);
+        return;
+      }
+
       setError(message);
       console.error("Download error:", err);
     }
