@@ -133,17 +133,10 @@ export default function Generator() {
       setBillingStatus("checkout_pending");
       setError(null);
 
-      const response = await fetch("/api/billing/create-checkout-session", {
+      const data = await api("/api/billing/create-checkout-session", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to create checkout session");
-      }
-
-      const data = await response.json();
 
       // Redirect to Stripe checkout
       if (data.url) {
