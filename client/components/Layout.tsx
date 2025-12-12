@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F54f45d34be3943c08a0aecacd9df4dac?format=webp&width=800"
               alt="BleuLogiX"
-              className="h-44 md:h-60 object-contain"
+              className="h-48 md:h-68 object-contain"
             />
           </Link>
 
