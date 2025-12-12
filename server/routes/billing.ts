@@ -77,16 +77,28 @@ export const handleCreateCheckoutSession: RequestHandler = async (
   req,
   res
 ) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
   try {
     const { plan } = req.body as { plan: string };
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      logError(
+        { correlationId },
+        "Checkout session requested without authentication"
+      );
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
     }
 
     if (!["pro", "enterprise"].includes(plan)) {
-      return res.status(400).json({ error: "Invalid plan" });
+      return res.status(400).json({
+        error: "Invalid plan",
+        correlationId,
+      });
     }
 
     let priceId = process.env.STRIPE_PRICE_PRO || "";
@@ -95,9 +107,16 @@ export const handleCreateCheckoutSession: RequestHandler = async (
     }
 
     if (!priceId) {
-      return res
-        .status(500)
-        .json({ error: "Price ID not configured for this plan" });
+      logError(
+        { correlationId, userId },
+        "Price ID not configured for plan",
+        undefined,
+        { plan }
+      );
+      return res.status(500).json({
+        error: "Upgrade is temporarily unavailable. Please try again later.",
+        correlationId,
+      });
     }
 
     const sub = await getOrCreateSubscription(userId);
@@ -115,6 +134,7 @@ export const handleCreateCheckoutSession: RequestHandler = async (
       );
     }
 
+    const appUrl = process.env.APP_URL || "http://localhost:5173";
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
@@ -125,15 +145,26 @@ export const handleCreateCheckoutSession: RequestHandler = async (
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.APP_URL || "http://localhost:5173"}/generator?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.APP_URL || "http://localhost:5173"}/generator`,
+      success_url: `${appUrl}/generator?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/generator`,
       metadata: { userId, plan },
     });
 
+    if (!session.url) {
+      throw new Error("No checkout URL returned from Stripe");
+    }
+
     res.json({ url: session.url });
   } catch (error) {
-    console.error("Checkout session error:", error);
-    res.status(500).json({ error: "Failed to create checkout session" });
+    logError(
+      { correlationId },
+      "Failed to create checkout session",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    res.status(500).json({
+      error: "Failed to create checkout session",
+      correlationId,
+    });
   }
 };
 
