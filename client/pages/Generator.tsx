@@ -8,6 +8,7 @@ import CaptionsSelector from "@/components/generator/CaptionsSelector";
 import GeneratorPreviewPanel from "@/components/generator/GeneratorPreviewPanel";
 import GenerateBar from "@/components/generator/GenerateBar";
 import GenerationHistoryList from "@/components/generator/GenerationHistoryList";
+import UpgradeModal from "@/components/generator/UpgradeModal";
 
 interface GeneratedVideo {
   id: string;
