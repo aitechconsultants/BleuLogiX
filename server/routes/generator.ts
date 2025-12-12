@@ -161,13 +161,23 @@ export const handleGenerate: RequestHandler = async (req, res) => {
 };
 
 export const handleGetHistory: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
   try {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      logError(
+        { correlationId },
+        "History requested without authentication"
+      );
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
     }
 
+    // Fetch only this user's generations
     const generations = await queryAll<Generation>(
       `SELECT * FROM generations WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
       [userId]
@@ -175,8 +185,15 @@ export const handleGetHistory: RequestHandler = async (req, res) => {
 
     res.json(generations);
   } catch (error) {
-    console.error("Get history error:", error);
-    res.status(500).json({ error: "Failed to fetch generation history" });
+    logError(
+      { correlationId },
+      "Failed to fetch generation history",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    res.status(500).json({
+      error: "Failed to fetch generation history",
+      correlationId,
+    });
   }
 };
 
