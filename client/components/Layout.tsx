@@ -57,12 +57,18 @@ export default function Layout({ children }: LayoutProps) {
             >
               Learn
             </a>
-            <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              to="/login"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Login
-            </button>
-            <button className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm">
+            </Link>
+            <Link
+              to="/signup"
+              className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
+            >
               Sign Up
-            </button>
+            </Link>
           </nav>
 
           <div className="flex-shrink-0">
