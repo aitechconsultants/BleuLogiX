@@ -212,9 +212,29 @@ export default function Generator() {
     setGeneratedVideos((prev) => prev.filter((v) => v.id !== id));
   };
 
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 rounded-full border-4 border-muted border-t-accent-blue animate-spin mx-auto"></div>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="min-h-screen bg-background">
+        {error && (
+          <div className="max-w-6xl mx-auto px-6 md:px-8 mt-6">
+            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {error}
+            </div>
+          </div>
+        )}
         <GeneratorHeader />
         <GeneratorTemplatePicker
           selectedTemplate={selectedTemplate}
