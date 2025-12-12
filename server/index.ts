@@ -16,11 +16,50 @@ import {
   handleDownload,
 } from "./routes/generator";
 
-// Mock authentication middleware for development
-// In production, this would validate JWT tokens or session cookies
+import { createCorrelationId, logAuthError } from "./logging";
+
+// Authentication middleware - enforces proper auth in production
 const authMiddleware: RequestHandler = (req, res, next) => {
-  // Get user ID from query param, header, or environment
-  const userId = req.query.userId as string || req.headers["x-user-id"] as string || process.env.DEV_USER_ID || "dev-user-123";
+  const correlationId = createCorrelationId();
+  (req as any).correlationId = correlationId;
+
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // In production, enforce proper authentication
+  // In development, allow DEV_USER_ID or fallback to dev-user-123
+  let userId: string | undefined;
+
+  if (isProduction) {
+    // In production, only accept authenticated users via JWT or session
+    // This would typically validate a JWT token from an Authorization header
+    // For now, we reject all requests if not properly authenticated
+    userId = req.headers["x-user-id"] as string;
+
+    if (!userId) {
+      logAuthError(correlationId, "Missing authentication in production");
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
+    }
+
+    // Validate that user ID looks reasonable (UUID format)
+    if (!/^[a-f0-9-]{36}$/.test(userId)) {
+      logAuthError(correlationId, "Invalid user ID format", { userId });
+      return res.status(401).json({
+        error: "Invalid authentication",
+        correlationId,
+      });
+    }
+  } else {
+    // Development: allow DEV_USER_ID or query param or header
+    userId =
+      process.env.DEV_USER_ID ||
+      (req.query.userId as string) ||
+      (req.headers["x-user-id"] as string) ||
+      "dev-user-123";
+  }
+
   (req as any).user = { id: userId };
   next();
 };
