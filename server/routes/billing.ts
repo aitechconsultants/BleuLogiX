@@ -203,10 +203,8 @@ export const handleWebhook: RequestHandler = async (req, res) => {
         subscriptionId = session.subscription as string;
 
         if (userId && plan) {
-          // Update subscription
-          const periodEnd = new Date(
-            subscription.current_period_end * 1000
-          );
+          // Update subscription with period end ~30 days from now
+          const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
           await query(
             `UPDATE subscriptions
