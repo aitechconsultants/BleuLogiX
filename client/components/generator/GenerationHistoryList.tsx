@@ -11,7 +11,7 @@ interface GeneratedVideo {
 interface GenerationHistoryListProps {
   videos: GeneratedVideo[];
   onView: (id: string) => void;
-  onDownload: (id: string) => void;
+  onDownload: (id: string, quality: "watermarked" | "hd") => void;
   onDownloadBlocked: (reason: string) => void;
   onDelete: (id: string) => void;
   billingStatus: "free" | "checkout_pending" | "pro" | "enterprise";
@@ -28,9 +28,7 @@ export default function GenerationHistoryList({
   const isPremium = billingStatus === "pro" || billingStatus === "enterprise";
 
   const handleDownloadWatermarked = (id: string) => {
-    // Simulate watermarked download with query param
-    console.log("Download watermarked version:", `${id}?watermark=1`);
-    onDownload(id);
+    onDownload(id, "watermarked");
   };
 
   const handleDownloadHD = (id: string) => {
@@ -39,9 +37,7 @@ export default function GenerationHistoryList({
         "HD downloads without watermark are only available with a Pro or Enterprise plan."
       );
     } else {
-      // Simulate HD download without watermark
-      console.log("Download HD version:", `${id}?hd=1`);
-      onDownload(id);
+      onDownload(id, "hd");
     }
   };
   if (videos.length === 0) {
