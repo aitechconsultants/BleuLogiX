@@ -1,7 +1,11 @@
 import { RequestHandler } from "express";
 import { createClerkClient } from "@clerk/clerk-sdk-node";
-import jwt from "jsonwebtoken";
 import { createCorrelationId, logAuthError } from "./logging";
+
+// Validate required environment variable
+if (!process.env.CLERK_SECRET_KEY) {
+  throw new Error("CLERK_SECRET_KEY environment variable is required");
+}
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -14,7 +18,7 @@ export interface ClerkAuth {
 }
 
 /**
- * Middleware to verify Clerk JWT token and extract user information
+ * Middleware to verify Clerk JWT token using official Clerk SDK
  * Expects Authorization: Bearer <token> where token is a Clerk JWT token
  */
 export const requireClerkAuth: RequestHandler = async (req, res, next) => {
@@ -38,26 +42,26 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
 
     const token = authHeader.slice(7);
 
-    // Decode and validate the JWT token
-    let decoded: any;
+    // Verify the token using Clerk's official SDK method
+    let session: any;
     try {
-      // Decode without verification to extract claims
-      const decodedHeader = jwt.decode(token, { complete: true });
-
-      if (!decodedHeader) {
-        throw new Error("Invalid token format");
-      }
-
-      decoded = decodedHeader.payload;
-
-      if (!decoded.sub) {
-        throw new Error("Invalid token - missing sub claim");
-      }
+      session = await clerkClient.verifyToken(token);
     } catch (error) {
       logAuthError(
         correlationId,
-        "Failed to decode Clerk token",
+        "Clerk token verification failed",
         error instanceof Error ? error : new Error(String(error))
+      );
+      return res.status(401).json({
+        error: "Unauthorized - invalid or expired token",
+        correlationId,
+      });
+    }
+
+    if (!session || !session.sub) {
+      logAuthError(
+        correlationId,
+        "Invalid token - missing sub claim"
       );
       return res.status(401).json({
         error: "Unauthorized - invalid token",
@@ -65,13 +69,12 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
       });
     }
 
-    // Extract email from token if available, otherwise use a placeholder
-    const email = decoded.email || `${decoded.sub}@clerk.invalid`;
+    // Extract email from session if available
+    const email = session.email || `${session.sub}@clerk.invalid`;
 
-    // Attach auth info to request without making additional API calls
-    // This avoids rate limiting issues with Clerk API
+    // Attach auth info to request
     (req as any).auth = {
-      clerkUserId: decoded.sub,
+      clerkUserId: session.sub,
       email,
       correlationId,
     } as ClerkAuth;

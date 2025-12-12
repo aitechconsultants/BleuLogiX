@@ -11,13 +11,13 @@ export class APIError extends Error {
 
 /**
  * API client hook that automatically includes Clerk authentication token
- * Falls back to unauthenticated requests if Clerk is not available
+ * This hook must be called at the component level, not inside async functions
  */
 export function useApiClient() {
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  
+  // Call useAuth hook at the top level to properly manage token state
   let auth = null;
-
-  // Only call useAuth hook if Clerk is configured
   if (hasClerkKey) {
     try {
       auth = useAuth();
@@ -26,6 +26,7 @@ export function useApiClient() {
     }
   }
 
+  // Return async function that uses the auth object captured above
   return async (url: string, options: RequestInit = {}) => {
     const headers = new Headers(options.headers || {});
 
@@ -35,9 +36,12 @@ export function useApiClient() {
         const token = await auth.getToken();
         if (token) {
           headers.set("Authorization", `Bearer ${token}`);
+        } else {
+          console.warn("No token available for authenticated request to", url);
         }
       } catch (e) {
-        // Token retrieval failed, continue without auth
+        console.error("Failed to get Clerk token:", e);
+        // Continue without auth and let backend return 401
       }
     }
 
