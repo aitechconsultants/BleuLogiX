@@ -47,8 +47,11 @@ export default function UpgradeModal({
   reason,
   onClose,
   onSelectPlan,
+  billingStatus,
 }: UpgradeModalProps) {
   if (!isOpen) return null;
+
+  const isCheckingOut = billingStatus === "checkout_pending";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
