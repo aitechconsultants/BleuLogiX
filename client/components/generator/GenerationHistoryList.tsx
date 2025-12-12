@@ -105,11 +105,22 @@ export default function GenerationHistoryList({
                   <Eye className="w-5 h-5 text-muted-foreground hover:text-accent-blue" />
                 </button>
                 <button
-                  onClick={() => onDownload(video.id)}
-                  className="p-2 hover:bg-muted rounded transition-colors"
-                  title="Download"
+                  onClick={() => handleDownloadClick(video.id)}
+                  disabled={!isPremium}
+                  className={`p-2 rounded transition-colors ${
+                    isPremium
+                      ? "hover:bg-muted"
+                      : "cursor-not-allowed opacity-50"
+                  }`}
+                  title={isPremium ? "Download" : "Premium only"}
                 >
-                  <Download className="w-5 h-5 text-muted-foreground hover:text-accent-blue" />
+                  <Download
+                    className={`w-5 h-5 ${
+                      isPremium
+                        ? "text-muted-foreground hover:text-accent-blue"
+                        : "text-muted-foreground"
+                    }`}
+                  />
                 </button>
                 <button
                   onClick={() => onDelete(video.id)}
