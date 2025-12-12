@@ -136,13 +136,14 @@ export default function Generator() {
           onDownload={handleDownloadVideo}
           onDownloadBlocked={handleDownloadBlocked}
           onDelete={handleDeleteVideo}
-          isPremium={isPremium}
+          billingStatus={billingStatus}
         />
         <UpgradeModal
           isOpen={isUpgradeModalOpen}
           reason={upgradeReason}
           onClose={() => setIsUpgradeModalOpen(false)}
           onSelectPlan={handleSelectPlan}
+          billingStatus={billingStatus}
         />
       </div>
     </Layout>
