@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { createClerkClient } from "@clerk/clerk-sdk-node";
+import { createClerkClient, verifyToken } from "@clerk/clerk-sdk-node";
 import { createCorrelationId, logAuthError } from "./logging";
 
 const clerkClient = createClerkClient({
@@ -13,8 +13,8 @@ export interface ClerkAuth {
 }
 
 /**
- * Middleware to verify Clerk session and extract user information
- * Supports both Authorization Bearer tokens and Clerk session cookies
+ * Middleware to verify Clerk token and extract user information
+ * Expects Authorization: Bearer <token> where token is a Clerk session token
  */
 export const requireClerkAuth: RequestHandler = async (req, res, next) => {
   const correlationId = createCorrelationId();
@@ -22,14 +22,9 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
 
   try {
     // Get token from Authorization header (Bearer <token>)
-    let token: string | undefined;
     const authHeader = req.headers.authorization;
 
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.slice(7);
-    }
-
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       logAuthError(
         correlationId,
         "Missing Clerk authentication token"
@@ -40,28 +35,32 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
       });
     }
 
-    // Verify the token with Clerk
-    const session = await clerkClient.sessions.getSession(token);
+    const token = authHeader.slice(7);
 
-    if (!session || !session.userId) {
+    // Verify the token with Clerk
+    const decoded = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
+
+    if (!decoded || !decoded.sub) {
       logAuthError(
         correlationId,
-        "Invalid or expired Clerk session token"
+        "Invalid or expired Clerk token"
       );
       return res.status(401).json({
-        error: "Unauthorized - invalid session",
+        error: "Unauthorized - invalid token",
         correlationId,
       });
     }
 
     // Fetch the user to get email
-    const user = await clerkClient.users.getUser(session.userId);
+    const user = await clerkClient.users.getUser(decoded.sub);
 
     if (!user) {
       logAuthError(
         correlationId,
         "Clerk user not found",
-        { clerkUserId: session.userId }
+        { clerkUserId: decoded.sub }
       );
       return res.status(401).json({
         error: "Unauthorized - user not found",
@@ -74,7 +73,7 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
 
     // Attach auth info to request
     (req as any).auth = {
-      clerkUserId: session.userId,
+      clerkUserId: decoded.sub,
       email,
       correlationId,
     } as ClerkAuth;
