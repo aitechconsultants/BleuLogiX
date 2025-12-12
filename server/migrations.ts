@@ -14,6 +14,7 @@ export async function runMigrations() {
         plan TEXT CHECK (plan IN ('free', 'pro', 'enterprise')) DEFAULT 'free',
         status TEXT CHECK (status IN ('active', 'trialing', 'canceled', 'past_due')) DEFAULT 'active',
         current_period_end TIMESTAMPTZ,
+        last_credit_grant_period_end TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
