@@ -368,19 +368,33 @@ export const handleCreatePortalSession: RequestHandler = async (
   req,
   res
 ) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
   try {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      logError(
+        { correlationId },
+        "Portal session requested without authentication"
+      );
+      return res.status(401).json({
+        error: "Unauthorized",
+        correlationId,
+      });
     }
 
     const sub = await getOrCreateSubscription(userId);
 
     if (!sub.stripe_customer_id) {
-      return res
-        .status(400)
-        .json({ error: "No Stripe customer found for this user" });
+      logError(
+        { correlationId, userId },
+        "Portal session requested but no Stripe customer found"
+      );
+      return res.status(400).json({
+        error: "No active billing account. Please upgrade first.",
+        correlationId,
+      });
     }
 
     const session = await stripe.billingPortal.sessions.create({
@@ -390,7 +404,14 @@ export const handleCreatePortalSession: RequestHandler = async (
 
     res.json({ url: session.url });
   } catch (error) {
-    console.error("Portal session error:", error);
-    res.status(500).json({ error: "Failed to create portal session" });
+    logError(
+      { correlationId },
+      "Failed to create portal session",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    res.status(500).json({
+      error: "Failed to create portal session",
+      correlationId,
+    });
   }
 };
