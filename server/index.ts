@@ -30,6 +30,15 @@ export function createServer() {
 
   // Middleware
   app.use(cors());
+
+  // Webhook route must be before express.json() to get raw body
+  app.post(
+    "/api/billing/webhook",
+    express.raw({ type: "application/json" }),
+    handleWebhook
+  );
+
+  // JSON middleware for other routes
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -63,7 +72,6 @@ export function createServer() {
 
   // Billing routes
   app.post("/api/billing/create-checkout-session", handleCreateCheckoutSession);
-  app.post("/api/billing/webhook", handleWebhook);
   app.post("/api/billing/create-portal-session", handleCreatePortalSession);
 
   // Generator routes
