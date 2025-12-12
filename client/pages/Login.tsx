@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SignIn } from "@clerk/clerk-react";
 import Layout from "@/components/Layout";
 
 export default function Login() {
@@ -35,14 +36,11 @@ export default function Login() {
     );
   }
 
-  // When Clerk is configured, dynamically import and use the SignIn component
-  const { SignIn } = require("@clerk/clerk-react");
-
   return (
     <Layout>
       <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <SignIn routing="path" path="/login" />
+          <SignIn routing="path" path="/login" redirectUrl="/generator" />
         </div>
       </div>
     </Layout>

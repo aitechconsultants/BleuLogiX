@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SignUp } from "@clerk/clerk-react";
 import Layout from "@/components/Layout";
 
 export default function Signup() {
@@ -35,14 +36,11 @@ export default function Signup() {
     );
   }
 
-  // When Clerk is configured, dynamically import and use the SignUp component
-  const { SignUp } = require("@clerk/clerk-react");
-
   return (
     <Layout>
       <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <SignUp routing="path" path="/signup" />
+          <SignUp routing="path" path="/signup" redirectUrl="/generator" />
         </div>
       </div>
     </Layout>
