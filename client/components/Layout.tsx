@@ -65,7 +65,9 @@ export default function Layout({ children }: LayoutProps) {
             </button>
           </nav>
 
-          <CreditsBadge />
+          <div className="flex-shrink-0">
+            <CreditsBadge />
+          </div>
         </div>
       </header>
 
