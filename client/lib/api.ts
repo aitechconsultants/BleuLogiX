@@ -1,5 +1,14 @@
 import { useAuth } from "@clerk/clerk-react";
 
+export class APIError extends Error {
+  constructor(
+    public status: number,
+    message: string
+  ) {
+    super(message);
+  }
+}
+
 /**
  * API client hook that automatically includes Clerk authentication token
  */
@@ -22,12 +31,16 @@ export function useApiClient() {
       headers,
     });
 
+    const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error || `API error: ${response.statusText}`);
+      throw new APIError(
+        response.status,
+        data.error || `API error: ${response.statusText}`
+      );
     }
 
-    return response.json();
+    return data;
   };
 }
 
