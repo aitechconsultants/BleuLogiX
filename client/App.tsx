@@ -8,6 +8,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import VideoGenerator from "./pages/VideoGenerator";
+import VideoGeneratorCreate from "./pages/VideoGeneratorCreate";
+import VideoGeneratorHistory from "./pages/VideoGeneratorHistory";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +22,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/video-generator" element={<VideoGenerator />} />
+          <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
+          <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
