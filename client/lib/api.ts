@@ -1,5 +1,3 @@
-import { useAuth } from "@clerk/clerk-react";
-
 export class APIError extends Error {
   constructor(
     public status: number,
@@ -11,19 +9,35 @@ export class APIError extends Error {
 
 /**
  * API client hook that automatically includes Clerk authentication token
+ * Falls back to unauthenticated requests if Clerk is not available
  */
 export function useApiClient() {
-  const { getToken } = useAuth();
+  const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+  // Dynamically load useAuth only if Clerk is configured
+  let getToken: (() => Promise<string | null>) | null = null;
+  if (hasClerkKey) {
+    try {
+      const clerkModules = require("@clerk/clerk-react");
+      const { useAuth: useClerkAuth } = clerkModules;
+      const auth = useClerkAuth();
+      getToken = auth.getToken;
+    } catch (e) {
+      // Clerk not available
+    }
+  }
 
   return async (url: string, options: RequestInit = {}) => {
-    const token = await getToken();
+    const headers = new Headers(options.headers || {});
 
-    if (!token) {
-      throw new Error("Not authenticated");
+    // Add Clerk token if available
+    if (getToken) {
+      const token = await getToken();
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
     }
 
-    const headers = new Headers(options.headers || {});
-    headers.set("Authorization", `Bearer ${token}`);
     headers.set("Content-Type", "application/json");
 
     const response = await fetch(url, {
