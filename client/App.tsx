@@ -20,41 +20,47 @@ import RequireAuth from "./components/RequireAuth";
 const queryClient = new QueryClient();
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-if (!clerkPublishableKey) {
-  throw new Error(
-    "Missing VITE_CLERK_PUBLISHABLE_KEY. Please add it to your .env file."
-  );
-}
-
-const App = () => (
-  <ClerkProvider publishableKey={clerkPublishableKey}>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/generator"
-              element={
-                <RequireAuth>
-                  <Generator />
-                </RequireAuth>
-              }
-            />
-            <Route path="/video-generator" element={<VideoGenerator />} />
-            <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
-            <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ClerkProvider>
+const AppContent = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/generator"
+            element={
+              <RequireAuth>
+                <Generator />
+              </RequireAuth>
+            }
+          />
+          <Route path="/video-generator" element={<VideoGenerator />} />
+          <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
+          <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
+
+const App = () => {
+  // If Clerk key is not provided, render without Clerk authentication
+  // This allows development without Clerk credentials
+  if (!clerkPublishableKey) {
+    return <AppContent />;
+  }
+
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      <AppContent />
+    </ClerkProvider>
+  );
+};
 
 createRoot(document.getElementById("root")!).render(<App />);
