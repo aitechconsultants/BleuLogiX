@@ -12,6 +12,10 @@ export default {
         "2xl": "1400px",
       },
     },
+    fontFamily: {
+      body: ["Inter", "sans-serif"],
+      display: ["Playfair Display", "serif"],
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -57,6 +61,8 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "accent-blue": "#3AA8FF",
+        "highlight-blue": "#6CC4FF",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -80,10 +86,15 @@ export default {
             height: "0",
           },
         },
+        glow: {
+          "0%, 100%": { boxShadow: "0 0 20px rgba(58, 168, 255, 0.3)" },
+          "50%": { boxShadow: "0 0 40px rgba(58, 168, 255, 0.5)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        glow: "glow 3s ease-in-out infinite",
       },
     },
   },
