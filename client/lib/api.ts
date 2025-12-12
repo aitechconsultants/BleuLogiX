@@ -1,3 +1,5 @@
+import { useAuth } from "@clerk/clerk-react";
+
 export class APIError extends Error {
   constructor(
     public status: number,
@@ -13,14 +15,12 @@ export class APIError extends Error {
  */
 export function useApiClient() {
   const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  let getToken = null;
 
-  // Dynamically load useAuth only if Clerk is configured
-  let getToken: (() => Promise<string | null>) | null = null;
+  // Only use Clerk hook if it's available
   if (hasClerkKey) {
     try {
-      const clerkModules = require("@clerk/clerk-react");
-      const { useAuth: useClerkAuth } = clerkModules;
-      const auth = useClerkAuth();
+      const auth = useAuth();
       getToken = auth.getToken;
     } catch (e) {
       // Clerk not available
@@ -32,9 +32,13 @@ export function useApiClient() {
 
     // Add Clerk token if available
     if (getToken) {
-      const token = await getToken();
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      try {
+        const token = await getToken();
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+      } catch (e) {
+        // Token retrieval failed, continue without auth
       }
     }
 
