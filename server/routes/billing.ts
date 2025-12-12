@@ -332,13 +332,15 @@ export const handleWebhook: RequestHandler = async (req, res) => {
           );
 
           if (sub && sub.plan !== "free") {
-            // Check if we've already granted credits for this period
-            const currentPeriodEnd = new Date(Date.now());
+            // Get the actual Stripe subscription to check current_period_end
+            const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const currentPeriodEnd = new Date(stripeSubscription.current_period_end * 1000);
             const lastGrantPeriodEnd = sub.last_credit_grant_period_end
               ? new Date(sub.last_credit_grant_period_end)
               : null;
 
-            // Only grant if this is a different period
+            // Only grant if this is a different billing period
+            // (current_period_end differs from last_credit_grant_period_end)
             if (!lastGrantPeriodEnd || lastGrantPeriodEnd.getTime() !== currentPeriodEnd.getTime()) {
               const creditAmount = sub.plan === "enterprise" ? 9999 : 500;
               await grantCredits(
@@ -347,12 +349,12 @@ export const handleWebhook: RequestHandler = async (req, res) => {
                 `${sub.plan.toUpperCase()} plan monthly renewal`
               );
 
-              // Update the period end to prevent duplicate grants
+              // Update the period end to prevent duplicate grants in this period
               await query(
                 `UPDATE subscriptions
                  SET last_credit_grant_period_end = $1, updated_at = NOW()
                  WHERE user_id = $2`,
-                [new Date(), userId]
+                [currentPeriodEnd, userId]
               );
 
               logWebhookProcessing(
