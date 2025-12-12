@@ -10,7 +10,7 @@ import GeneratorPreviewPanel from "@/components/generator/GeneratorPreviewPanel"
 import GenerateBar from "@/components/generator/GenerateBar";
 import GenerationHistoryList from "@/components/generator/GenerationHistoryList";
 import UpgradeModal from "@/components/generator/UpgradeModal";
-import { useApiClient } from "@/lib/api";
+import { useApiClient, APIError } from "@/lib/api";
 
 interface GeneratedVideo {
   id: string;
