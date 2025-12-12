@@ -48,20 +48,36 @@ export async function runMigrations() {
       );
     `);
 
+    // Create stripe_events table for idempotency
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS stripe_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        stripe_event_id TEXT NOT NULL UNIQUE,
+        type TEXT NOT NULL,
+        received_at TIMESTAMPTZ DEFAULT NOW(),
+        payload JSONB NOT NULL
+      );
+    `);
+
     // Create indexes
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_credit_ledger_user_created 
+      CREATE INDEX IF NOT EXISTS idx_credit_ledger_user_created
       ON credit_ledger (user_id, created_at DESC);
     `);
 
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_generations_user_created 
+      CREATE INDEX IF NOT EXISTS idx_generations_user_created
       ON generations (user_id, created_at DESC);
     `);
 
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id 
+      CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id
       ON subscriptions (user_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_stripe_events_id
+      ON stripe_events (stripe_event_id);
     `);
 
     console.log("Migrations completed successfully");
