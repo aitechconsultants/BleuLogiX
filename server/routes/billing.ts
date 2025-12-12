@@ -145,8 +145,9 @@ export const handleWebhook: RequestHandler = async (req, res) => {
   let event: Stripe.Event;
 
   try {
+    const body = req.body instanceof Buffer ? req.body.toString("utf8") : JSON.stringify(req.body);
     event = stripe.webhooks.constructEvent(
-      req.body as string,
+      body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET || ""
     );
