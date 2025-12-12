@@ -75,37 +75,57 @@ export default function Layout({ children }: LayoutProps) {
               Learn
             </a>
 
-            <SignedOut>
-              <Link
-                to="/login"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
-              >
-                Sign Up
-              </Link>
-            </SignedOut>
+            {!SignedIn ? (
+              // Clerk not configured - show login/signup
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
+                >
+                  Sign Up
+                </Link>
+              </>
+            ) : (
+              <>
+                <SignedOut>
+                  <Link
+                    to="/login"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </SignedOut>
 
-            <SignedIn>
-              <Link
-                to="/generator"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Dashboard
-              </Link>
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "w-10 h-10",
-                  },
-                }}
-              />
-            </SignedIn>
+                <SignedIn>
+                  <Link
+                    to="/generator"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <UserButton
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10",
+                      },
+                    }}
+                  />
+                </SignedIn>
+              </>
+            )}
           </nav>
 
           <div className="flex-shrink-0">
