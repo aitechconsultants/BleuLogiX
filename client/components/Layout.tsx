@@ -22,17 +22,47 @@ export default function Layout({ children }: LayoutProps) {
 
           <nav className="hidden md:flex items-center gap-8">
             <Link
+              to="/"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Home
+            </Link>
+            <Link
               to="/video-generator"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Generator
             </Link>
-            <Link
-              to="/video-generator/history"
+            <a
+              href="#templates"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              History
-            </Link>
+              Templates
+            </a>
+            <a
+              href="#pricing"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pricing
+            </a>
+            <a
+              href="#features"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Features
+            </a>
+            <a
+              href="#learn"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Learn
+            </a>
+            <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Login
+            </button>
+            <button className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm">
+              Sign Up
+            </button>
           </nav>
 
           <CreditsBadge />
