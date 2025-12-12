@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import Stripe from "stripe";
 import { queryOne, queryAll, query } from "../db";
+import { LogContext, logWebhookProcessing, logError } from "../logging";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-11-20",
@@ -14,6 +15,7 @@ interface Subscription {
   plan: "free" | "pro" | "enterprise";
   status: "active" | "trialing" | "canceled" | "past_due";
   current_period_end: string | null;
+  last_credit_grant_period_end: string | null;
   created_at: string;
   updated_at: string;
 }
