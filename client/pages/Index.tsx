@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Zap, Sparkles, Film } from "lucide-react";
+import { ArrowRight, Zap, Sparkles, Film, Users, Play, Star } from "lucide-react";
 import Layout from "@/components/Layout";
 
 export default function Index() {
@@ -33,10 +33,11 @@ export default function Index() {
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-20 md:pt-32 pb-20 px-4 md:px-8">
+        <section className="relative overflow-hidden pt-32 md:pt-40 pb-20 px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
-            {/* Background gradient accent */}
+            {/* Background gradient accent - right side geometric */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-accent-blue/5 rounded-full blur-3xl -z-10" />
+            <div className="absolute top-20 right-10 w-80 h-80 bg-gradient-to-br from-accent-blue/10 to-highlight-blue/5 rounded-3xl blur-2xl -z-10 transform rotate-45" />
 
             <div className="space-y-8 max-w-3xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent-blue/30 bg-accent-blue/5 w-fit">
@@ -44,13 +45,17 @@ export default function Index() {
                 <span className="text-sm font-medium text-accent-blue">Powered by Advanced AI</span>
               </div>
 
-              <h1 className="font-display text-6xl md:text-7xl font-bold leading-tight">
-                <span className="text-gradient-blue">Create Amazing Videos</span>
-                <br />
-                <span className="text-foreground">in Minutes, Not Hours</span>
-              </h1>
+              {/* Headline with subtle glow background */}
+              <div className="relative">
+                <div className="absolute -inset-8 bg-gradient-to-r from-accent-blue/10 via-highlight-blue/5 to-transparent rounded-2xl blur-2xl opacity-50 -z-10" />
+                <h1 className="font-display text-6xl md:text-7xl font-bold leading-[1.1]">
+                  <span className="text-gradient-blue">Create Amazing Videos</span>
+                  <br />
+                  <span className="text-foreground">in Minutes, Not Hours</span>
+                </h1>
+              </div>
 
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">
                 BleuLogiX transforms your ideas into professional, engaging short-form videos with AI-powered templates, premium voices, and intelligent editing.
               </p>
 
@@ -62,28 +67,39 @@ export default function Index() {
                   <Zap className="w-6 h-6" />
                   Start Creating Free
                 </Link>
-                <a
-                  href="#features"
-                  className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-card border border-accent-blue/40 text-accent-blue font-semibold hover:bg-accent-blue/10 transition-colors"
-                >
-                  Learn More
-                  <ArrowRight className="w-5 h-5" />
-                </a>
+                <button className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg border-2 border-accent-blue/50 text-accent-blue font-semibold hover:bg-accent-blue/10 transition-colors">
+                  <Play className="w-5 h-5" />
+                  Watch Demo
+                </button>
               </div>
 
-              {/* Trust Badges */}
-              <div className="flex flex-col md:flex-row gap-6 pt-8 md:pt-4">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Trusted By</p>
-                  <p className="font-semibold text-foreground">10,000+ Creators</p>
+              {/* Microcopy */}
+              <p className="text-sm text-muted-foreground">
+                ✓ No credit card required.
+              </p>
+
+              {/* Trust Badges with Icons */}
+              <div className="flex flex-col md:flex-row gap-8 pt-12 md:pt-8">
+                <div className="flex items-start gap-3">
+                  <Users className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Trusted By</p>
+                    <p className="font-semibold text-foreground">10,000+ Creators</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Videos Generated</p>
-                  <p className="font-semibold text-foreground">1M+ Monthly</p>
+                <div className="flex items-start gap-3">
+                  <Film className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Videos Generated</p>
+                    <p className="font-semibold text-foreground">1M+ Monthly</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Average Rating</p>
-                  <p className="font-semibold text-accent-blue">4.9/5.0</p>
+                <div className="flex items-start gap-3">
+                  <Star className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Average Rating</p>
+                    <p className="font-semibold text-accent-blue">4.9/5.0</p>
+                  </div>
                 </div>
               </div>
             </div>
