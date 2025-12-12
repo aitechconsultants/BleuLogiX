@@ -14,7 +14,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F7887890fa6834483ab75b9ba264f2b24?format=webp&width=800"
+              src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F54f45d34be3943c08a0aecacd9df4dac?format=webp&width=800"
               alt="BleuLogiX"
               className="h-8 md:h-10 object-contain"
             />
