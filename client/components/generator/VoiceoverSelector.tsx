@@ -1,30 +1,23 @@
-import { useState } from "react";
 import { Volume2 } from "lucide-react";
 
 interface Voice {
   id: string;
   name: string;
-  language: string;
-  gender: "male" | "female" | "neutral";
+  lang: string;
+  gender?: string;
+  isPremium?: boolean;
 }
 
-const VOICES: Voice[] = [
-  { id: "voice-1", name: "Alex", language: "English (US)", gender: "male" },
-  { id: "voice-2", name: "Emma", language: "English (US)", gender: "female" },
-  { id: "voice-3", name: "Oliver", language: "English (UK)", gender: "male" },
-  { id: "voice-4", name: "Sophia", language: "English (UK)", gender: "female" },
-  { id: "voice-5", name: "Lucas", language: "Spanish", gender: "male" },
-  { id: "voice-6", name: "Isabella", language: "Spanish", gender: "female" },
-];
-
 interface VoiceoverSelectorProps {
-  selectedVoice: string;
-  onSelectVoice: (id: string) => void;
+  voices: Voice[];
+  value: string;
+  onChange: (voiceId: string) => void;
 }
 
 export default function VoiceoverSelector({
-  selectedVoice,
-  onSelectVoice,
+  voices,
+  value,
+  onChange,
 }: VoiceoverSelectorProps) {
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-8 py-12 border-t border-border space-y-6">
