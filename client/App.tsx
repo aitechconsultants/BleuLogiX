@@ -15,7 +15,9 @@ import VideoGeneratorHistory from "./pages/VideoGeneratorHistory";
 import Generator from "./pages/Generator";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import AdminAudit from "./pages/AdminAudit";
 import RequireAuth from "./components/RequireAuth";
+import RequireAdmin from "./components/RequireAdmin";
 
 const queryClient = new QueryClient();
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
