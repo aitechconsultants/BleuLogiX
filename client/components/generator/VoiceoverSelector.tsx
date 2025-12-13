@@ -31,12 +31,12 @@ export default function VoiceoverSelector({
       </div>
 
       <div className="space-y-3">
-        {VOICES.map((voice) => (
+        {voices.map((voice) => (
           <button
             key={voice.id}
-            onClick={() => onSelectVoice(voice.id)}
+            onClick={() => onChange(voice.id)}
             className={`w-full p-4 rounded-lg border-2 transition-all text-left flex items-center gap-4 ${
-              selectedVoice === voice.id
+              value === voice.id
                 ? "border-accent-blue bg-accent-blue/10"
                 : "border-border bg-card hover:border-accent-blue/50"
             }`}
@@ -44,11 +44,13 @@ export default function VoiceoverSelector({
             <Volume2 className="w-5 h-5 text-accent-blue flex-shrink-0" />
             <div className="flex-1">
               <p className="font-semibold text-foreground">{voice.name}</p>
-              <p className="text-sm text-muted-foreground">{voice.language}</p>
+              <p className="text-sm text-muted-foreground">{voice.lang}</p>
             </div>
-            <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground capitalize">
-              {voice.gender}
-            </span>
+            {voice.gender && (
+              <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground capitalize">
+                {voice.gender}
+              </span>
+            )}
           </button>
         ))}
       </div>
