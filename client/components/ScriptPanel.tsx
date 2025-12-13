@@ -19,6 +19,8 @@ export default function ScriptPanel({
   onImproveScript,
 }: ScriptPanelProps) {
   const [topic, setTopic] = useState("");
+  const [niche, setNiche] = useState("");
+  const [tone, setTone] = useState("");
   const wordCount = value.split(/\s+/).filter((w) => w.length > 0).length;
 
   return (
