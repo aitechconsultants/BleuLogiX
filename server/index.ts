@@ -5,6 +5,7 @@ import { handleDemo } from "./routes/demo";
 import { initializeDatabase } from "./db";
 import { runMigrations } from "./migrations";
 import { requireClerkAuth } from "./clerk-auth";
+import { requireAdminAuth } from "./admin-auth";
 import { handleSync } from "./routes/auth";
 import {
   handleCreateCheckoutSession,
@@ -17,6 +18,11 @@ import {
   handleGetHistory,
   handleDownload,
 } from "./routes/generator";
+import {
+  handleHealth,
+  handleHealthRoutes,
+  handleHealthIntegrations,
+} from "./routes/health";
 
 export function createServer() {
   const app = express();
