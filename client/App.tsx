@@ -43,6 +43,16 @@ const AppContent = () => (
           <Route path="/video-generator" element={<VideoGenerator />} />
           <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
           <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
+          <Route
+            path="/admin/audit"
+            element={
+              <RequireAuth>
+                <RequireAdmin>
+                  <AdminAudit />
+                </RequireAdmin>
+              </RequireAuth>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
