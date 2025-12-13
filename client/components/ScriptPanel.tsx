@@ -24,35 +24,79 @@ export default function ScriptPanel({
   const wordCount = value.split(/\s+/).filter((w) => w.length > 0).length;
 
   return (
-    <div className="space-y-4">
-      {/* Topic Input for Generation */}
+    <div className="space-y-6">
+      {/* Video Topic Input */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Video Topic (for script generation)
+          Video Topic
         </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Enter topic or idea..."
-            className="flex-1 px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
-          />
-          <button
-            onClick={onGenerateScript}
-            disabled={isGenerating || !topic}
-            className="px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2 whitespace-nowrap"
-          >
-            <Wand2 className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
-            Generate
-          </button>
-        </div>
+        <p className="text-xs text-muted-foreground">
+          What is the core idea or message of the video?
+        </p>
+        <input
+          type="text"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="e.g. Why most small businesses fail at TikTok ads"
+          className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
+        />
+      </div>
+
+      {/* Niche / Target Audience Input */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">
+          Niche / Target Audience
+        </label>
+        <p className="text-xs text-muted-foreground">
+          Who is this video for? Be specific.
+        </p>
+        <input
+          type="text"
+          value={niche}
+          onChange={(e) => setNiche(e.target.value)}
+          placeholder="e.g. Real estate agents, SaaS founders, fitness coaches, dropshippers"
+          className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
+        />
+      </div>
+
+      {/* Style & Tone Input */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">
+          Style & Tone
+        </label>
+        <p className="text-xs text-muted-foreground">
+          How should the video feel and sound?
+        </p>
+        <input
+          type="text"
+          value={tone}
+          onChange={(e) => setTone(e.target.value)}
+          placeholder="e.g. Educational and calm, High-energy and persuasive, Casual UGC-style, Luxury and premium"
+          className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
+        />
+      </div>
+
+      {/* Generate Button */}
+      <div className="flex gap-2">
+        <button
+          onClick={onGenerateScript}
+          disabled={isGenerating || !topic}
+          className="flex-1 px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+        >
+          <Wand2 className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
+          Generate
+        </button>
       </div>
 
       {/* Script Textarea */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-foreground">Script</label>
+          <div>
+            <label className="text-sm font-medium text-foreground">Script (Optional)</label>
+            <p className="text-xs text-muted-foreground mt-1">
+              Leave this blank to auto-generate a script, or write your own to fully control the wording.
+            </p>
+          </div>
           <span className="text-xs text-muted-foreground">
             {wordCount} words / {maxLength} characters
           </span>
@@ -60,7 +104,7 @@ export default function ScriptPanel({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
-          placeholder="Write your video script here... Make it engaging and concise."
+          placeholder="Write your full script here if you already have one. Otherwise, we'll generate it based on the inputs above."
           className="w-full h-64 px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue resize-none"
         />
       </div>
