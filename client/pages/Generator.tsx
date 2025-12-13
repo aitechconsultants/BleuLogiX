@@ -246,8 +246,9 @@ export default function Generator() {
           onHeadlineChange={setHeadlineText}
         />
         <VoiceoverSelector
-          selectedVoice={selectedVoice}
-          onSelectVoice={setSelectedVoice}
+          voices={VOICES}
+          value={voiceId}
+          onChange={setVoiceId}
         />
         <CaptionsSelector
           selectedStyle={selectedCaptionStyle}
