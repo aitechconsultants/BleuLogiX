@@ -31,6 +31,23 @@ interface UserData {
   billingStatus: "free" | "pro" | "enterprise";
 }
 
+interface Voice {
+  id: string;
+  name: string;
+  lang: string;
+  gender?: string;
+  isPremium?: boolean;
+}
+
+const VOICES: Voice[] = [
+  { id: "voice-1", name: "Alex", lang: "English (US)", gender: "male" },
+  { id: "voice-2", name: "Emma", lang: "English (US)", gender: "female" },
+  { id: "voice-3", name: "Oliver", lang: "English (UK)", gender: "male" },
+  { id: "voice-4", name: "Sophia", lang: "English (UK)", gender: "female" },
+  { id: "voice-5", name: "Lucas", lang: "Spanish", gender: "male" },
+  { id: "voice-6", name: "Isabella", lang: "Spanish", gender: "female" },
+];
+
 export default function Generator() {
   const api = useApiClient();
   const { getToken } = useAuth();
@@ -38,6 +55,7 @@ export default function Generator() {
   const [selectedTemplate, setSelectedTemplate] = useState("product-promo");
   const [scriptText, setScriptText] = useState("");
   const [headlineText, setHeadlineText] = useState("");
+  const [voiceId, setVoiceId] = useState(VOICES[0]?.id ?? "");
   const [selectedVoice, setSelectedVoice] = useState("voice-1");
   const [enableCaptions, setEnableCaptions] = useState(true);
   const [selectedCaptionStyle, setSelectedCaptionStyle] = useState("classic");
