@@ -99,6 +99,11 @@ export default function Generator() {
     loadUserData();
   }, [api]);
 
+  // Debug logging for voiceId
+  useEffect(() => {
+    console.log("voiceId:", voiceId);
+  }, [voiceId]);
+
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
