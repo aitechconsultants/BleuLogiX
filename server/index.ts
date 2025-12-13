@@ -57,6 +57,11 @@ export function createServer() {
     next();
   });
 
+  // Health check routes
+  app.get("/api/health", handleHealth);
+  app.get("/api/health/routes", handleHealthRoutes);
+  app.get("/api/health/integrations", requireClerkAuth, requireAdminAuth, handleHealthIntegrations);
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
