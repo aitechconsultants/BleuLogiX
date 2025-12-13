@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="bg-background sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-3 md:px-4" style={{ minHeight: "120px", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "14px", paddingBottom: "24px" }}>
-          <Link to="/" className="flex items-center justify-center flex-shrink-0" style={{ paddingLeft: "50px" }}>
+          <Link to={ROUTES.home} className="flex items-center justify-center flex-shrink-0" style={{ paddingLeft: "50px" }}>
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F54f45d34be3943c08a0aecacd9df4dac?format=webp&width=800"
               alt="BleuLogiX"
@@ -26,13 +26,13 @@ export default function Layout({ children }: LayoutProps) {
 
           <nav className="hidden md:flex items-center gap-5 flex-1 justify-center">
             <Link
-              to="/"
+              to={ROUTES.home}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Home
             </Link>
             <Link
-              to="/video-generator"
+              to={ROUTES.videoGenerator}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Generator
@@ -66,13 +66,13 @@ export default function Layout({ children }: LayoutProps) {
               // Clerk not configured - show login/signup
               <>
                 <Link
-                  to="/login"
+                  to={ROUTES.login}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Login
                 </Link>
                 <Link
-                  to="/signup"
+                  to={ROUTES.signup}
                   className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
                 >
                   Sign Up
@@ -82,13 +82,13 @@ export default function Layout({ children }: LayoutProps) {
               <>
                 <SignedOut>
                   <Link
-                    to="/login"
+                    to={ROUTES.login}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Login
                   </Link>
                   <Link
-                    to="/signup"
+                    to={ROUTES.signup}
                     className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
                   >
                     Sign Up
@@ -97,13 +97,13 @@ export default function Layout({ children }: LayoutProps) {
 
                 <SignedIn>
                   <Link
-                    to="/generator"
+                    to={ROUTES.generator}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Dashboard
                   </Link>
                   <UserButton
-                    afterSignOutUrl="/"
+                    afterSignOutUrl={ROUTES.home}
                     appearance={{
                       elements: {
                         avatarBox: "w-10 h-10",
