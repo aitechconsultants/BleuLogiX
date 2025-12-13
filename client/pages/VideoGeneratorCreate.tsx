@@ -168,9 +168,14 @@ export default function VideoGeneratorCreate() {
       case 2:
         return (
           <div>
-            <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-              Write Your Script
-            </h3>
+            <div className="mb-8">
+              <h3 className="font-display text-2xl font-bold text-foreground mb-2">
+                Define Your Video Direction
+              </h3>
+              <p className="text-muted-foreground">
+                Tell us what your video is about, who it's for, and how it should sound.
+              </p>
+            </div>
             <ScriptPanel
               value={formState.script}
               onChange={(script) =>
