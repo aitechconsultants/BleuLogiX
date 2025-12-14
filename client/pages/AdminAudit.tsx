@@ -54,6 +54,81 @@ export default function AdminAudit() {
   const [testScriptResult, setTestScriptResult] = useState<ScriptGenTestResult | null>(null);
   const [testScriptError, setTestScriptError] = useState<string | null>(null);
 
+  const handleTestScriptGeneration = async () => {
+    setTestScriptError(null);
+    setTestScriptResult(null);
+
+    const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
+    if (!scriptGenUrl) {
+      setTestScriptError("Script generation is not connected. Set VITE_SCRIPT_GEN_URL.");
+      return;
+    }
+
+    try {
+      setTestScriptLoading(true);
+      const startTime = Date.now();
+
+      const response = await fetch(scriptGenUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoTopic: "Test topic",
+          niche: "Ecommerce",
+          styleTone: "UGC testimonial",
+          maxChars: 500,
+        }),
+      });
+
+      const responseTime = Date.now() - startTime;
+
+      if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {}
+        setTestScriptError(errorMessage);
+        setTestScriptResult({
+          status: response.status,
+          responseTime,
+          scriptLength: 0,
+          preview: "",
+        });
+        return;
+      }
+
+      const data = await response.json();
+      const script = data.script || data.text || "";
+
+      if (!script) {
+        setTestScriptError("No script returned from API");
+        setTestScriptResult({
+          status: 200,
+          responseTime,
+          scriptLength: 0,
+          preview: "",
+        });
+        return;
+      }
+
+      const preview = script.substring(0, 120);
+      setTestScriptResult({
+        status: 200,
+        responseTime,
+        scriptLength: script.length,
+        preview,
+      });
+    } catch (err) {
+      setTestScriptError(
+        err instanceof Error ? err.message : "Failed to test script generation"
+      );
+    } finally {
+      setTestScriptLoading(false);
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
