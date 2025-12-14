@@ -1,8 +1,51 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Zap, Sparkles, Film, Users, Play, Star } from "lucide-react";
 import Layout from "@/components/Layout";
+import { useAuth } from "@clerk/clerk-react";
 
 export default function Index() {
+  const { isSignedIn } = useAuth();
+  const navigate = useNavigate();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleUpgrade = async (plan: "pro" | "enterprise") => {
+    if (plan === "enterprise") {
+      alert("Please contact sales@bleulogix.com for Enterprise pricing.");
+      return;
+    }
+
+    if (!isSignedIn) {
+      navigate("/signup");
+      return;
+    }
+
+    try {
+      setCheckoutLoading(true);
+      const response = await fetch("/api/billing/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error || "Failed to create checkout session");
+        return;
+      }
+
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      alert("An error occurred. Please try again.");
+      console.error(error);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   const features = [
     {
       icon: Film,
