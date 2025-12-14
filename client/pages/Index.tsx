@@ -260,6 +260,7 @@ export default function Index() {
                   ],
                   cta: "Get Started",
                   highlighted: false,
+                  plan: null as any,
                 },
                 {
                   name: "Pro",
@@ -274,6 +275,7 @@ export default function Index() {
                   ],
                   cta: "Upgrade to Pro",
                   highlighted: true,
+                  plan: "pro",
                 },
                 {
                   name: "Enterprise",
@@ -287,6 +289,7 @@ export default function Index() {
                   ],
                   cta: "Contact Sales",
                   highlighted: false,
+                  plan: "enterprise",
                 },
               ].map((plan) => (
                 <div
@@ -332,13 +335,21 @@ export default function Index() {
                   </ul>
 
                   <button
+                    onClick={() => {
+                      if (plan.name === "Free") {
+                        navigate("/video-generator");
+                      } else if (plan.plan) {
+                        handleUpgrade(plan.plan);
+                      }
+                    }}
+                    disabled={checkoutLoading && plan.plan !== null}
                     className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
                       plan.highlighted
-                        ? "bg-accent-blue text-black hover:bg-highlight-blue glow-blue"
-                        : "bg-card border border-border text-foreground hover:bg-muted"
+                        ? "bg-accent-blue text-black hover:bg-highlight-blue glow-blue disabled:opacity-50 disabled:cursor-not-allowed"
+                        : "bg-card border border-border text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                     }`}
                   >
-                    {plan.cta}
+                    {checkoutLoading && plan.plan !== null ? "Loading..." : plan.cta}
                   </button>
                 </div>
               ))}
