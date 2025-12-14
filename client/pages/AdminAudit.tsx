@@ -327,6 +327,34 @@ export default function AdminAudit() {
               </div>
             )}
 
+            {/* Stripe Status Summary */}
+            {integrations && (() => {
+              const stripeStatus = getStripeStatus();
+              return (
+                <div
+                  className={`p-4 rounded-lg border flex items-start justify-between ${
+                    stripeStatus.ok
+                      ? "bg-green-500/10 border-green-500/30"
+                      : "bg-red-500/10 border-red-500/30"
+                  }`}
+                >
+                  <div>
+                    <p className={`font-semibold ${stripeStatus.ok ? "text-green-400" : "text-red-400"}`}>
+                      Stripe Connected
+                    </p>
+                    <p className={`text-sm ${stripeStatus.ok ? "text-green-400/80" : "text-red-400/80"}`}>
+                      {stripeStatus.message}
+                    </p>
+                  </div>
+                  {stripeStatus.ok ? (
+                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
+                  ) : (
+                    <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Integration Status Panel */}
             {integrations && (
               <div className="space-y-4">
