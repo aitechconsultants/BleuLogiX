@@ -5,8 +5,6 @@ interface ScriptPanelProps {
   value: string;
   onChange: (value: string) => void;
   maxLength?: number;
-  isGenerating?: boolean;
-  onGenerateScript?: () => void;
   onImproveScript?: () => void;
 }
 
@@ -14,14 +12,68 @@ export default function ScriptPanel({
   value,
   onChange,
   maxLength = 2000,
-  isGenerating = false,
-  onGenerateScript,
   onImproveScript,
 }: ScriptPanelProps) {
   const [topic, setTopic] = useState("");
   const [niche, setNiche] = useState("");
   const [tone, setTone] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const wordCount = value.split(/\s+/).filter((w) => w.length > 0).length;
+
+  const handleGenerateScript = async () => {
+    setError(null);
+
+    const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
+    if (!scriptGenUrl) {
+      setError("Script generation is not connected yet.");
+      return;
+    }
+
+    if (!topic) {
+      setError("Please enter a video topic to generate a script.");
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch(scriptGenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topic,
+          niche,
+          style: tone,
+          maxChars: maxLength,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      const generatedScript = data.script || data.text || "";
+
+      if (!generatedScript) {
+        throw new Error("No script returned from generation service.");
+      }
+
+      onChange(generatedScript.slice(0, maxLength));
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to generate script";
+      setError(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
