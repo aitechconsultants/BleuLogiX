@@ -39,29 +39,133 @@ export default function VideoGeneratorCreate() {
   });
 
   const styles = [
-    { id: "ugc", title: "UGC Realistic", description: "Authentic user-generated content style" },
-    { id: "faceless", title: "Faceless Dynamic", description: "Dynamic content without showing faces" },
-    { id: "storytelling", title: "Storytelling", description: "Narrative-driven content" },
-    { id: "motivational", title: "Motivational", description: "Inspirational and uplifting videos" },
-    { id: "educational", title: "Educational", description: "Informative tutorial-style content" },
-    { id: "meme", title: "Meme", description: "Fun and trendy meme-styled videos" },
-    { id: "trend", title: "Fast-Paced Trend", description: "Quick cuts with trending audio" },
-    { id: "broll", title: "B-Roll Cinematic", description: "Professional cinematic quality" },
+    {
+      id: "ugc",
+      title: "UGC Realistic",
+      description: "Authentic user-generated content style",
+    },
+    {
+      id: "faceless",
+      title: "Faceless Dynamic",
+      description: "Dynamic content without showing faces",
+    },
+    {
+      id: "storytelling",
+      title: "Storytelling",
+      description: "Narrative-driven content",
+    },
+    {
+      id: "motivational",
+      title: "Motivational",
+      description: "Inspirational and uplifting videos",
+    },
+    {
+      id: "educational",
+      title: "Educational",
+      description: "Informative tutorial-style content",
+    },
+    {
+      id: "meme",
+      title: "Meme",
+      description: "Fun and trendy meme-styled videos",
+    },
+    {
+      id: "trend",
+      title: "Fast-Paced Trend",
+      description: "Quick cuts with trending audio",
+    },
+    {
+      id: "broll",
+      title: "B-Roll Cinematic",
+      description: "Professional cinematic quality",
+    },
   ];
 
   const voices = [
-    { id: "voice1", name: "Alex", gender: "Male", language: "English", tier: "free" as const },
-    { id: "voice2", name: "Jordan", gender: "Female", language: "English", tier: "free" as const },
-    { id: "voice3", name: "Casey", gender: "Non-binary", language: "English", tier: "free" as const },
-    { id: "voice4", name: "Morgan", gender: "Female", language: "English", tier: "free" as const },
-    { id: "voice5", name: "Phoenix", gender: "Male", language: "English", tier: "pro" as const },
-    { id: "voice6", name: "Riley", gender: "Female", language: "English", tier: "pro" as const },
-    { id: "voice7", name: "Blake", gender: "Male", language: "English", tier: "pro" as const },
-    { id: "voice8", name: "Quinn", gender: "Female", language: "English", tier: "pro" as const },
-    { id: "voice9", name: "Taylor", gender: "Male", language: "English", tier: "enterprise" as const },
-    { id: "voice10", name: "Cameron", gender: "Female", language: "English", tier: "enterprise" as const },
-    { id: "voice11", name: "Jordan", gender: "Male", language: "English", tier: "enterprise" as const },
-    { id: "voice12", name: "Morgan", gender: "Female", language: "English", tier: "enterprise" as const },
+    {
+      id: "voice1",
+      name: "Alex",
+      gender: "Male",
+      language: "English",
+      tier: "free" as const,
+    },
+    {
+      id: "voice2",
+      name: "Jordan",
+      gender: "Female",
+      language: "English",
+      tier: "free" as const,
+    },
+    {
+      id: "voice3",
+      name: "Casey",
+      gender: "Non-binary",
+      language: "English",
+      tier: "free" as const,
+    },
+    {
+      id: "voice4",
+      name: "Morgan",
+      gender: "Female",
+      language: "English",
+      tier: "free" as const,
+    },
+    {
+      id: "voice5",
+      name: "Phoenix",
+      gender: "Male",
+      language: "English",
+      tier: "pro" as const,
+    },
+    {
+      id: "voice6",
+      name: "Riley",
+      gender: "Female",
+      language: "English",
+      tier: "pro" as const,
+    },
+    {
+      id: "voice7",
+      name: "Blake",
+      gender: "Male",
+      language: "English",
+      tier: "pro" as const,
+    },
+    {
+      id: "voice8",
+      name: "Quinn",
+      gender: "Female",
+      language: "English",
+      tier: "pro" as const,
+    },
+    {
+      id: "voice9",
+      name: "Taylor",
+      gender: "Male",
+      language: "English",
+      tier: "enterprise" as const,
+    },
+    {
+      id: "voice10",
+      name: "Cameron",
+      gender: "Female",
+      language: "English",
+      tier: "enterprise" as const,
+    },
+    {
+      id: "voice11",
+      name: "Jordan",
+      gender: "Male",
+      language: "English",
+      tier: "enterprise" as const,
+    },
+    {
+      id: "voice12",
+      name: "Morgan",
+      gender: "Female",
+      language: "English",
+      tier: "enterprise" as const,
+    },
   ];
 
   const steps = [
@@ -112,8 +216,16 @@ export default function VideoGeneratorCreate() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { id: "portrait", label: "1080 x 1920", desc: "Portrait (Mobile)" },
-                    { id: "square", label: "1080 x 1080", desc: "Square (Social)" },
+                    {
+                      id: "portrait",
+                      label: "1080 x 1920",
+                      desc: "Portrait (Mobile)",
+                    },
+                    {
+                      id: "square",
+                      label: "1080 x 1080",
+                      desc: "Square (Social)",
+                    },
                   ].map((res) => (
                     <button
                       key={res.id}
@@ -132,7 +244,9 @@ export default function VideoGeneratorCreate() {
                       <div className="text-lg font-semibold text-foreground">
                         {res.label}
                       </div>
-                      <div className="text-xs text-muted-foreground">{res.desc}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {res.desc}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -173,14 +287,13 @@ export default function VideoGeneratorCreate() {
                 Define Your Video Direction
               </h3>
               <p className="text-muted-foreground">
-                Tell us what your video is about, who it's for, and how it should sound.
+                Tell us what your video is about, who it's for, and how it
+                should sound.
               </p>
             </div>
             <ScriptPanel
               value={formState.script}
-              onChange={(script) =>
-                setFormState({ ...formState, script })
-              }
+              onChange={(script) => setFormState({ ...formState, script })}
               maxLength={2000}
               onImproveScript={() =>
                 alert("Improve script feature - to be implemented")
@@ -325,7 +438,10 @@ export default function VideoGeneratorCreate() {
 
             <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2">
               {steps.map((step, idx) => (
-                <div key={step.number} className="flex items-center gap-2 md:gap-4">
+                <div
+                  key={step.number}
+                  className="flex items-center gap-2 md:gap-4"
+                >
                   <button
                     onClick={() => setCurrentStep(step.number)}
                     className={`flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full font-semibold transition-all whitespace-nowrap text-sm md:text-base ${

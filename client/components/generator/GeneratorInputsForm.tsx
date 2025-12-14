@@ -165,7 +165,8 @@ export default function GeneratorInputsForm({
             Script / Content (Optional)
           </label>
           <p className="text-xs text-muted-foreground mb-2">
-            Leave this blank to auto-generate a script, or write your own to fully control the wording.
+            Leave this blank to auto-generate a script, or write your own to
+            fully control the wording.
           </p>
           <textarea
             value={scriptText}
@@ -190,7 +191,9 @@ export default function GeneratorInputsForm({
             disabled={isGenerating || !videoTopic}
             className="w-full px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
           >
-            <Wand2 className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
+            <Wand2
+              className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`}
+            />
             {isGenerating ? "Generating…" : "Generate Script"}
           </button>
           {error && (

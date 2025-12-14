@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Zap, Sparkles, Film, Users, Play, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Zap,
+  Sparkles,
+  Film,
+  Users,
+  Play,
+  Star,
+} from "lucide-react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@clerk/clerk-react";
 
@@ -50,26 +58,49 @@ export default function Index() {
     {
       icon: Film,
       title: "Multi-Format Videos",
-      description: "Create videos in portrait, square, or landscape formats optimized for any platform",
+      description:
+        "Create videos in portrait, square, or landscape formats optimized for any platform",
     },
     {
       icon: Sparkles,
       title: "AI-Powered Generation",
-      description: "Turn your ideas into professional videos with our advanced AI templates and styles",
+      description:
+        "Turn your ideas into professional videos with our advanced AI templates and styles",
     },
     {
       icon: Zap,
       title: "Premium Voices & Effects",
-      description: "Choose from 12+ professional voices and caption styles to make your content stand out",
+      description:
+        "Choose from 12+ professional voices and caption styles to make your content stand out",
     },
   ];
 
   const steps = [
-    { number: 1, title: "Choose a Template", description: "Start with one of our 8 professionally designed templates" },
-    { number: 2, title: "Write Your Script", description: "Create or generate a compelling script for your video" },
-    { number: 3, title: "Select Your Style", description: "Pick from 8+ visual styles to match your brand" },
-    { number: 4, title: "Add Voice & Captions", description: "Choose from premium voices and caption styles" },
-    { number: 5, title: "Export & Share", description: "Download your video and share it anywhere" },
+    {
+      number: 1,
+      title: "Choose a Template",
+      description: "Start with one of our 8 professionally designed templates",
+    },
+    {
+      number: 2,
+      title: "Write Your Script",
+      description: "Create or generate a compelling script for your video",
+    },
+    {
+      number: 3,
+      title: "Select Your Style",
+      description: "Pick from 8+ visual styles to match your brand",
+    },
+    {
+      number: 4,
+      title: "Add Voice & Captions",
+      description: "Choose from premium voices and caption styles",
+    },
+    {
+      number: 5,
+      title: "Export & Share",
+      description: "Download your video and share it anywhere",
+    },
   ];
 
   return (
@@ -83,23 +114,32 @@ export default function Index() {
             <div className="absolute top-20 right-10 w-80 h-80 bg-gradient-to-br from-accent-blue/10 to-highlight-blue/5 rounded-3xl blur-2xl -z-10 transform rotate-45" />
 
             <div className="space-y-6 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent-blue/30 bg-accent-blue/5 w-fit" style={{ marginTop: "-20px", marginLeft: "-15px" }}>
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent-blue/30 bg-accent-blue/5 w-fit"
+                style={{ marginTop: "-20px", marginLeft: "-15px" }}
+              >
                 <Sparkles className="w-4 h-4 text-accent-blue" />
-                <span className="text-sm font-medium text-accent-blue">Powered by Advanced AI</span>
+                <span className="text-sm font-medium text-accent-blue">
+                  Powered by Advanced AI
+                </span>
               </div>
 
               {/* Headline with subtle glow background */}
               <div className="relative">
                 <div className="absolute -inset-8 bg-gradient-to-r from-accent-blue/10 via-highlight-blue/5 to-transparent rounded-2xl blur-2xl opacity-10 -z-10" />
                 <h1 className="font-display text-6xl md:text-7xl font-bold leading-[1.1]">
-                  <span className="text-gradient-blue">Create Amazing Videos</span>
+                  <span className="text-gradient-blue">
+                    Create Amazing Videos
+                  </span>
                   <br />
                   <span className="text-foreground">in Minutes, Not Hours</span>
                 </h1>
               </div>
 
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">
-                BleuLogiX transforms your ideas into professional, engaging short-form videos with AI-powered templates, premium voices, and intelligent editing.
+                BleuLogiX transforms your ideas into professional, engaging
+                short-form videos with AI-powered templates, premium voices, and
+                intelligent editing.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 pt-7">
@@ -126,21 +166,29 @@ export default function Index() {
                 <div className="flex items-start gap-3">
                   <Users className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Trusted By</p>
-                    <p className="font-semibold text-foreground">10,000+ Creators</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">
+                      Trusted By
+                    </p>
+                    <p className="font-semibold text-foreground">
+                      10,000+ Creators
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Film className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Videos Generated</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">
+                      Videos Generated
+                    </p>
                     <p className="font-semibold text-foreground">1M+ Monthly</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Star className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Average Rating</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">
+                      Average Rating
+                    </p>
                     <p className="font-semibold text-accent-blue">4.9/5.0</p>
                   </div>
                 </div>
@@ -150,14 +198,18 @@ export default function Index() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-24 px-4 md:px-8 border-t border-border">
+        <section
+          id="features"
+          className="py-24 px-4 md:px-8 border-t border-border"
+        >
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
                 Everything You Need to Create
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Professional video creation tools designed for creators who want quality without complexity
+                Professional video creation tools designed for creators who want
+                quality without complexity
               </p>
             </div>
 
@@ -175,7 +227,9 @@ export default function Index() {
                     <h3 className="font-display text-xl font-semibold text-foreground">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground">{feature.description}</p>
+                    <p className="text-muted-foreground">
+                      {feature.description}
+                    </p>
                   </div>
                 );
               })}
@@ -184,7 +238,10 @@ export default function Index() {
         </section>
 
         {/* How It Works Section */}
-        <section id="learn" className="py-24 px-4 md:px-8 border-t border-border">
+        <section
+          id="learn"
+          className="py-24 px-4 md:px-8 border-t border-border"
+        >
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -215,8 +272,12 @@ export default function Index() {
 
                   {/* Step Content */}
                   <div className="space-y-2 pt-4">
-                    <h3 className="font-semibold text-foreground">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                    <h3 className="font-semibold text-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -235,7 +296,10 @@ export default function Index() {
         </section>
 
         {/* Pricing Preview Section */}
-        <section id="pricing" className="py-24 px-4 md:px-8 border-t border-border">
+        <section
+          id="pricing"
+          className="py-24 px-4 md:px-8 border-t border-border"
+        >
           <div className="max-w-6xl mx-auto space-y-12">
             <div className="text-center space-y-4">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -349,7 +413,9 @@ export default function Index() {
                         : "bg-card border border-border text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                     }`}
                   >
-                    {checkoutLoading && plan.plan !== null ? "Loading..." : plan.cta}
+                    {checkoutLoading && plan.plan !== null
+                      ? "Loading..."
+                      : plan.cta}
                   </button>
                 </div>
               ))}
@@ -365,7 +431,8 @@ export default function Index() {
                 Ready to Create?
               </h2>
               <p className="text-lg text-muted-foreground">
-                Start creating professional videos for free. No credit card required.
+                Start creating professional videos for free. No credit card
+                required.
               </p>
               <Link
                 to="/video-generator"

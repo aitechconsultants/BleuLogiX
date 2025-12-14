@@ -51,7 +51,8 @@ export default function AdminAudit() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [testScriptLoading, setTestScriptLoading] = useState(false);
-  const [testScriptResult, setTestScriptResult] = useState<ScriptGenTestResult | null>(null);
+  const [testScriptResult, setTestScriptResult] =
+    useState<ScriptGenTestResult | null>(null);
   const [testScriptError, setTestScriptError] = useState<string | null>(null);
 
   const getStripeStatus = () => {
@@ -60,13 +61,13 @@ export default function AdminAudit() {
     }
 
     const stripeSecretOk = integrations.checks.some(
-      (c) => c.name === "stripe_secret" && c.ok
+      (c) => c.name === "stripe_secret" && c.ok,
     );
     const stripeWebhookOk = integrations.checks.some(
-      (c) => c.name === "stripe_webhook_secret" && c.ok
+      (c) => c.name === "stripe_webhook_secret" && c.ok,
     );
     const stripePricesOk = integrations.checks.some(
-      (c) => c.name === "stripe_prices" && c.ok
+      (c) => c.name === "stripe_prices" && c.ok,
     );
 
     const allOk = stripeSecretOk && stripeWebhookOk && stripePricesOk;
@@ -85,7 +86,9 @@ export default function AdminAudit() {
 
     const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
     if (!scriptGenUrl) {
-      setTestScriptError("Script generation is not connected. Set VITE_SCRIPT_GEN_URL.");
+      setTestScriptError(
+        "Script generation is not connected. Set VITE_SCRIPT_GEN_URL.",
+      );
       return;
     }
 
@@ -147,7 +150,7 @@ export default function AdminAudit() {
       });
     } catch (err) {
       setTestScriptError(
-        err instanceof Error ? err.message : "Failed to test script generation"
+        err instanceof Error ? err.message : "Failed to test script generation",
       );
     } finally {
       setTestScriptLoading(false);
@@ -174,7 +177,7 @@ export default function AdminAudit() {
           setIntegrations(await intRes.json());
         } else {
           setError(
-            `Failed to fetch integrations: ${intRes.status} ${intRes.statusText}`
+            `Failed to fetch integrations: ${intRes.status} ${intRes.statusText}`,
           );
         }
 
@@ -260,7 +263,7 @@ export default function AdminAudit() {
         setApiAudit(apiEndpoints);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load audit data"
+          err instanceof Error ? err.message : "Failed to load audit data",
         );
       } finally {
         setLoading(false);
@@ -328,32 +331,37 @@ export default function AdminAudit() {
             )}
 
             {/* Stripe Status Summary */}
-            {integrations && (() => {
-              const stripeStatus = getStripeStatus();
-              return (
-                <div
-                  className={`p-4 rounded-lg border flex items-start justify-between ${
-                    stripeStatus.ok
-                      ? "bg-green-500/10 border-green-500/30"
-                      : "bg-red-500/10 border-red-500/30"
-                  }`}
-                >
-                  <div>
-                    <p className={`font-semibold ${stripeStatus.ok ? "text-green-400" : "text-red-400"}`}>
-                      Stripe Connected
-                    </p>
-                    <p className={`text-sm ${stripeStatus.ok ? "text-green-400/80" : "text-red-400/80"}`}>
-                      {stripeStatus.message}
-                    </p>
+            {integrations &&
+              (() => {
+                const stripeStatus = getStripeStatus();
+                return (
+                  <div
+                    className={`p-4 rounded-lg border flex items-start justify-between ${
+                      stripeStatus.ok
+                        ? "bg-green-500/10 border-green-500/30"
+                        : "bg-red-500/10 border-red-500/30"
+                    }`}
+                  >
+                    <div>
+                      <p
+                        className={`font-semibold ${stripeStatus.ok ? "text-green-400" : "text-red-400"}`}
+                      >
+                        Stripe Connected
+                      </p>
+                      <p
+                        className={`text-sm ${stripeStatus.ok ? "text-green-400/80" : "text-red-400/80"}`}
+                      >
+                        {stripeStatus.message}
+                      </p>
+                    </div>
+                    {stripeStatus.ok ? (
+                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
+                    ) : (
+                      <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
+                    )}
                   </div>
-                  {stripeStatus.ok ? (
-                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
-                  ) : (
-                    <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
-                  )}
-                </div>
-              );
-            })()}
+                );
+              })()}
 
             {/* Integration Status Panel */}
             {integrations && (
@@ -497,19 +505,25 @@ export default function AdminAudit() {
                   <div className="p-4 rounded-lg border border-border bg-card">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Status Code</p>
+                        <p className="text-sm text-muted-foreground">
+                          Status Code
+                        </p>
                         <p className="text-lg font-semibold text-foreground">
                           {testScriptResult.status || "—"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Response Time</p>
+                        <p className="text-sm text-muted-foreground">
+                          Response Time
+                        </p>
                         <p className="text-lg font-semibold text-foreground">
                           {testScriptResult.responseTime}ms
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Script Length</p>
+                        <p className="text-sm text-muted-foreground">
+                          Script Length
+                        </p>
                         <p className="text-lg font-semibold text-foreground">
                           {testScriptResult.scriptLength} chars
                         </p>
@@ -519,7 +533,9 @@ export default function AdminAudit() {
 
                   {testScriptResult.preview && (
                     <div className="p-4 rounded-lg border border-border bg-card">
-                      <p className="text-sm text-muted-foreground mb-2">Preview (first 120 chars)</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Preview (first 120 chars)
+                      </p>
                       <p className="text-sm text-foreground font-mono bg-background/50 p-3 rounded border border-border break-words">
                         {testScriptResult.preview}
                         {testScriptResult.scriptLength > 120 ? "..." : ""}

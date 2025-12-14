@@ -43,7 +43,7 @@ export const handleHealthRoutes: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to fetch routes",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to fetch routes",
@@ -52,10 +52,7 @@ export const handleHealthRoutes: RequestHandler = async (req, res) => {
   }
 };
 
-export const handleHealthIntegrations: RequestHandler = async (
-  req,
-  res
-) => {
+export const handleHealthIntegrations: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
   const checks: HealthCheck[] = [];
 
@@ -152,7 +149,7 @@ export const handleHealthIntegrations: RequestHandler = async (
               WHERE table_schema = 'public' 
               AND table_name = $1
             )`,
-            [table]
+            [table],
           );
 
           if (result && result.exists) {
@@ -161,7 +158,7 @@ export const handleHealthIntegrations: RequestHandler = async (
         }
 
         const missingTables = requiredTables.filter(
-          (t) => !existingTables.includes(t)
+          (t) => !existingTables.includes(t),
         );
 
         if (missingTables.length === 0) {
@@ -198,7 +195,7 @@ export const handleHealthIntegrations: RequestHandler = async (
     logError(
       { correlationId },
       "Failed to check integrations",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to check integrations",

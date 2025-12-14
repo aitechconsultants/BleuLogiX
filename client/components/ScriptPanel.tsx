@@ -168,9 +168,12 @@ export default function ScriptPanel({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <label className="text-sm font-medium text-foreground">Script (Optional)</label>
+            <label className="text-sm font-medium text-foreground">
+              Script (Optional)
+            </label>
             <p className="text-xs text-muted-foreground mt-1">
-              Leave this blank to auto-generate a script, or write your own to fully control the wording.
+              Leave this blank to auto-generate a script, or write your own to
+              fully control the wording.
             </p>
           </div>
           <span className="text-xs text-muted-foreground">
