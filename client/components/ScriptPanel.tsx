@@ -19,14 +19,16 @@ export default function ScriptPanel({
   const [tone, setTone] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const wordCount = value.split(/\s+/).filter((w) => w.length > 0).length;
 
   const handleGenerateScript = async () => {
     setError(null);
+    setSuccess(false);
 
     const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
     if (!scriptGenUrl) {
-      setError("Script generation is not connected yet.");
+      setError("Script generation is not connected. Set VITE_SCRIPT_GEN_URL.");
       return;
     }
 
@@ -44,32 +46,44 @@ export default function ScriptPanel({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          topic,
+          videoTopic: topic,
           niche,
-          style: tone,
+          styleTone: tone,
           maxChars: maxLength,
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`
-        );
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {
+          console.error("Failed to parse error response", response);
+        }
+        console.error("Script generation error:", errorMessage);
+        setError(errorMessage);
+        return;
       }
 
       const data = await response.json();
-      const generatedScript = data.script || data.text || "";
+      let script = data.script || data.text || "";
 
-      if (!generatedScript) {
-        throw new Error("No script returned from generation service.");
+      if (!script) {
+        setError("No script returned from generation service.");
+        return;
       }
 
-      onChange(generatedScript.slice(0, maxLength));
+      onChange(script.slice(0, maxLength));
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to generate script";
       setError(errorMessage);
+      console.error("Script generation exception:", err);
     } finally {
       setIsGenerating(false);
     }
