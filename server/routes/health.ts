@@ -115,6 +115,19 @@ export const handleHealthIntegrations: RequestHandler = async (
     };
     checks.push(stripeWebhookCheck);
 
+    // 5. Stripe price IDs check
+    const proPriceOk = !!process.env.STRIPE_PRICE_PRO;
+    const enterprisePriceOk = !!process.env.STRIPE_PRICE_ENTERPRISE;
+    const stripePricesCheck: HealthCheck = {
+      name: "stripe_prices",
+      ok: proPriceOk && enterprisePriceOk,
+      message:
+        proPriceOk && enterprisePriceOk
+          ? "Pro and Enterprise prices configured"
+          : `Missing: ${!proPriceOk ? "STRIPE_PRICE_PRO " : ""}${!enterprisePriceOk ? "STRIPE_PRICE_ENTERPRISE" : ""}`.trim(),
+    };
+    checks.push(stripePricesCheck);
+
     // 5. Database tables check
     let tablesCheck: HealthCheck = {
       name: "database_tables",
