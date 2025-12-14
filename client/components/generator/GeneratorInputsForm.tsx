@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Wand2 } from "lucide-react";
 
 interface GeneratorInputsFormProps {
   scriptText: string;
@@ -13,6 +14,65 @@ export default function GeneratorInputsForm({
   headlineText,
   onHeadlineChange,
 }: GeneratorInputsFormProps) {
+  const [videoTopic, setVideoTopic] = useState("");
+  const [niche, setNiche] = useState("");
+  const [styleTone, setStyleTone] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerateScript = async () => {
+    setError(null);
+
+    const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
+    if (!scriptGenUrl) {
+      setError("Script generation is not connected yet.");
+      return;
+    }
+
+    if (!videoTopic) {
+      setError("Please enter a video topic to generate a script.");
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch(scriptGenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topic: videoTopic,
+          niche,
+          style: styleTone,
+          maxChars: 500,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      const generatedScript = data.script || data.text || "";
+
+      if (!generatedScript) {
+        throw new Error("No script returned from generation service.");
+      }
+
+      onScriptChange(generatedScript.slice(0, 500));
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to generate script";
+      setError(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-8 py-12 border-t border-border space-y-6">
       <div>
