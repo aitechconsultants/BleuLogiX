@@ -54,6 +54,31 @@ export default function AdminAudit() {
   const [testScriptResult, setTestScriptResult] = useState<ScriptGenTestResult | null>(null);
   const [testScriptError, setTestScriptError] = useState<string | null>(null);
 
+  const getStripeStatus = () => {
+    if (!integrations) {
+      return { ok: false, message: "Loading..." };
+    }
+
+    const stripeSecretOk = integrations.checks.some(
+      (c) => c.name === "stripe_secret" && c.ok
+    );
+    const stripeWebhookOk = integrations.checks.some(
+      (c) => c.name === "stripe_webhook_secret" && c.ok
+    );
+    const stripePricesOk = integrations.checks.some(
+      (c) => c.name === "stripe_prices" && c.ok
+    );
+
+    const allOk = stripeSecretOk && stripeWebhookOk && stripePricesOk;
+
+    return {
+      ok: allOk,
+      message: allOk
+        ? "Stripe fully configured"
+        : "Stripe billing incomplete — payments disabled",
+    };
+  };
+
   const handleTestScriptGeneration = async () => {
     setTestScriptError(null);
     setTestScriptResult(null);
