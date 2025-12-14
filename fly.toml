@@ -1,0 +1,36 @@
+app = "bleulogix"
+primary_region = "sjc"
+
+[build]
+  builder = "paketobuildpacks"
+  buildpacks = [
+    "gcr.io/paketo-buildpacks/nodejs"
+  ]
+
+[env]
+  NODE_ENV = "production"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
