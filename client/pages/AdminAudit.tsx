@@ -33,6 +33,14 @@ interface ApiAuditResult {
   message: string;
 }
 
+interface ScriptGenTestResult {
+  status?: number;
+  responseTime: number;
+  scriptLength: number;
+  preview: string;
+  message?: string;
+}
+
 export default function AdminAudit() {
   const { getToken } = useAuth();
   const [integrations, setIntegrations] = useState<HealthResponse | null>(null);
@@ -42,6 +50,9 @@ export default function AdminAudit() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [testScriptLoading, setTestScriptLoading] = useState(false);
+  const [testScriptResult, setTestScriptResult] = useState<ScriptGenTestResult | null>(null);
+  const [testScriptError, setTestScriptError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
