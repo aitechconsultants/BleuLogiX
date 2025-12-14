@@ -128,7 +128,7 @@ export const handleHealthIntegrations: RequestHandler = async (
     };
     checks.push(stripePricesCheck);
 
-    // 5. Database tables check
+    // 6. Database tables check
     let tablesCheck: HealthCheck = {
       name: "database_tables",
       ok: false,
