@@ -129,15 +129,20 @@ export default function ScriptPanel({
       </div>
 
       {/* Generate Button */}
-      <div className="flex gap-2">
+      <div className="space-y-2">
         <button
-          onClick={onGenerateScript}
+          onClick={handleGenerateScript}
           disabled={isGenerating || !topic}
-          className="flex-1 px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+          className="w-full px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2 whitespace-nowrap"
         >
           <Wand2 className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
-          Generate
+          {isGenerating ? "Generating…" : "Generate"}
         </button>
+        {error && (
+          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded px-3 py-2">
+            {error}
+          </p>
+        )}
       </div>
 
       {/* Script Textarea */}
