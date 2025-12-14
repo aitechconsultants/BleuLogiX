@@ -182,9 +182,6 @@ export default function VideoGeneratorCreate() {
                 setFormState({ ...formState, script })
               }
               maxLength={2000}
-              onGenerateScript={() =>
-                alert("Generate script feature - to be implemented")
-              }
               onImproveScript={() =>
                 alert("Improve script feature - to be implemented")
               }
