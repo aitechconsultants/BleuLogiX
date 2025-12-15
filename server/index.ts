@@ -23,6 +23,7 @@ import {
   handleHealthRoutes,
   handleHealthIntegrations,
 } from "./routes/health";
+import { handleGenerateScript } from "./routes/script";
 
 export function createServer() {
   const app = express();
