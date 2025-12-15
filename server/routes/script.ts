@@ -93,9 +93,7 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
 
     res.status(500).json({
       error:
-        error instanceof Error
-          ? error.message
-          : "Failed to generate script",
+        error instanceof Error ? error.message : "Failed to generate script",
       correlationId,
     });
   }

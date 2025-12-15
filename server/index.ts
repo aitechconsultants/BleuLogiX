@@ -35,7 +35,7 @@ export function createServer() {
   app.post(
     "/api/billing/webhook",
     express.raw({ type: "application/json" }),
-    handleWebhook
+    handleWebhook,
   );
 
   // JSON middleware for other routes
@@ -61,7 +61,12 @@ export function createServer() {
   // Health check routes
   app.get("/api/health", handleHealth);
   app.get("/api/health/routes", handleHealthRoutes);
-  app.get("/api/health/integrations", requireClerkAuth, requireAdminAuth, handleHealthIntegrations);
+  app.get(
+    "/api/health/integrations",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleHealthIntegrations,
+  );
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
