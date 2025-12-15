@@ -212,33 +212,24 @@ export default function VideoGeneratorCreate() {
               {/* Resolution Selector */}
               <div className="space-y-4">
                 <label className="text-sm font-medium text-foreground block">
-                  Resolution
+                  Video Platform
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {[
                     {
-                      id: "portrait",
+                      id: "vertical",
                       label: "1080 x 1920",
-                      desc: "TikTok, Instagram Reels",
-                      platforms: "Vertical",
+                      desc: "TikTok, Instagram Reels, YouTube Shorts",
                     },
                     {
                       id: "square",
                       label: "1080 x 1080",
-                      desc: "Instagram Feed & Stories",
-                      platforms: "Square",
+                      desc: "Instagram",
                     },
                     {
-                      id: "landscape",
+                      id: "horizontal",
                       label: "1920 x 1080",
-                      desc: "YouTube & Instagram",
-                      platforms: "Horizontal",
-                    },
-                    {
-                      id: "youtube-short",
-                      label: "1080 x 1920",
-                      desc: "YouTube Shorts",
-                      platforms: "Vertical",
+                      desc: "YouTube",
                     },
                   ].map((res) => (
                     <button
@@ -246,7 +237,7 @@ export default function VideoGeneratorCreate() {
                       onClick={() =>
                         setFormState({
                           ...formState,
-                          resolution: res.id as "portrait" | "square" | "landscape" | "youtube-short",
+                          resolution: res.id as "vertical" | "square" | "horizontal",
                         })
                       }
                       className={`p-6 rounded-lg border-2 transition-all text-center ${
