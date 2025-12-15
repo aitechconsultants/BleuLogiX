@@ -11,7 +11,7 @@ import ExportConfirmationModal from "@/components/ExportConfirmationModal";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 
 interface FormState {
-  resolution: "portrait" | "square" | "landscape" | "youtube-short";
+  resolution: "vertical" | "square" | "horizontal";
   duration: number;
   script: string;
   selectedStyle: string;
