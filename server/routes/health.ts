@@ -125,6 +125,16 @@ export const handleHealthIntegrations: RequestHandler = async (req, res) => {
     };
     checks.push(stripePricesCheck);
 
+    // 7. Script generation URL check
+    const scriptGenCheck: HealthCheck = {
+      name: "script_generation",
+      ok: !!process.env.SCRIPT_GEN_URL,
+      message: process.env.SCRIPT_GEN_URL
+        ? "Configured"
+        : "Not configured (SCRIPT_GEN_URL missing)",
+    };
+    checks.push(scriptGenCheck);
+
     // 6. Database tables check
     let tablesCheck: HealthCheck = {
       name: "database_tables",
