@@ -27,7 +27,7 @@ export default function VideoGeneratorCreate() {
   const [isExporting, setIsExporting] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [formState, setFormState] = useState<FormState>({
-    resolution: "portrait",
+    resolution: "vertical",
     duration: 15,
     script: "",
     selectedStyle: "",
