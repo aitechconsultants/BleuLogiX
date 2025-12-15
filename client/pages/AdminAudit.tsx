@@ -84,19 +84,11 @@ export default function AdminAudit() {
     setTestScriptError(null);
     setTestScriptResult(null);
 
-    const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
-    if (!scriptGenUrl) {
-      setTestScriptError(
-        "Script generation is not connected. Set VITE_SCRIPT_GEN_URL.",
-      );
-      return;
-    }
-
     try {
       setTestScriptLoading(true);
       const startTime = Date.now();
 
-      const response = await fetch(scriptGenUrl, {
+      const response = await fetch("/api/script/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,7 +120,7 @@ export default function AdminAudit() {
       }
 
       const data = await response.json();
-      const script = data.script || data.text || "";
+      const script = data.script || "";
 
       if (!script) {
         setTestScriptError("No script returned from API");
