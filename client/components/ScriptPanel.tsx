@@ -26,12 +26,6 @@ export default function ScriptPanel({
     setError(null);
     setSuccess(false);
 
-    const scriptGenUrl = import.meta.env.VITE_SCRIPT_GEN_URL;
-    if (!scriptGenUrl) {
-      setError("Script generation is not connected. Set VITE_SCRIPT_GEN_URL.");
-      return;
-    }
-
     if (!topic) {
       setError("Please enter a video topic to generate a script.");
       return;
@@ -40,7 +34,7 @@ export default function ScriptPanel({
     setIsGenerating(true);
 
     try {
-      const response = await fetch(scriptGenUrl, {
+      const response = await fetch("/api/script/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +63,7 @@ export default function ScriptPanel({
       }
 
       const data = await response.json();
-      let script = data.script || data.text || "";
+      const script = data.script || "";
 
       if (!script) {
         setError("No script returned from generation service.");
