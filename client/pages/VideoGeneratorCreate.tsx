@@ -219,12 +219,26 @@ export default function VideoGeneratorCreate() {
                     {
                       id: "portrait",
                       label: "1080 x 1920",
-                      desc: "Portrait (Mobile)",
+                      desc: "TikTok, Instagram Reels",
+                      platforms: "Vertical",
                     },
                     {
                       id: "square",
                       label: "1080 x 1080",
-                      desc: "Square (Social)",
+                      desc: "Instagram Feed & Stories",
+                      platforms: "Square",
+                    },
+                    {
+                      id: "landscape",
+                      label: "1920 x 1080",
+                      desc: "YouTube & Instagram",
+                      platforms: "Horizontal",
+                    },
+                    {
+                      id: "youtube-short",
+                      label: "1080 x 1920",
+                      desc: "YouTube Shorts",
+                      platforms: "Vertical",
                     },
                   ].map((res) => (
                     <button
@@ -232,7 +246,7 @@ export default function VideoGeneratorCreate() {
                       onClick={() =>
                         setFormState({
                           ...formState,
-                          resolution: res.id as "portrait" | "square",
+                          resolution: res.id as "portrait" | "square" | "landscape" | "youtube-short",
                         })
                       }
                       className={`p-6 rounded-lg border-2 transition-all text-center ${
