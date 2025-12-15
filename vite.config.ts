@@ -39,7 +39,7 @@ function expressPlugin(): Plugin {
     apply: "serve",
     configureServer(server) {
       return async () => {
-        const { createServer } = await import("./server");
+        const { createServer } = await import("./server/index");
         const app = createServer();
         server.middlewares.use(app);
       };
