@@ -88,5 +88,8 @@ export function createServer() {
   app.get("/api/generator/history", handleGetHistory);
   app.post("/api/generator/download", handleDownload);
 
+  // Script generation proxy route
+  app.post("/api/script/generate", handleGenerateScript);
+
   return app;
 }
