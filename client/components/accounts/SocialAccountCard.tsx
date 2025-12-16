@@ -322,6 +322,13 @@ export default function SocialAccountCard({
         </p>
       </div>
 
+      {/* Monetization Hint */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <p className="text-xs text-muted-foreground">
+          💰 <span className="font-medium">Monetization:</span> Set up link tracking in affiliate code to earn commissions
+        </p>
+      </div>
+
       {/* Actions */}
       <div className="mt-4 flex gap-2">
         <button
