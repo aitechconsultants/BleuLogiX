@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
 import { handleDemo } from "./routes/demo";
 import { initializeDatabase } from "./db";
 import { runMigrations } from "./migrations";
@@ -30,6 +31,7 @@ export function createServer() {
 
   // Middleware
   app.use(cors());
+  app.use(clerkMiddleware());
 
   // Webhook route must be before express.json() to get raw body
   app.post(
