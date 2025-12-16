@@ -36,6 +36,9 @@ interface SocialAccountCardProps {
   refreshIntervalHours?: number;
   nextRefreshAt?: string;
   onRefreshSettingsUpdate?: () => Promise<void>;
+  oauthConnected?: boolean;
+  dataSource?: "public" | "oauth";
+  onOAuthConnect?: () => void;
 }
 
 const platformIcons: Record<string, string> = {
