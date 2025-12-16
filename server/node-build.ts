@@ -1,26 +1,27 @@
 import path from "path";
-import { createServer } from "./index";
 import express from "express";
+import { createServer } from "./index";
 import { startRefreshWorker } from "./services/refreshWorker";
 
 const app = createServer();
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 // In production, serve the built SPA files
 const __dirname = import.meta.dirname;
 const distPath = path.join(__dirname, "../spa");
 
-// Serve static files
+// Serve static files (Vite build output)
 app.use(express.static(distPath));
 
-// Handle React Router - serve index.html for all non-API routes
-app.get("/*", (req, res) => {
-  // Don't serve index.html for API routes
+// SPA fallback for React Router (Express 5 safe wildcard)
+// IMPORTANT: Use "/(.*)" instead of "/*" to avoid path-to-regexp errors.
+app.get("/(.*)", (req, res) => {
+  // Do NOT serve index.html for API/health routes
   if (req.path.startsWith("/api/") || req.path.startsWith("/health")) {
-    return res.status(404).json({ error: "API endpoint not found" });
+    return res.status(404).json({ error: "Not found" });
   }
 
-  res.sendFile(path.join(distPath, "index.html"));
+  return res.sendFile(path.join(distPath, "index.html"));
 });
 
 app.listen(port, () => {
@@ -33,12 +34,10 @@ app.listen(port, () => {
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
-  console.log("🛑 Received SIGTERM, shutting down gracefully");
+function shutdown(signal: string) {
+  console.log(`🛑 Received ${signal}, shutting down gracefully`);
   process.exit(0);
-});
+}
 
-process.on("SIGINT", () => {
-  console.log("🛑 Received SIGINT, shutting down gracefully");
-  process.exit(0);
-});
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
