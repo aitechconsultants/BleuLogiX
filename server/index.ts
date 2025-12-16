@@ -26,6 +26,12 @@ import {
 } from "./routes/health";
 import { handleGenerateScript } from "./routes/script";
 import { scriptGenRouter } from "./routes/scriptGen";
+import {
+  handleAddAccount,
+  handleListAccounts,
+  handleRefreshAccount,
+  handleRemoveAccount,
+} from "./routes/socialAccounts";
 
 export function createServer() {
   const app = express();
