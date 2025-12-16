@@ -276,7 +276,14 @@ export async function runMigrations() {
         engagement_rate FLOAT,
         last_synced_at TIMESTAMPTZ,
         data_source TEXT DEFAULT 'public' CHECK (data_source IN ('public', 'oauth')),
+        oauth_connected BOOLEAN DEFAULT FALSE,
         status TEXT DEFAULT 'active' CHECK (status IN ('active', 'error', 'paused')),
+        refresh_mode TEXT DEFAULT 'manual' CHECK (refresh_mode IN ('manual', 'scheduled')),
+        refresh_interval_hours INTEGER DEFAULT 24,
+        next_refresh_at TIMESTAMPTZ,
+        last_refresh_attempt_at TIMESTAMPTZ,
+        refresh_error TEXT,
+        refresh_fail_count INTEGER DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
