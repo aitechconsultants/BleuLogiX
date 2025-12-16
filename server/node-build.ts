@@ -1,6 +1,5 @@
 import "dotenv/config";
 import path from "path";
-import fs from "fs";
 import express from "express";
 import { createServer } from "./index";
 import { startRefreshWorker } from "./services/refreshWorker";
@@ -10,36 +9,31 @@ import { runMigrations } from "./migrations";
 const app = createServer();
 const port = Number(process.env.PORT) || 3000;
 
-// ESM-safe dirname
+// Paths (built output is /app/dist/server and /app/dist/spa in Railway)
 const __dirname = import.meta.dirname;
-
-// ✅ IMPORTANT: pick the correct SPA output directory
-// Most setups end up with dist/spa as the built client output.
-// Since this file compiles to dist/server/node-build.mjs,
-// using "../spa" points to dist/spa.
 const distPath = path.join(__dirname, "../spa");
-const indexHtmlPath = path.join(distPath, "index.html");
+
+console.log("[BOOT] __dirname:", __dirname);
+console.log("[SPA] Serving from:", distPath);
 
 // Serve static files (Vite build output)
 app.use(express.static(distPath));
 
-// SPA fallback for React Router (RegExp avoids path-to-regexp parsing issues)
+// Hard “always responds” endpoints (good for Railway edge validation)
+app.get("/", (_req, res) => res.status(200).send("OK"));
+app.get("/health", (_req, res) => res.status(200).json({ ok: true }));
+
+/**
+ * SPA fallback for React Router
+ * RegExp avoids path-to-regexp parsing issues.
+ * Matches any route NOT starting with /api/ or /health
+ */
 app.get(/^(?!\/api\/|\/health).*/, (_req, res) => {
-  if (!fs.existsSync(indexHtmlPath)) {
-    // If this happens, your build output path is wrong or the SPA build didn't run
-    return res.status(500).json({
-      error: "SPA index.html not found",
-      hint: "Check build output path (dist/spa) and that client build ran.",
-      lookedFor: indexHtmlPath,
-    });
-  }
-  return res.sendFile(indexHtmlPath);
+  return res.sendFile(path.join(distPath, "index.html"));
 });
 
 async function bootstrap() {
-  // ---------------------------------------------
-  // DB bootstrap (do once at startup)
-  // ---------------------------------------------
+  // DB bootstrap once at startup
   const HAS_DB = Boolean(process.env.DATABASE_URL);
   let dbReady = false;
 
@@ -51,21 +45,17 @@ async function bootstrap() {
       console.log("[DB] Initialized and migrations applied");
     } catch (err) {
       console.error("[DB] Initialization/migrations failed (non-fatal):", err);
-      // dbReady remains false → worker will not start
     }
   } else {
     console.log("[DB] DATABASE_URL missing, skipping init");
   }
 
-  app.listen(port, () => {
-    console.log(`🚀 Fusion Starter server running on port ${port}`);
-    console.log(`📱 Frontend: http://localhost:${port}`);
+  // ✅ Force bind to all interfaces (Railway-safe)
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`🚀 Server listening on 0.0.0.0:${port}`);
     console.log(`🔧 API: http://localhost:${port}/api`);
-    console.log(`[SPA] Serving from: ${distPath}`);
 
-    // ---------------------------------------------
-    // Module 2A Worker (safe + gated)
-    // ---------------------------------------------
+    // Worker gated + safe
     const WORKER_ENABLED =
       (process.env.REFRESH_WORKER_ENABLED || "").toLowerCase() === "true";
 
@@ -74,7 +64,7 @@ async function bootstrap() {
         startRefreshWorker(10 * 60 * 1000);
         console.log("[Worker] Started");
       } catch (err) {
-        console.error("[Worker] Failed to start refresh worker (non-fatal):", err);
+        console.error("[Worker] Failed to start (non-fatal):", err);
       }
     } else {
       console.log(
