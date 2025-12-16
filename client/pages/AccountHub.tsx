@@ -40,6 +40,9 @@ export default function AccountHub() {
   const [plan, setPlan] = useState("free");
   const [accountLimit, setAccountLimit] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const [affiliateProfile, setAffiliateProfile] = useState<AffiliateProfile | null>(null);
+  const [isLoadingAffiliate, setIsLoadingAffiliate] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   // Fetch accounts
   const fetchAccounts = async () => {
