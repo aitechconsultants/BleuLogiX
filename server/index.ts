@@ -31,7 +31,7 @@ export function createServer() {
 
   // Middleware
   app.use(cors());
-  // app.use(clerkMiddleware());
+  app.use(clerkMiddleware());
 
   // Webhook route must be before express.json() to get raw body
   app.post(
