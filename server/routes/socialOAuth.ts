@@ -73,12 +73,10 @@ export const handleStartOAuthFlow: RequestHandler = async (req, res) => {
   try {
     const adapter = getPlatformAdapter(platform as Platform);
 
-    if (!adapter.getOAuthConfig) {
-      return res.status(404).json({
-        error: `OAuth not available for ${platform}`,
-        correlationId,
-      });
-    }
+// 🔒 ONE canonical guard
+assertOAuthSupported(adapter);
+
+const config = adapter.getOAuthConfig();
 
     // Check feature gating
     const isAllowed = await isFeatureAllowed("oauth", "pro"); // TODO: get user's actual plan
