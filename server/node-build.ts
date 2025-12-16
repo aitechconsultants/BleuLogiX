@@ -1,6 +1,7 @@
 import path from "path";
 import { createServer } from "./index";
 import express from "express";
+import { startRefreshWorker } from "./services/refreshWorker";
 
 const app = createServer();
 const port = process.env.PORT || 3000;
