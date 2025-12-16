@@ -1,12 +1,12 @@
-import { getPlatformAdapter, Platform, assertOAuthSupported } from "../services/platforms";
 import { RequestHandler } from "express";
 import { query, queryOne } from "../db";
 import { logError } from "../logging";
-import { getPlatformAdapter, Platform } from "../services/platforms";
 import {
-  encryptAndSerialize,
-  deserializeAndDecrypt,
-} from "../services/tokenEncryption";
+  getPlatformAdapter,
+  Platform,
+  assertOAuthSupported,
+} from "../services/platforms";
+import { encryptAndSerialize } from "../services/tokenEncryption";
 import { isFeatureAllowed } from "../services/policies";
 
 interface SocialOAuthConnection {
@@ -53,7 +53,7 @@ export const handleGetOAuthConfig: RequestHandler = async (req, res) => {
       "Failed to get OAuth config",
       error instanceof Error ? error : new Error(String(error)),
     );
-    res.status(400).json({
+    return res.status(400).json({
       error: "Invalid platform or OAuth not available",
       correlationId,
     });
@@ -73,13 +73,8 @@ export const handleStartOAuthFlow: RequestHandler = async (req, res) => {
   try {
     const adapter = getPlatformAdapter(platform as Platform);
 
-// 🔒 ONE canonical guard
-assertOAuthSupported(adapter);
-
-const config = adapter.getOAuthConfig();
-
-    // Check feature gating
-    const isAllowed = await isFeatureAllowed("oauth", "pro"); // TODO: get user's actual plan
+    // Feature gating (adjust plan key as needed)
+    const isAllowed = await isFeatureAllowed("oauth", "premium"); // not "pro" if Premium+Enterprise
     if (!isAllowed) {
       return res.status(403).json({
         error: "OAuth requires Premium or Enterprise plan",
@@ -87,10 +82,12 @@ const config = adapter.getOAuthConfig();
       });
     }
 
+    // 🔒 Canonical guard: ensures config + exchange method exist
+    assertOAuthSupported(adapter);
+
     const config = adapter.getOAuthConfig();
 
-    // TODO: Generate state parameter for CSRF protection
-    // Store state in session or DB
+    // TODO: Generate state parameter for CSRF protection and persist it (session/DB)
     const state = "state_" + Math.random().toString(36).substring(7);
 
     const params = new URLSearchParams({
@@ -114,7 +111,7 @@ const config = adapter.getOAuthConfig();
       "Failed to start OAuth flow",
       error instanceof Error ? error : new Error(String(error)),
     );
-    res.status(400).json({
+    return res.status(400).json({
       error: "Failed to start OAuth flow",
       correlationId,
     });
@@ -144,20 +141,14 @@ export const handleOAuthCallback: RequestHandler = async (req, res) => {
 
     const adapter = getPlatformAdapter(platform as Platform);
 
-// 🔒 SAME guard, reused
-assertOAuthSupported(adapter);
+    // 🔒 Canonical guard again
+    assertOAuthSupported(adapter);
 
-// Exchange code for token
-const tokenResponse = await adapter.exchangeCodeForToken(code as string);
-
-
-    // TODO: Verify state parameter
+    // TODO: Verify the `state` parameter
+    void state;
 
     // Exchange code for token
-    const tokenResponse = await adapter.exchangeCodeForToken(code as string);
-
-    // TODO: Link to social account, store encrypted token
-    // For now, return the token for frontend to handle
+    const tokenResponse = await adapter.exchangeCodeForToken(String(code));
 
     return res.json({
       success: true,
@@ -173,7 +164,7 @@ const tokenResponse = await adapter.exchangeCodeForToken(code as string);
       "Failed to handle OAuth callback",
       error instanceof Error ? error : new Error(String(error)),
     );
-    res.status(400).json({
+    return res.status(400).json({
       error: "Failed to process OAuth callback",
       correlationId,
     });
@@ -205,14 +196,13 @@ export const handleLinkOAuthConnection: RequestHandler = async (req, res) => {
       });
     }
 
-    // Encrypt access token
+    // Encrypt tokens
     const encryptedAccessToken = encryptAndSerialize(accessToken);
     const encryptedRefreshToken = refreshToken
       ? encryptAndSerialize(refreshToken)
       : null;
 
-    // Insert or update OAuth connection
-    const result = await query<SocialOAuthConnection>(
+    await query<SocialOAuthConnection>(
       `INSERT INTO social_oauth_connections (
         social_account_id, platform, access_token, refresh_token, expires_at, token_status
       ) VALUES ($1, $2, $3, $4, $5, 'active')
@@ -232,7 +222,7 @@ export const handleLinkOAuthConnection: RequestHandler = async (req, res) => {
       ],
     );
 
-    // Update social_account to mark OAuth as connected
+    // Mark account as OAuth-connected
     await query(
       "UPDATE social_accounts SET oauth_connected = TRUE, data_source = 'oauth', updated_at = NOW() WHERE id = $1",
       [accountId],
@@ -249,7 +239,7 @@ export const handleLinkOAuthConnection: RequestHandler = async (req, res) => {
       "Failed to link OAuth connection",
       error instanceof Error ? error : new Error(String(error)),
     );
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to establish OAuth connection",
       correlationId,
     });
@@ -267,7 +257,6 @@ export const handleUseOAuthData: RequestHandler = async (req, res) => {
   }
 
   try {
-    // Verify OAuth connection exists
     const oauthConnection = await queryOne<{ id: string }>(
       "SELECT id FROM social_oauth_connections WHERE social_account_id = $1",
       [accountId],
@@ -280,7 +269,6 @@ export const handleUseOAuthData: RequestHandler = async (req, res) => {
       });
     }
 
-    // Update account to use OAuth data source
     await query(
       "UPDATE social_accounts SET data_source = 'oauth', updated_at = NOW() WHERE id = $1 AND user_id = $2",
       [accountId, userId],
@@ -297,7 +285,7 @@ export const handleUseOAuthData: RequestHandler = async (req, res) => {
       "Failed to switch to OAuth data source",
       error instanceof Error ? error : new Error(String(error)),
     );
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to switch data source",
       correlationId,
     });
