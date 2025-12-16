@@ -27,6 +27,9 @@ app.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
+
+  // Start refresh worker for Module 2A (10-minute interval)
+  startRefreshWorker(10 * 60 * 1000);
 });
 
 // Graceful shutdown
