@@ -237,7 +237,10 @@ export default function VideoGeneratorCreate() {
                       onClick={() =>
                         setFormState({
                           ...formState,
-                          resolution: res.id as "vertical" | "square" | "horizontal",
+                          resolution: res.id as
+                            | "vertical"
+                            | "square"
+                            | "horizontal",
                         })
                       }
                       className={`p-6 rounded-lg border-2 transition-all text-center ${
