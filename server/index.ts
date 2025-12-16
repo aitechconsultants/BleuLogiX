@@ -41,6 +41,19 @@ import {
   handleUpdateWorkspaceOverride,
   handleDeleteWorkspaceOverride,
 } from "./routes/adminPolicies";
+import {
+  handleGetOAuthConfig,
+  handleStartOAuthFlow,
+  handleOAuthCallback,
+  handleLinkOAuthConnection,
+  handleUseOAuthData,
+} from "./routes/socialOAuth";
+import {
+  handleGetAffiliateProfile,
+  handleCreateAffiliateProfile,
+  handleAffiliateRedirect,
+  handleRecordAffiliateEvent,
+} from "./routes/affiliate";
 
 export function createServer() {
   const app = express();
