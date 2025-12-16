@@ -319,6 +319,17 @@ export async function runMigrations() {
       ON social_accounts (status);
     `);
 
+    // Module 2A indexes
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_accounts_next_refresh
+      ON social_accounts (next_refresh_at);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_accounts_user_next_refresh
+      ON social_accounts (user_id, next_refresh_at);
+    `);
+
     // Create indexes for social_metrics_snapshots
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_social_metrics_account_id
