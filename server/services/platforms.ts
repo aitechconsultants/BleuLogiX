@@ -30,7 +30,7 @@ export interface PlatformAdapter {
   fetchMetrics(username: string): Promise<PlatformMetrics>;
   // Module 2B: OAuth methods (optional)
   getOAuthConfig?(): OAuthConfig;
-  exchangeCodeForToken?(
+  exchangeCodeForToken(
     code: string,
   ): Promise<{
     access_token: string;
