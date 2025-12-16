@@ -15,6 +15,9 @@ interface SocialAccount {
   engagement_rate?: number;
   last_synced_at?: string;
   status: "active" | "error" | "paused";
+  refresh_mode?: "manual" | "scheduled";
+  refresh_interval_hours?: number;
+  next_refresh_at?: string;
 }
 
 interface ListResponse {
