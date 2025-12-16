@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { format } from "date-fns";
-import { Trash2, RefreshCw, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { Trash2, RefreshCw, AlertCircle, CheckCircle, Loader2, Lock } from "lucide-react";
 import AccountMetricsPreview from "./AccountMetricsPreview";
 import {
   AlertDialog,
@@ -10,6 +11,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { toast } from "sonner";
+import { updateRefreshSettings } from "@/lib/refreshSettingsApi";
 
 interface SocialAccountCardProps {
   id: string;
@@ -23,6 +31,11 @@ interface SocialAccountCardProps {
   isRefreshing?: boolean;
   onRefresh?: () => Promise<void>;
   onRemove?: () => Promise<void>;
+  plan?: string;
+  refreshMode?: "manual" | "scheduled";
+  refreshIntervalHours?: number;
+  nextRefreshAt?: string;
+  onRefreshSettingsUpdate?: () => Promise<void>;
 }
 
 const platformIcons: Record<string, string> = {
