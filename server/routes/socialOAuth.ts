@@ -144,12 +144,12 @@ export const handleOAuthCallback: RequestHandler = async (req, res) => {
 
     const adapter = getPlatformAdapter(platform as Platform);
 
-    if (!adapter.exchangeCodeForToken) {
-      return res.status(404).json({
-        error: `OAuth not available for ${platform}`,
-        correlationId,
-      });
-    }
+// 🔒 SAME guard, reused
+assertOAuthSupported(adapter);
+
+// Exchange code for token
+const tokenResponse = await adapter.exchangeCodeForToken(code as string);
+
 
     // TODO: Verify state parameter
 
