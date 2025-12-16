@@ -119,6 +119,10 @@ export function createServer() {
   app.get("/api/social-accounts", handleListAccounts);
   app.post("/api/social-accounts/:id/refresh", handleRefreshAccount);
   app.delete("/api/social-accounts/:id", handleRemoveAccount);
+  app.put("/api/social-accounts/:id/refresh-settings", handleUpdateRefreshSettings);
+
+  // Module 2A: Worker endpoint (admin/dev only)
+  app.post("/api/social-accounts/worker/run-once", handleRunRefreshCycle);
 
   return app;
 }
