@@ -131,20 +131,7 @@ export const YouTubeAdapter: PlatformAdapter = {
       throw new Error(`Failed to fetch YouTube data for ${username}`);
     }
   },
-  // Module 2B: YouTube OAuth configuration
-  getOAuthConfig(): OAuthConfig {
-    return {
-      clientId: process.env.YOUTUBE_OAUTH_CLIENT_ID || "",
-      clientSecret: process.env.YOUTUBE_OAUTH_CLIENT_SECRET || "",
-      redirectUri: `${process.env.APP_URL}/api/social-oauth/youtube/callback`,
-      authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-      tokenUrl: "https://oauth2.googleapis.com/token",
-      scopes: [
-        "https://www.googleapis.com/auth/youtube.readonly",
-        "https://www.googleapis.com/auth/userinfo.profile",
-      ],
-    };
-  },
+
   async exchangeCodeForToken?(
     code: string,
   ): Promise<{
@@ -231,4 +218,20 @@ export function getPlatformAdapter(platform: Platform): PlatformAdapter {
     throw new Error(`Unknown platform: ${platform}`);
   }
   return adapter;
+}
+export function assertOAuthSupported(
+  adapter: PlatformAdapter,
+): asserts adapter is PlatformAdapter & {
+  getOAuthConfig: () => OAuthConfig;
+  exchangeCodeForToken: (
+    code: string,
+  ) => Promise<{
+    access_token: string;
+    refresh_token?: string;
+    expires_at?: Date;
+  }>;
+} {
+  if (!adapter.getOAuthConfig || !adapter.exchangeCodeForToken) {
+    throw new Error(`OAuth not supported for platform: ${adapter.platform}`);
+  }
 }
