@@ -13,14 +13,14 @@ const distPath = path.join(__dirname, "../spa");
 // Serve static files (Vite build output)
 app.use(express.static(distPath));
 
-// SPA fallback for React Router (Express 5 safe wildcard)
-// IMPORTANT: Use "/(.*)" instead of "/*" to avoid path-to-regexp errors.
-app.get("/(.*)", (req, res) => {
-  // Do NOT serve index.html for API/health routes
-  if (req.path.startsWith("/api/") || req.path.startsWith("/health")) {
-    return res.status(404).json({ error: "Not found" });
-  }
-
+/**
+ * SPA fallback for React Router
+ * Use a RegExp path to avoid path-to-regexp string parsing issues.
+ *
+ * This matches any route that does NOT start with:
+ *   /api/   or   /health
+ */
+app.get(/^(?!\/api\/|\/health).*/, (_req, res) => {
   return res.sendFile(path.join(distPath, "index.html"));
 });
 
