@@ -240,6 +240,57 @@ export default function AccountHub() {
             </div>
           </div>
 
+          {/* Module 2D: Affiliate Code Banner */}
+          {affiliateProfile && (
+            <div className="mb-8 p-6 rounded-lg bg-gradient-to-r from-accent-blue/10 to-highlight-blue/10 border border-accent-blue/30">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                🎯 Affiliate Code
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Code Badge */}
+                <div className="md:col-span-2">
+                  <p className="text-xs text-muted-foreground mb-2">Your Referral Code</p>
+                  <div className="flex items-center gap-2">
+                    <code className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-mono text-lg font-semibold">
+                      {affiliateProfile.affiliate_code}
+                    </code>
+                    <button
+                      onClick={handleCopyAffiliateCode}
+                      className="p-2 rounded-lg bg-card hover:bg-muted border border-border transition-colors"
+                      title="Copy code"
+                    >
+                      {copiedCode ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-foreground" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2">Clicks</p>
+                  <p className="text-2xl font-bold text-accent-blue">
+                    {affiliateProfile.stats.clicks}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2">Signups</p>
+                  <p className="text-2xl font-bold text-accent-blue">
+                    {affiliateProfile.stats.signups}
+                  </p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-xs text-muted-foreground mb-2">Revenue</p>
+                  <p className="text-2xl font-bold text-accent-blue">
+                    ${affiliateProfile.stats.revenue.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Error State */}
           {error && !isLoading && (
             <div className="mb-8 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
