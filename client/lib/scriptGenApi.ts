@@ -137,22 +137,31 @@ export async function getJob(
 
 // Hook for script generation
 export function useScriptGenApi() {
-  const { getToken } = useAuth();
+  const auth = useAuth();
 
   return {
     generateScript: async (payload: GenerateScriptInput) => {
-      const token = await getToken();
-      if (!token) throw new Error("Not authenticated");
+      if (!auth.isSignedIn) {
+        throw new Error("Please sign in to generate scripts");
+      }
+      const token = await auth.getToken();
+      if (!token) throw new Error("Failed to get authentication token");
       return generateScript(payload, token);
     },
     createJob: async (payload: GenerateScriptInput) => {
-      const token = await getToken();
-      if (!token) throw new Error("Not authenticated");
+      if (!auth.isSignedIn) {
+        throw new Error("Please sign in to generate scripts");
+      }
+      const token = await auth.getToken();
+      if (!token) throw new Error("Failed to get authentication token");
       return createJob(payload, token);
     },
     getJob: async (jobId: string) => {
-      const token = await getToken();
-      if (!token) throw new Error("Not authenticated");
+      if (!auth.isSignedIn) {
+        throw new Error("Please sign in to view jobs");
+      }
+      const token = await auth.getToken();
+      if (!token) throw new Error("Failed to get authentication token");
       return getJob(jobId, token);
     },
   };
