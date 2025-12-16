@@ -141,6 +141,8 @@ export default function SocialAccountCard({
       <AlertCircle className={`w-4 h-4 ${statusColor}`} />
     ) : null;
 
+  const canUseOAuth = plan !== "free" && plan !== "pro";
+
   return (
     <div className="p-5 rounded-lg border border-border bg-card hover:border-accent-blue/50 transition-all">
       {/* Header with platform and status */}
@@ -160,6 +162,39 @@ export default function SocialAccountCard({
             {status}
           </span>
         </div>
+      </div>
+
+      {/* Data source badge + OAuth button */}
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+            dataSource === "oauth"
+              ? "bg-green-500/20 text-green-700"
+              : "bg-muted text-muted-foreground"
+          }`}>
+            {dataSource === "oauth" ? "🔐 OAuth" : "📊 Public"}
+          </span>
+        </div>
+        {!oauthConnected && (
+          <button
+            onClick={onOAuthConnect}
+            disabled={!canUseOAuth}
+            title={!canUseOAuth ? "OAuth requires Premium or Enterprise" : ""}
+            className={`text-xs font-medium px-2 py-1 rounded transition-colors ${
+              canUseOAuth
+                ? "bg-blue-500/20 text-blue-700 hover:bg-blue-500/30"
+                : "bg-gray-500/20 text-gray-600 cursor-not-allowed"
+            }`}
+          >
+            {!canUseOAuth && <Lock className="w-3 h-3 inline mr-1" />}
+            Connect OAuth
+          </button>
+        )}
+        {oauthConnected && (
+          <span className="text-xs font-medium px-2 py-1 rounded bg-green-500/20 text-green-700">
+            ✓ OAuth Connected
+          </span>
+        )}
       </div>
 
       {/* Metrics */}
