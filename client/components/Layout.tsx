@@ -102,6 +102,12 @@ export default function Layout({ children }: LayoutProps) {
                   >
                     Dashboard
                   </Link>
+                  <Link
+                    to={ROUTES.accountHub}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Accounts
+                  </Link>
                   <UserButton
                     afterSignOutUrl={ROUTES.home}
                     appearance={{
