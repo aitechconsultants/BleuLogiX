@@ -9,11 +9,24 @@ export interface PlatformMetrics {
   profile_url: string;
 }
 
+export interface OAuthConfig {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  authorizationUrl: string;
+  tokenUrl: string;
+  scopes: string[];
+}
+
 export interface PlatformAdapter {
   platform: Platform;
   validateUsername(username: string): boolean;
   getProfileUrl(username: string): string;
   fetchMetrics(username: string): Promise<PlatformMetrics>;
+  // Module 2B: OAuth methods (optional)
+  getOAuthConfig?(): OAuthConfig;
+  exchangeCodeForToken?(code: string): Promise<{ access_token: string; refresh_token?: string; expires_at?: Date }>;
+  fetchOAuthMetrics?(accessToken: string): Promise<PlatformMetrics>;
 }
 
 // TikTok Adapter - Uses public API when available, gracefully falls back
