@@ -6,6 +6,7 @@ export const ROUTES = {
   videoGenerator: "/video-generator",
   videoGeneratorCreate: "/video-generator/create",
   videoGeneratorHistory: "/video-generator/history",
+  accountHub: "/accounts",
   adminAudit: "/admin/audit",
 } as const;
 
