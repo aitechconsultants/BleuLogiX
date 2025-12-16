@@ -12,18 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Uses pnpm version from package.json "packageManager" (recommended)
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
 
-      - name: Install and update lockfile
-        run: pnpm install --no-frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Regenerate pnpm-lock.yaml
+        run: |
+          rm -f pnpm-lock.yaml
+          pnpm install --no-frozen-lockfile
 
       - name: Commit and push lockfile (only if changed)
         run: |
@@ -37,5 +36,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: update pnpm-lock.yaml"
+          git commit -m "chore: regenerate pnpm-lock.yaml"
           git push
