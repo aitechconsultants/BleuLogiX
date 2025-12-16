@@ -131,5 +131,32 @@ export function createServer() {
   // Module 2A: Worker endpoint (admin/dev only)
   app.post("/api/social-accounts/worker/run-once", handleRunRefreshCycle);
 
+  // Module 2C: Admin policy routes (admin only)
+  app.get("/api/admin/plan-policies", requireClerkAuth, requireAdminAuth, handleGetPlanPolicies);
+  app.put(
+    "/api/admin/plan-policies/:plan_key",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleUpdatePlanPolicy
+  );
+  app.get(
+    "/api/admin/workspace-overrides",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleGetWorkspaceOverrides
+  );
+  app.put(
+    "/api/admin/workspace-overrides/:workspace_id",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleUpdateWorkspaceOverride
+  );
+  app.delete(
+    "/api/admin/workspace-overrides/:workspace_id",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleDeleteWorkspaceOverride
+  );
+
   return app;
 }
