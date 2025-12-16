@@ -260,6 +260,69 @@ export async function runMigrations() {
       ON CONFLICT (name) DO NOTHING;
     `);
 
+    // Create social_accounts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS social_accounts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL,
+        workspace_id UUID,
+        platform TEXT NOT NULL CHECK (platform IN ('tiktok', 'instagram', 'youtube', 'twitter', 'linkedin')),
+        username TEXT NOT NULL,
+        profile_url TEXT,
+        is_verified BOOLEAN,
+        follower_count INTEGER DEFAULT 0,
+        following_count INTEGER,
+        post_count INTEGER DEFAULT 0,
+        engagement_rate FLOAT,
+        last_synced_at TIMESTAMPTZ,
+        data_source TEXT DEFAULT 'public' CHECK (data_source IN ('public', 'oauth')),
+        status TEXT DEFAULT 'active' CHECK (status IN ('active', 'error', 'paused')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Create social_metrics_snapshots table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS social_metrics_snapshots (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        social_account_id UUID NOT NULL REFERENCES social_accounts(id) ON DELETE CASCADE,
+        followers INTEGER,
+        views INTEGER,
+        likes INTEGER,
+        comments INTEGER,
+        engagement_rate FLOAT,
+        captured_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Create indexes for social_accounts
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_accounts_user_id
+      ON social_accounts (user_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_accounts_user_platform
+      ON social_accounts (user_id, platform);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_accounts_status
+      ON social_accounts (status);
+    `);
+
+    // Create indexes for social_metrics_snapshots
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_metrics_account_id
+      ON social_metrics_snapshots (social_account_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_metrics_captured_at
+      ON social_metrics_snapshots (social_account_id, captured_at DESC);
+    `);
+
     console.log("Migrations completed successfully");
   } catch (error) {
     console.error("Migration error:", error);
