@@ -74,6 +74,9 @@ export default function SocialAccountCard({
   refreshIntervalHours = 24,
   nextRefreshAt,
   onRefreshSettingsUpdate,
+  oauthConnected = false,
+  dataSource = "public",
+  onOAuthConnect,
 }: SocialAccountCardProps) {
   const [isSavingRefreshSettings, setIsSavingRefreshSettings] = useState(false);
   const [localRefreshMode, setLocalRefreshMode] = useState(refreshMode);
