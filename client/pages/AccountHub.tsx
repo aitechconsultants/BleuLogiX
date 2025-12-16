@@ -263,6 +263,9 @@ export default function AccountHub() {
                   refreshIntervalHours={account.refresh_interval_hours}
                   nextRefreshAt={account.next_refresh_at}
                   onRefreshSettingsUpdate={fetchAccounts}
+                  oauthConnected={account.oauth_connected}
+                  dataSource={account.data_source}
+                  onOAuthConnect={() => handleOAuthConnect(account.id, account.platform)}
                 />
               ))}
             </div>
