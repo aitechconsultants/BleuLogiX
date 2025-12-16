@@ -75,25 +75,11 @@ export function createServer() {
   // Middleware
   app.use(cors());
 
-  /**
-   * ✅ Clerk middleware requires a publishable key on the server.
-   * Primary: CLERK_PUBLISHABLE_KEY
-   * Fallback: VITE_CLERK_PUBLISHABLE_KEY (so deploys don't break if you forgot the server var)
-   */
-  const publishableKey =
-    process.env.CLERK_PUBLISHABLE_KEY || process.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-  if (!publishableKey) {
-    console.error(
-      "[Clerk] Publishable key is missing. Set CLERK_PUBLISHABLE_KEY (server) and VITE_CLERK_PUBLISHABLE_KEY (client).",
-    );
-  }
-
-  app.use(
-    clerkMiddleware({
-      publishableKey,
-    }),
-  );
+  // IMPORTANT:
+  // Do NOT mount clerkMiddleware() globally.
+  // Keep public routes (/, /health, SPA assets) free of Clerk handshake/auth,
+  // so Railway health checks never fail due to auth.
+  const clerk = clerkMiddleware();
 
   // Webhook route must be before express.json() to get raw body
   app.post(
@@ -106,16 +92,16 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // ✅ DB init/migrations removed from here.
-  // Do DB bootstrap once in your server entry file (node-build/server.ts),
-  // so the app + worker are deterministic and don't race on first request.
-
-  // Health check routes
+  // Health check routes (public)
   app.get("/health", (_req, res) => {
     res.json({ ok: true, service: "fusion-starter" });
   });
   app.get("/api/health", handleHealth);
   app.get("/api/health/routes", handleHealthRoutes);
+
+  // Anything under /api can use Clerk safely
+  app.use("/api", clerk);
+
   app.get(
     "/api/health/integrations",
     requireClerkAuth,
@@ -134,7 +120,7 @@ export function createServer() {
   // Auth routes
   app.post("/api/auth/sync", requireClerkAuth, handleSync);
 
-  // Protected routes - use Clerk authentication middleware
+  // Protected routes
   app.use("/api/billing", requireClerkAuth);
   app.use("/api/generator", requireClerkAuth);
 
