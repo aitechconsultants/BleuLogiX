@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Wand2 } from "lucide-react";
+import { useScriptGenApi } from "../lib/scriptGenApi";
 
 interface ScriptPanelProps {
   value: string;
@@ -21,6 +22,7 @@ export default function ScriptPanel({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const wordCount = value.split(/\s+/).filter((w) => w.length > 0).length;
+  const scriptGenApi = useScriptGenApi();
 
   const handleGenerateScript = async () => {
     setError(null);
@@ -34,43 +36,36 @@ export default function ScriptPanel({
     setIsGenerating(true);
 
     try {
-      const response = await fetch("/api/script/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await scriptGenApi.generateScript({
+        platform: "TikTok",
+        video_length_sec: 30,
+        style: "UGC",
+        product_name: topic,
+        key_benefits: niche ? [niche] : ["Quality", "Value"],
+        differentiators: tone ? [tone] : ["Innovation"],
+        audience: {
+          target: niche || "General audience",
+          pain_points: ["Time", "Cost"],
         },
-        body: JSON.stringify({
-          videoTopic: topic,
-          niche,
-          styleTone: tone,
-          maxChars: maxLength,
-        }),
+        brand_voice: tone || "Professional and engaging",
+        call_to_action: "Learn more today",
       });
 
-      if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMessage = errorData.error;
-          }
-        } catch {
-          console.error("Failed to parse error response", response);
-        }
-        console.error("Script generation error:", errorMessage);
-        setError(errorMessage);
-        return;
-      }
-
-      const data = await response.json();
-      const script = data.script || "";
-
-      if (!script) {
+      if (!response.script) {
         setError("No script returned from generation service.");
         return;
       }
 
-      onChange(script.slice(0, maxLength));
+      const scriptText = response.script.scenes
+        ?.map((scene: any) => `Scene ${scene.scene_id}: ${scene.voiceover}`)
+        .join("\n\n");
+
+      if (!scriptText) {
+        setError("Could not extract script from response.");
+        return;
+      }
+
+      onChange(scriptText.slice(0, maxLength));
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
