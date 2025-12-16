@@ -14,87 +14,47 @@ interface GenerateScriptResponse {
 
 export const handleGenerateScript: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
-  const scriptGenUrl = process.env.SCRIPT_GEN_URL;
-
-  if (!scriptGenUrl) {
-    return res.status(503).json({
-      error: "Script generation is not configured",
-      correlationId,
-    });
-  }
 
   try {
-    const payload: GenerateScriptRequest = req.body;
+    const { videoTopic, niche, styleTone, maxChars } = req.body;
 
-    if (!payload.videoTopic) {
-      return res.status(400).json({
-        error: "videoTopic is required",
-        correlationId,
+    if (!videoTopic || !niche || !styleTone) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const SCRIPT_URL = process.env.SCRIPT_GEN_URL;
+
+    if (!SCRIPT_URL) {
+      return res.status(501).json({
+        error: "Script generation service not configured",
       });
     }
 
-    const response = await fetch(scriptGenUrl, {
+    const response = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        videoTopic: payload.videoTopic,
-        niche: payload.niche || "",
-        styleTone: payload.styleTone || "",
-        maxChars: payload.maxChars || 500,
-      }),
+      body: JSON.stringify({ videoTopic, niche, styleTone, maxChars }),
     });
 
+    const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      let errorMessage = `External service returned ${response.status}`;
-      try {
-        const errorData = await response.json();
-        if (errorData.error) {
-          errorMessage = errorData.error;
-        }
-      } catch {
-        // Ignore parsing errors
-      }
-
-      logError(
-        { correlationId },
-        `Script generation service error: ${errorMessage}`,
-        new Error(errorMessage),
-      );
-
-      return res.status(response.status).json({
-        error: errorMessage,
-        correlationId,
+      return res.status(502).json({
+        error: data?.error || "Upstream script service failed",
       });
     }
 
-    const data = await response.json();
-    const script = data.script || data.text || "";
+    const script = data.script || data.text;
 
     if (!script) {
-      logError(
-        { correlationId },
-        "Script generation returned empty response",
-        new Error("Empty script response"),
-      );
-
-      return res.status(502).json({
-        error: "No script returned from generation service",
-        correlationId,
-      });
+      return res.status(502).json({ error: "No script returned" });
     }
 
-    res.json({ script } as GenerateScriptResponse);
-  } catch (error) {
-    logError(
-      { correlationId },
-      "Script generation request failed",
-      error instanceof Error ? error : new Error(String(error)),
-    );
-
-    res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Failed to generate script",
-      correlationId,
+    return res.json({ script });
+  } catch (err) {
+    console.error("Script generation error:", err);
+    return res.status(500).json({
+      error: "Internal script generation error",
     });
   }
 };
