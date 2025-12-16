@@ -74,7 +74,26 @@ export function createServer() {
 
   // Middleware
   app.use(cors());
-  app.use(clerkMiddleware());
+
+  /**
+   * ✅ Clerk middleware requires a publishable key on the server.
+   * Primary: CLERK_PUBLISHABLE_KEY
+   * Fallback: VITE_CLERK_PUBLISHABLE_KEY (so deploys don't break if you forgot the server var)
+   */
+  const publishableKey =
+    process.env.CLERK_PUBLISHABLE_KEY || process.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+  if (!publishableKey) {
+    console.error(
+      "[Clerk] Publishable key is missing. Set CLERK_PUBLISHABLE_KEY (server) and VITE_CLERK_PUBLISHABLE_KEY (client).",
+    );
+  }
+
+  app.use(
+    clerkMiddleware({
+      publishableKey,
+    }),
+  );
 
   // Webhook route must be before express.json() to get raw body
   app.post(
@@ -141,7 +160,10 @@ export function createServer() {
   app.get("/api/social-accounts", handleListAccounts);
   app.post("/api/social-accounts/:id/refresh", handleRefreshAccount);
   app.delete("/api/social-accounts/:id", handleRemoveAccount);
-  app.put("/api/social-accounts/:id/refresh-settings", handleUpdateRefreshSettings);
+  app.put(
+    "/api/social-accounts/:id/refresh-settings",
+    handleUpdateRefreshSettings,
+  );
 
   // Module 2A: Worker endpoint (admin/dev only)
   app.post("/api/social-accounts/worker/run-once", handleRunRefreshCycle);
@@ -180,14 +202,34 @@ export function createServer() {
 
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
-  app.get("/api/social-oauth/:platform/start", requireClerkAuth, handleStartOAuthFlow);
+  app.get(
+    "/api/social-oauth/:platform/start",
+    requireClerkAuth,
+    handleStartOAuthFlow,
+  );
   app.get("/api/social-oauth/:platform/callback", handleOAuthCallback);
-  app.post("/api/social-accounts/:accountId/oauth/link", requireClerkAuth, handleLinkOAuthConnection);
-  app.post("/api/social-accounts/:accountId/use-oauth", requireClerkAuth, handleUseOAuthData);
+  app.post(
+    "/api/social-accounts/:accountId/oauth/link",
+    requireClerkAuth,
+    handleLinkOAuthConnection,
+  );
+  app.post(
+    "/api/social-accounts/:accountId/use-oauth",
+    requireClerkAuth,
+    handleUseOAuthData,
+  );
 
   // Module 2D: Affiliate routes
-  app.get("/api/affiliate/profile", requireClerkAuth, handleGetAffiliateProfile);
-  app.post("/api/affiliate/create", requireClerkAuth, handleCreateAffiliateProfile);
+  app.get(
+    "/api/affiliate/profile",
+    requireClerkAuth,
+    handleGetAffiliateProfile,
+  );
+  app.post(
+    "/api/affiliate/create",
+    requireClerkAuth,
+    handleCreateAffiliateProfile,
+  );
   app.get("/r/:code", handleAffiliateRedirect);
   app.post("/api/affiliate/events", handleRecordAffiliateEvent);
 
