@@ -8,6 +8,7 @@ export const ROUTES = {
   videoGeneratorHistory: "/video-generator/history",
   accountHub: "/accounts",
   adminAudit: "/admin/audit",
+  adminPolicies: "/admin/policies",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
