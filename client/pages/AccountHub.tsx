@@ -139,6 +139,13 @@ export default function AccountHub() {
     }
   };
 
+  // Handle OAuth connect
+  const handleOAuthConnect = (accountId: string, platform: string) => {
+    // TODO: Implement OAuth flow modal
+    // This will open the OAuth start flow for the specified platform
+    toast.info(`OAuth for ${platform} coming soon!`);
+  };
+
   if (!isSignedIn) {
     return (
       <Layout>
