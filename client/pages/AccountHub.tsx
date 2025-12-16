@@ -18,6 +18,8 @@ interface SocialAccount {
   refresh_mode?: "manual" | "scheduled";
   refresh_interval_hours?: number;
   next_refresh_at?: string;
+  oauth_connected?: boolean;
+  data_source?: "public" | "oauth";
 }
 
 interface ListResponse {
