@@ -102,12 +102,12 @@ export function runRouteSelfTest(appOrRouter: any, label: string): void {
 
     throw new Error(
       `Invalid route pattern detected: ${errors[0].path}\n` +
-        `Found ${errors.length} invalid route(s). See logs above for details.`
+        `Found ${errors.length} invalid route(s). See logs above for details.`,
     );
   }
 
   console.log(
-    `[${label}] Route validation passed - ${routes.length} route(s) valid`
+    `[${label}] Route validation passed - ${routes.length} route(s) valid`,
   );
 }
 
@@ -131,10 +131,10 @@ export function wrapRouter(router: any): void {
           pathToRegexp(path);
         } catch (error) {
           console.error(
-            `[wrapRouter] Failed to register route with ${method.toUpperCase()} ${path}`
+            `[wrapRouter] Failed to register route with ${method.toUpperCase()} ${path}`,
           );
           console.error(
-            `  Error: ${error instanceof Error ? error.message : String(error)}`
+            `  Error: ${error instanceof Error ? error.message : String(error)}`,
           );
           throw error;
         }
