@@ -31,6 +31,8 @@ import {
   handleListAccounts,
   handleRefreshAccount,
   handleRemoveAccount,
+  handleUpdateRefreshSettings,
+  handleRunRefreshCycle,
 } from "./routes/socialAccounts";
 
 export function createServer() {
