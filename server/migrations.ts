@@ -341,6 +341,117 @@ export async function runMigrations() {
       ON social_metrics_snapshots (social_account_id, captured_at DESC);
     `);
 
+    // Module 2B: OAuth connections table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS social_oauth_connections (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        social_account_id UUID NOT NULL UNIQUE REFERENCES social_accounts(id) ON DELETE CASCADE,
+        platform TEXT NOT NULL,
+        access_token TEXT NOT NULL,
+        refresh_token TEXT,
+        expires_at TIMESTAMPTZ,
+        scopes TEXT,
+        token_status TEXT DEFAULT 'active' CHECK (token_status IN ('active', 'expired', 'revoked', 'error')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_social_oauth_account_id
+      ON social_oauth_connections (social_account_id);
+    `);
+
+    // Module 2C: Plan policies table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS plan_policies (
+        plan_key TEXT PRIMARY KEY,
+        social_accounts_limit INTEGER NOT NULL,
+        allow_scheduled_refresh BOOLEAN DEFAULT FALSE,
+        allow_oauth BOOLEAN DEFAULT FALSE,
+        default_refresh_interval_hours INTEGER DEFAULT 24,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // Seed plan policies
+    await pool.query(`
+      INSERT INTO plan_policies (plan_key, social_accounts_limit, allow_scheduled_refresh, allow_oauth, default_refresh_interval_hours)
+      VALUES
+        ('free', 1, FALSE, FALSE, 24),
+        ('pro', 5, TRUE, FALSE, 24),
+        ('premium', 10, TRUE, TRUE, 24),
+        ('enterprise', 999, TRUE, TRUE, 6)
+      ON CONFLICT (plan_key) DO NOTHING;
+    `);
+
+    // Module 2C: Workspace policy overrides table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS workspace_policy_overrides (
+        workspace_id UUID PRIMARY KEY,
+        social_accounts_limit INTEGER,
+        allow_scheduled_refresh BOOLEAN,
+        allow_oauth BOOLEAN,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_workspace_policy_overrides_workspace_id
+      ON workspace_policy_overrides (workspace_id);
+    `);
+
+    // Module 2D: Affiliate profiles table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS affiliate_profiles (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL UNIQUE,
+        affiliate_code TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_affiliate_code
+      ON affiliate_profiles (affiliate_code);
+    `);
+
+    // Module 2D: Affiliate events table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS affiliate_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        affiliate_code TEXT NOT NULL,
+        event_type TEXT NOT NULL CHECK (event_type IN ('click', 'signup', 'upgrade')),
+        value_usd NUMERIC,
+        metadata JSONB,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_affiliate_events_code_created
+      ON affiliate_events (affiliate_code, created_at DESC);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_affiliate_events_type_created
+      ON affiliate_events (event_type, created_at DESC);
+    `);
+
+    // Module 2D: User attribution table (fallback if Clerk metadata unavailable)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_attribution (
+        user_id UUID PRIMARY KEY,
+        referral_code TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_attribution_referral_code
+      ON user_attribution (referral_code);
+    `);
+
     console.log("Migrations completed successfully");
   } catch (error) {
     console.error("Migration error:", error);
