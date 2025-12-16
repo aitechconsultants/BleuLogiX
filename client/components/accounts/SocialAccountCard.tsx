@@ -66,7 +66,19 @@ export default function SocialAccountCard({
   isRefreshing = false,
   onRefresh,
   onRemove,
+  plan = "free",
+  refreshMode = "manual",
+  refreshIntervalHours = 24,
+  nextRefreshAt,
+  onRefreshSettingsUpdate,
 }: SocialAccountCardProps) {
+  const [isSavingRefreshSettings, setIsSavingRefreshSettings] = useState(false);
+  const [localRefreshMode, setLocalRefreshMode] = useState(refreshMode);
+  const [localRefreshInterval, setLocalRefreshInterval] = useState(refreshIntervalHours);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  const canScheduleRefresh = plan !== "free";
+
   const handleRefresh = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (onRefresh) {
@@ -78,9 +90,36 @@ export default function SocialAccountCard({
     }
   };
 
+  const handleSaveRefreshSettings = async () => {
+    setIsSavingRefreshSettings(true);
+    try {
+      await updateRefreshSettings(id, {
+        refresh_mode: localRefreshMode,
+        refresh_interval_hours: localRefreshInterval,
+      });
+      toast.success("Refresh settings updated");
+      setIsPopoverOpen(false);
+      if (onRefreshSettingsUpdate) {
+        await onRefreshSettingsUpdate();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to update";
+      toast.error(message);
+      // Revert UI
+      setLocalRefreshMode(refreshMode);
+      setLocalRefreshInterval(refreshIntervalHours);
+    } finally {
+      setIsSavingRefreshSettings(false);
+    }
+  };
+
   const lastSyncTime = lastSyncedAt
     ? format(new Date(lastSyncedAt), "MMM dd, yyyy HH:mm")
     : "Never";
+
+  const nextRefreshTime = nextRefreshAt && localRefreshMode === "scheduled"
+    ? format(new Date(nextRefreshAt), "MMM dd, yyyy HH:mm")
+    : null;
 
   const statusColor =
     status === "active"
