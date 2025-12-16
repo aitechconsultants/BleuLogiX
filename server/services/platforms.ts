@@ -235,3 +235,21 @@ export function assertOAuthSupported(
     throw new Error(`OAuth not supported for platform: ${adapter.platform}`);
   }
 }
+import type { PlatformAdapter, OAuthConfig } from "./platforms"; // adjust import if inside same file
+
+export function assertOAuthSupported(
+  adapter: PlatformAdapter,
+): asserts adapter is PlatformAdapter & {
+  getOAuthConfig: () => OAuthConfig;
+  exchangeCodeForToken: (
+    code: string,
+  ) => Promise<{
+    access_token: string;
+    refresh_token?: string;
+    expires_at?: Date;
+  }>;
+} {
+  if (!adapter.getOAuthConfig || !adapter.exchangeCodeForToken) {
+    throw new Error(`OAuth not supported for platform: ${adapter.platform}`);
+  }
+}
