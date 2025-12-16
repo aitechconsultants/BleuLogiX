@@ -70,9 +70,38 @@ export default function AccountHub() {
     }
   };
 
+  // Load affiliate profile
+  const loadAffiliateProfile = async () => {
+    if (!isSignedIn) return;
+
+    try {
+      setIsLoadingAffiliate(true);
+      const profile = await getAffiliateProfile();
+      setAffiliateProfile(profile);
+    } catch (error) {
+      // Affiliate module is optional, don't show error
+      console.debug("Affiliate profile not available", error);
+    } finally {
+      setIsLoadingAffiliate(false);
+    }
+  };
+
+  const handleCopyAffiliateCode = async () => {
+    if (!affiliateProfile?.affiliate_code) return;
+    try {
+      await navigator.clipboard.writeText(affiliateProfile.affiliate_code);
+      setCopiedCode(true);
+      toast.success("Affiliate code copied!");
+      setTimeout(() => setCopiedCode(false), 2000);
+    } catch (error) {
+      toast.error("Failed to copy code");
+    }
+  };
+
   useEffect(() => {
     if (isSignedIn) {
       fetchAccounts();
+      loadAffiliateProfile();
     }
   }, [isSignedIn]);
 
