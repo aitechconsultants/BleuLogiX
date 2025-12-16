@@ -249,6 +249,11 @@ export default function AccountHub() {
                   isRefreshing={refreshingId === account.id}
                   onRefresh={() => handleRefreshAccount(account.id)}
                   onRemove={() => handleRemoveAccount(account.id)}
+                  plan={plan}
+                  refreshMode={account.refresh_mode}
+                  refreshIntervalHours={account.refresh_interval_hours}
+                  nextRefreshAt={account.next_refresh_at}
+                  onRefreshSettingsUpdate={fetchAccounts}
                 />
               ))}
             </div>
