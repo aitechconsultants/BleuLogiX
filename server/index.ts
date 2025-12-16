@@ -171,5 +171,18 @@ export function createServer() {
     handleDeleteWorkspaceOverride
   );
 
+  // Module 2B: OAuth routes
+  app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
+  app.get("/api/social-oauth/:platform/start", requireClerkAuth, handleStartOAuthFlow);
+  app.get("/api/social-oauth/:platform/callback", handleOAuthCallback);
+  app.post("/api/social-accounts/:accountId/oauth/link", requireClerkAuth, handleLinkOAuthConnection);
+  app.post("/api/social-accounts/:accountId/use-oauth", requireClerkAuth, handleUseOAuthData);
+
+  // Module 2D: Affiliate routes
+  app.get("/api/affiliate/profile", requireClerkAuth, handleGetAffiliateProfile);
+  app.post("/api/affiliate/create", requireClerkAuth, handleCreateAffiliateProfile);
+  app.get("/r/:code", handleAffiliateRedirect);
+  app.post("/api/affiliate/events", handleRecordAffiliateEvent);
+
   return app;
 }
