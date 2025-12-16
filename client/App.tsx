@@ -63,6 +63,16 @@ const AppContent = () => (
               </RequireAuth>
             }
           />
+          <Route
+            path="/admin/policies"
+            element={
+              <RequireAuth>
+                <RequireAdmin>
+                  <AdminPolicies />
+                </RequireAdmin>
+              </RequireAuth>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
