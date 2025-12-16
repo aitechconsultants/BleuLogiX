@@ -45,6 +45,14 @@ const AppContent = () => (
           <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
           <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
           <Route
+            path="/accounts"
+            element={
+              <RequireAuth>
+                <AccountHub />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/admin/audit"
             element={
               <RequireAuth>
