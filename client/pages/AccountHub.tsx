@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { Plus, AlertCircle, Loader2 } from "lucide-react";
+import { Plus, AlertCircle, Loader2, Copy, Check } from "lucide-react";
 import Layout from "@/components/Layout";
 import AddSocialAccountModal from "@/components/accounts/AddSocialAccountModal";
 import SocialAccountCard from "@/components/accounts/SocialAccountCard";
 import { toast } from "sonner";
+import { getAffiliateProfile, AffiliateProfile } from "@/lib/affiliateApi";
 
 interface SocialAccount {
   id: string;
