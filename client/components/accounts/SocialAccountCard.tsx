@@ -163,6 +163,117 @@ export default function SocialAccountCard({
         engagementRate={engagementRate}
       />
 
+      {/* Auto Refresh Settings */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-medium text-foreground">
+              Auto Refresh: {localRefreshMode === "scheduled" ? "ON" : "OFF"}
+            </p>
+            {!canScheduleRefresh && localRefreshMode === "scheduled" && (
+              <Lock className="w-3 h-3 text-yellow-500" />
+            )}
+          </div>
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <PopoverTrigger asChild>
+              <button className="text-xs text-accent-blue hover:text-highlight-blue font-medium">
+                Settings
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-foreground block mb-2">
+                    Refresh Mode
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="manual"
+                        checked={localRefreshMode === "manual"}
+                        onChange={(e) => setLocalRefreshMode(e.target.value as any)}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm text-foreground">Manual</span>
+                    </label>
+                    <label
+                      className={`flex items-center gap-2 cursor-pointer ${
+                        !canScheduleRefresh ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        value="scheduled"
+                        checked={localRefreshMode === "scheduled"}
+                        onChange={(e) => setLocalRefreshMode(e.target.value as any)}
+                        disabled={!canScheduleRefresh}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm text-foreground">Scheduled</span>
+                      {!canScheduleRefresh && (
+                        <Lock className="w-3 h-3 text-yellow-500" />
+                      )}
+                    </label>
+                  </div>
+                  {!canScheduleRefresh && (
+                    <p className="text-xs text-yellow-600 mt-2">
+                      Upgrade to Pro to enable scheduled refresh
+                    </p>
+                  )}
+                </div>
+
+                {localRefreshMode === "scheduled" && (
+                  <div>
+                    <label className="text-xs font-medium text-foreground block mb-2">
+                      Interval (hours)
+                    </label>
+                    <select
+                      value={localRefreshInterval}
+                      onChange={(e) => setLocalRefreshInterval(parseInt(e.target.value))}
+                      className="w-full px-2 py-1 rounded border border-border bg-card text-foreground text-sm"
+                    >
+                      <option value="6">Every 6 hours</option>
+                      <option value="12">Every 12 hours</option>
+                      <option value="24">Every 24 hours</option>
+                    </select>
+                  </div>
+                )}
+
+                <div className="flex gap-2 justify-end pt-2">
+                  <button
+                    onClick={() => setIsPopoverOpen(false)}
+                    disabled={isSavingRefreshSettings}
+                    className="px-3 py-1 rounded text-sm border border-border text-foreground hover:bg-muted disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveRefreshSettings}
+                    disabled={isSavingRefreshSettings}
+                    className="px-3 py-1 rounded text-sm bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {isSavingRefreshSettings ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        {nextRefreshTime && (
+          <p className="text-xs text-muted-foreground">
+            Next refresh: {nextRefreshTime}
+          </p>
+        )}
+      </div>
+
       {/* Last synced */}
       <div className="mt-4 pt-4 border-t border-border">
         <p className="text-xs text-muted-foreground">
