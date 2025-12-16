@@ -78,16 +78,13 @@ class ScriptGenService {
 
     this.openai = new OpenAI({ apiKey });
     this.model = process.env.SCRIPT_GEN_MODEL || "gpt-4-mini";
-    this.maxTokens = parseInt(
-      process.env.SCRIPT_GEN_MAX_TOKENS || "1200",
-      10
-    );
+    this.maxTokens = parseInt(process.env.SCRIPT_GEN_MAX_TOKENS || "1200", 10);
     this.timeout = parseInt(process.env.SCRIPT_GEN_TIMEOUT_MS || "45000", 10);
     this.enableMock =
       process.env.SCRIPT_GEN_ENABLE_MOCK?.toLowerCase() === "true";
     this.rateLimitPerMin = parseInt(
       process.env.SCRIPT_GEN_RATE_LIMIT_PER_MIN || "20",
-      10
+      10,
     );
   }
 
@@ -98,7 +95,7 @@ class ScriptGenService {
     const result = await queryOne<{ count: number }>(
       `SELECT COUNT(*) as count FROM script_gen_jobs 
        WHERE user_id = $1 AND created_at > $2`,
-      [userId, oneMinuteAgo.toISOString()]
+      [userId, oneMinuteAgo.toISOString()],
     );
 
     const count = result?.count || 0;
@@ -106,22 +103,22 @@ class ScriptGenService {
   }
 
   async getTemplate(
-    templateName: string = "default_shortform_v1"
+    templateName: string = "default_shortform_v1",
   ): Promise<ScriptGenTemplate> {
     let template = await queryOne<ScriptGenTemplate>(
       `SELECT * FROM script_gen_templates WHERE name = $1 AND is_active = true`,
-      [templateName]
+      [templateName],
     );
 
     if (!template) {
       template = await queryOne<ScriptGenTemplate>(
-        `SELECT * FROM script_gen_templates WHERE is_active = true LIMIT 1`
+        `SELECT * FROM script_gen_templates WHERE is_active = true LIMIT 1`,
       );
     }
 
     if (!template) {
       throw new Error(
-        "No active script generation template found. Database may not be initialized."
+        "No active script generation template found. Database may not be initialized.",
       );
     }
 
@@ -132,21 +129,21 @@ class ScriptGenService {
     let prompt = template.user_prompt_template;
 
     prompt = prompt.replace("{platform}", input.platform);
-    prompt = prompt.replace("{video_length_sec}", input.video_length_sec.toString());
+    prompt = prompt.replace(
+      "{video_length_sec}",
+      input.video_length_sec.toString(),
+    );
     prompt = prompt.replace("{style}", input.style);
     prompt = prompt.replace("{product_name}", input.product_name);
-    prompt = prompt.replace(
-      "{key_benefits}",
-      input.key_benefits.join(", ")
-    );
+    prompt = prompt.replace("{key_benefits}", input.key_benefits.join(", "));
     prompt = prompt.replace(
       "{differentiators}",
-      input.differentiators.join(", ")
+      input.differentiators.join(", "),
     );
     prompt = prompt.replace("{audience_target}", input.audience.target);
     prompt = prompt.replace(
       "{audience_pain_points}",
-      input.audience.pain_points.join(", ")
+      input.audience.pain_points.join(", "),
     );
     prompt = prompt.replace("{brand_voice}", input.brand_voice);
     prompt = prompt.replace("{call_to_action}", input.call_to_action);
@@ -241,7 +238,7 @@ class ScriptGenService {
   async generateScript(
     userId: string,
     input: GenerateScriptInput,
-    correlationId: string
+    correlationId: string,
   ): Promise<any> {
     const startTime = Date.now();
 
@@ -250,7 +247,7 @@ class ScriptGenService {
       const allowed = await this.checkRateLimit(userId);
       if (!allowed) {
         throw new Error(
-          `Rate limit exceeded: ${this.rateLimitPerMin} requests per minute`
+          `Rate limit exceeded: ${this.rateLimitPerMin} requests per minute`,
         );
       }
 
@@ -259,7 +256,7 @@ class ScriptGenService {
         `INSERT INTO script_gen_jobs (user_id, status, input_json, model, prompt_version)
          VALUES ($1, 'running', $2, $3, $4)
          RETURNING id`,
-        [userId, input, this.model, "v1"]
+        [userId, input, this.model, "v1"],
       );
 
       const jobId = jobResult.rows[0]?.id;
@@ -275,7 +272,7 @@ class ScriptGenService {
           `UPDATE script_gen_jobs
            SET status = 'succeeded', output_json = $1, tokens_in = $2, tokens_out = $3, updated_at = NOW()
            WHERE id = $4`,
-          [mockOutput, 50, 80, jobId]
+          [mockOutput, 50, 80, jobId],
         );
 
         await this.updateDailyUsage(userId, 50, 80);
@@ -291,10 +288,10 @@ class ScriptGenService {
         setTimeout(
           () =>
             reject(
-              new Error(`Script generation timeout after ${this.timeout}ms`)
+              new Error(`Script generation timeout after ${this.timeout}ms`),
             ),
-          this.timeout
-        )
+          this.timeout,
+        ),
       );
 
       let response: any;
@@ -347,14 +344,15 @@ class ScriptGenService {
       // Validate against schema
       if (!this.validateOutput(scriptOutput, template.json_schema)) {
         throw new Error(
-          `Generated script does not match required schema: ${ajv.errorsText()}`
+          `Generated script does not match required schema: ${ajv.errorsText()}`,
         );
       }
 
       // Calculate tokens and cost
       const tokensIn = response.usage?.input_tokens || 0;
       const tokensOut = response.usage?.output_tokens || 0;
-      const costEstimate = (tokensIn / 1000) * 0.0005 + (tokensOut / 1000) * 0.0015;
+      const costEstimate =
+        (tokensIn / 1000) * 0.0005 + (tokensOut / 1000) * 0.0015;
 
       // Update job
       await query(
@@ -362,7 +360,7 @@ class ScriptGenService {
          SET status = 'succeeded', output_json = $1, tokens_in = $2, tokens_out = $3, 
              cost_usd_estimate = $4, updated_at = NOW()
          WHERE id = $5`,
-        [scriptOutput, tokensIn, tokensOut, costEstimate, jobId]
+        [scriptOutput, tokensIn, tokensOut, costEstimate, jobId],
       );
 
       // Update daily usage
@@ -370,19 +368,18 @@ class ScriptGenService {
 
       const latency = Date.now() - startTime;
       console.log(
-        `[ScriptGen] Job ${jobId} succeeded in ${latency}ms (tokens: ${tokensIn}/${tokensOut}, cost: $${costEstimate.toFixed(4)})`
+        `[ScriptGen] Job ${jobId} succeeded in ${latency}ms (tokens: ${tokensIn}/${tokensOut}, cost: $${costEstimate.toFixed(4)})`,
       );
 
       return scriptOutput;
     } catch (error) {
-      const errorMsg =
-        error instanceof Error ? error.message : String(error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
       const latency = Date.now() - startTime;
 
       logError(
         { correlationId },
         `Script generation failed after ${latency}ms: ${errorMsg}`,
-        error instanceof Error ? error : new Error(errorMsg)
+        error instanceof Error ? error : new Error(errorMsg),
       );
 
       throw error;
@@ -392,7 +389,7 @@ class ScriptGenService {
   private async updateDailyUsage(
     userId: string,
     tokensIn: number,
-    tokensOut: number
+    tokensOut: number,
   ): Promise<void> {
     const today = new Date().toISOString().split("T")[0];
 
@@ -404,7 +401,7 @@ class ScriptGenService {
          tokens_in = tokens_in + $3,
          tokens_out = tokens_out + $4,
          updated_at = NOW()`,
-      [userId, today, tokensIn, tokensOut]
+      [userId, today, tokensIn, tokensOut],
     );
   }
 }
@@ -419,8 +416,4 @@ export function getScriptGenService(): ScriptGenService {
   return instance;
 }
 
-export type {
-  GenerateScriptInput,
-  ScriptGenJob,
-  ScriptGenTemplate,
-};
+export type { GenerateScriptInput, ScriptGenJob, ScriptGenTemplate };

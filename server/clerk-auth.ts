@@ -21,12 +21,9 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
     await requireAuth()(req, res, () => {
       // Extract user info from Clerk's auth object
       const auth = (req as any).auth;
-      
+
       if (!auth || !auth.userId) {
-        logAuthError(
-          correlationId,
-          "Invalid token - missing userId"
-        );
+        logAuthError(correlationId, "Invalid token - missing userId");
         return res.status(401).json({
           error: "Unauthorized - invalid token",
           correlationId,
@@ -49,7 +46,7 @@ export const requireClerkAuth: RequestHandler = async (req, res, next) => {
     logAuthError(
       correlationId,
       "Clerk authentication verification failed",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     return res.status(401).json({
       error: "Unauthorized - authentication failed",

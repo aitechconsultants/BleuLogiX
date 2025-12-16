@@ -51,7 +51,7 @@ export interface GetJobResponse {
 
 export async function generateScript(
   payload: GenerateScriptInput,
-  token: string
+  token: string,
 ): Promise<GenerateScriptResponse> {
   const response = await fetch("/api/script-gen/generate", {
     method: "POST",
@@ -80,7 +80,7 @@ export async function generateScript(
 
 export async function createJob(
   payload: GenerateScriptInput,
-  token: string
+  token: string,
 ): Promise<CreateJobResponse> {
   const response = await fetch("/api/script-gen/jobs", {
     method: "POST",
@@ -109,7 +109,7 @@ export async function createJob(
 
 export async function getJob(
   jobId: string,
-  token: string
+  token: string,
 ): Promise<GetJobResponse> {
   const response = await fetch(`/api/script-gen/jobs/${jobId}`, {
     method: "GET",

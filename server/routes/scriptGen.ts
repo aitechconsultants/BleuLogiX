@@ -1,6 +1,9 @@
 import { RequestHandler, Router } from "express";
 import { z } from "zod";
-import { getScriptGenService, type GenerateScriptInput } from "../services/scriptGen";
+import {
+  getScriptGenService,
+  type GenerateScriptInput,
+} from "../services/scriptGen";
 import { logError } from "../logging";
 import { queryOne } from "../db";
 
@@ -83,7 +86,7 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
     const script = await service.generateScript(
       auth.clerkUserId,
       payload as GenerateScriptInput,
-      correlationId
+      correlationId,
     );
 
     res.json({
@@ -92,13 +95,12 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
       correlationId,
     });
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : String(error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
 
     logError(
       { correlationId },
       "Script generation request failed",
-      error instanceof Error ? error : new Error(errorMsg)
+      error instanceof Error ? error : new Error(errorMsg),
     );
 
     // Return appropriate status code based on error type
@@ -112,7 +114,10 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
       });
     }
 
-    if (errorMsg.includes("Authentication") || errorMsg.includes("Unauthorized")) {
+    if (
+      errorMsg.includes("Authentication") ||
+      errorMsg.includes("Unauthorized")
+    ) {
       return res.status(401).json({
         error: errorMsg,
         correlationId,
@@ -168,7 +173,7 @@ export const handleCreateJob: RequestHandler = async (req, res) => {
     const script = await service.generateScript(
       auth.clerkUserId,
       payload as GenerateScriptInput,
-      correlationId
+      correlationId,
     );
 
     // Get the job ID from the most recent job for this user
@@ -177,7 +182,7 @@ export const handleCreateJob: RequestHandler = async (req, res) => {
        WHERE user_id = $1 
        ORDER BY created_at DESC 
        LIMIT 1`,
-      [auth.clerkUserId]
+      [auth.clerkUserId],
     );
 
     res.json({
@@ -187,13 +192,12 @@ export const handleCreateJob: RequestHandler = async (req, res) => {
       correlationId,
     });
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : String(error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
 
     logError(
       { correlationId },
       "Job creation failed",
-      error instanceof Error ? error : new Error(errorMsg)
+      error instanceof Error ? error : new Error(errorMsg),
     );
 
     res.status(500).json({
@@ -230,7 +234,7 @@ export const handleGetJob: RequestHandler = async (req, res) => {
     const job = await queryOne(
       `SELECT * FROM script_gen_jobs 
        WHERE id = $1 AND user_id = $2`,
-      [jobId, auth.clerkUserId]
+      [jobId, auth.clerkUserId],
     );
 
     if (!job) {
@@ -246,13 +250,12 @@ export const handleGetJob: RequestHandler = async (req, res) => {
       correlationId,
     });
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : String(error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
 
     logError(
       { correlationId },
       "Failed to retrieve job",
-      error instanceof Error ? error : new Error(errorMsg)
+      error instanceof Error ? error : new Error(errorMsg),
     );
 
     res.status(500).json({
