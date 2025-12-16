@@ -111,5 +111,12 @@ export function createServer() {
   // Script generation service routes
   app.use("/api/script-gen", scriptGenRouter);
 
+  // Social accounts routes (require auth)
+  app.use("/api/social-accounts", requireClerkAuth);
+  app.post("/api/social-accounts", handleAddAccount);
+  app.get("/api/social-accounts", handleListAccounts);
+  app.post("/api/social-accounts/:id/refresh", handleRefreshAccount);
+  app.delete("/api/social-accounts/:id", handleRemoveAccount);
+
   return app;
 }
