@@ -55,6 +55,17 @@ export const TikTokAdapter: PlatformAdapter = {
       throw new Error(`Failed to fetch TikTok data for @${clean}`);
     }
   },
+  // Module 2B: TikTok OAuth stub
+  getOAuthConfig(): OAuthConfig {
+    return {
+      clientId: process.env.TIKTOK_OAUTH_CLIENT_ID || "",
+      clientSecret: process.env.TIKTOK_OAUTH_CLIENT_SECRET || "",
+      redirectUri: `${process.env.APP_URL}/api/social-oauth/tiktok/callback`,
+      authorizationUrl: "https://www.tiktok.com/v1/oauth/authorize",
+      tokenUrl: "https://open.tiktokapis.com/v1/oauth/token",
+      scopes: ["user.info.basic", "video.list", "user.info.stats"],
+    };
+  },
 };
 
 // Instagram Adapter
