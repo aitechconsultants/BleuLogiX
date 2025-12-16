@@ -16,6 +16,7 @@ import Generator from "./pages/Generator";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import AdminAudit from "./pages/AdminAudit";
+import AdminPolicies from "./pages/AdminPolicies";
 import AccountHub from "./pages/AccountHub";
 import RequireAuth from "./components/RequireAuth";
 import RequireAdmin from "./components/RequireAdmin";
