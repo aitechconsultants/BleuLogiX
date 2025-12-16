@@ -219,5 +219,11 @@ export function createServer() {
   app.get("/r/:code", handleAffiliateRedirect);
   app.post("/api/affiliate/events", handleRecordAffiliateEvent);
 
+  // Route self-test: validate all registered routes
+  if (process.env.ROUTE_SELF_TEST === "1") {
+    console.log("[routeSelfTest] Mode 1 enabled - validating routes");
+    runRouteSelfTest(app, "express-app");
+  }
+
   return app;
 }
