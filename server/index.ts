@@ -99,5 +99,8 @@ export function createServer() {
   // Script generation proxy route
   app.post("/api/script/generate", handleGenerateScript);
 
+  // Script generation service routes
+  app.use("/api/script-gen", scriptGenRouter);
+
   return app;
 }
