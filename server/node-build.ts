@@ -29,8 +29,24 @@ app.listen(port, () => {
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
 
-  // Start refresh worker for Module 2A (10-minute interval)
-  startRefreshWorker(10 * 60 * 1000);
+  // ---------------------------------------------
+  // Module 2A Worker (safe + gated)
+  // ---------------------------------------------
+  const WORKER_ENABLED =
+    (process.env.REFRESH_WORKER_ENABLED || "").toLowerCase() === "true";
+  const HAS_DB = !!process.env.DATABASE_URL;
+
+  if (WORKER_ENABLED && HAS_DB) {
+    try {
+      startRefreshWorker(10 * 60 * 1000);
+    } catch (err) {
+      console.error("[Worker] Failed to start refresh worker (non-fatal):", err);
+    }
+  } else {
+    console.log(
+      `[Worker] Not started. REFRESH_WORKER_ENABLED=${WORKER_ENABLED} DATABASE_URL=${HAS_DB ? "set" : "missing"}`,
+    );
+  }
 });
 
 // Graceful shutdown
