@@ -59,6 +59,12 @@ import {
 export function createServer() {
   const app = express();
 
+  // Route self-test: wrap router to catch errors at definition-time
+  if (process.env.ROUTE_SELF_TEST === "2") {
+    console.log("[routeSelfTest] Mode 2 enabled - wrapping route registration");
+    wrapRouter(app);
+  }
+
   // Middleware
   app.use(cors());
   app.use(clerkMiddleware());
