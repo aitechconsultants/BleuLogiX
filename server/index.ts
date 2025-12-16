@@ -2,31 +2,35 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
+
 import { handleDemo } from "./routes/demo";
-import { initializeDatabase } from "./db";
-import { runMigrations } from "./migrations";
 import { requireClerkAuth } from "./clerk-auth";
 import { requireAdminAuth } from "./admin-auth";
 import { runRouteSelfTest, wrapRouter } from "./services/routeSelfTest";
 import { handleSync } from "./routes/auth";
+
 import {
   handleCreateCheckoutSession,
   handleWebhook,
   handleCreatePortalSession,
 } from "./routes/billing";
+
 import {
   handleGetMe,
   handleGenerate,
   handleGetHistory,
   handleDownload,
 } from "./routes/generator";
+
 import {
   handleHealth,
   handleHealthRoutes,
   handleHealthIntegrations,
 } from "./routes/health";
+
 import { handleGenerateScript } from "./routes/script";
 import { scriptGenRouter } from "./routes/scriptGen";
+
 import {
   handleAddAccount,
   handleListAccounts,
@@ -35,6 +39,7 @@ import {
   handleUpdateRefreshSettings,
   handleRunRefreshCycle,
 } from "./routes/socialAccounts";
+
 import {
   handleGetPlanPolicies,
   handleUpdatePlanPolicy,
@@ -42,6 +47,7 @@ import {
   handleUpdateWorkspaceOverride,
   handleDeleteWorkspaceOverride,
 } from "./routes/adminPolicies";
+
 import {
   handleGetOAuthConfig,
   handleStartOAuthFlow,
@@ -49,6 +55,7 @@ import {
   handleLinkOAuthConnection,
   handleUseOAuthData,
 } from "./routes/socialOAuth";
+
 import {
   handleGetAffiliateProfile,
   handleCreateAffiliateProfile,
@@ -80,24 +87,12 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Initialize database on first request
-  let dbInitialized = false;
-  app.use(async (req, res, next) => {
-    if (!dbInitialized && process.env.DATABASE_URL) {
-      try {
-        initializeDatabase();
-        await runMigrations();
-        dbInitialized = true;
-      } catch (error) {
-        console.error("Database initialization error:", error);
-        // Continue without database if not configured
-      }
-    }
-    next();
-  });
+  // ✅ DB init/migrations removed from here.
+  // Do DB bootstrap once in your server entry file (node-build/server.ts),
+  // so the app + worker are deterministic and don't race on first request.
 
   // Health check routes
-  app.get("/health", (req, res) => {
+  app.get("/health", (_req, res) => {
     res.json({ ok: true, service: "fusion-starter" });
   });
   app.get("/api/health", handleHealth);
@@ -146,10 +141,7 @@ export function createServer() {
   app.get("/api/social-accounts", handleListAccounts);
   app.post("/api/social-accounts/:id/refresh", handleRefreshAccount);
   app.delete("/api/social-accounts/:id", handleRemoveAccount);
-  app.put(
-    "/api/social-accounts/:id/refresh-settings",
-    handleUpdateRefreshSettings,
-  );
+  app.put("/api/social-accounts/:id/refresh-settings", handleUpdateRefreshSettings);
 
   // Module 2A: Worker endpoint (admin/dev only)
   app.post("/api/social-accounts/worker/run-once", handleRunRefreshCycle);
@@ -188,34 +180,14 @@ export function createServer() {
 
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
-  app.get(
-    "/api/social-oauth/:platform/start",
-    requireClerkAuth,
-    handleStartOAuthFlow,
-  );
+  app.get("/api/social-oauth/:platform/start", requireClerkAuth, handleStartOAuthFlow);
   app.get("/api/social-oauth/:platform/callback", handleOAuthCallback);
-  app.post(
-    "/api/social-accounts/:accountId/oauth/link",
-    requireClerkAuth,
-    handleLinkOAuthConnection,
-  );
-  app.post(
-    "/api/social-accounts/:accountId/use-oauth",
-    requireClerkAuth,
-    handleUseOAuthData,
-  );
+  app.post("/api/social-accounts/:accountId/oauth/link", requireClerkAuth, handleLinkOAuthConnection);
+  app.post("/api/social-accounts/:accountId/use-oauth", requireClerkAuth, handleUseOAuthData);
 
   // Module 2D: Affiliate routes
-  app.get(
-    "/api/affiliate/profile",
-    requireClerkAuth,
-    handleGetAffiliateProfile,
-  );
-  app.post(
-    "/api/affiliate/create",
-    requireClerkAuth,
-    handleCreateAffiliateProfile,
-  );
+  app.get("/api/affiliate/profile", requireClerkAuth, handleGetAffiliateProfile);
+  app.post("/api/affiliate/create", requireClerkAuth, handleCreateAffiliateProfile);
   app.get("/r/:code", handleAffiliateRedirect);
   app.post("/api/affiliate/events", handleRecordAffiliateEvent);
 
