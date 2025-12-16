@@ -62,6 +62,9 @@ export function createServer() {
   });
 
   // Health check routes
+  app.get("/health", (req, res) => {
+    res.json({ ok: true, service: "fusion-starter" });
+  });
   app.get("/api/health", handleHealth);
   app.get("/api/health/routes", handleHealthRoutes);
   app.get(
