@@ -11,7 +11,7 @@ function getEncryptionKey(): Buffer {
 
   if (!keyEnv) {
     throw new Error(
-      "ENCRYPTION_KEY not set. Set to a 32-byte hex or base64 string."
+      "ENCRYPTION_KEY not set. Set to a 32-byte hex or base64 string.",
     );
   }
 
@@ -92,7 +92,9 @@ export function deserializeAndDecrypt(serialized: string): string {
   const authTag = combined
     .subarray(IV_SIZE, IV_SIZE + AUTH_TAG_SIZE)
     .toString("base64");
-  const ciphertext = combined.subarray(IV_SIZE + AUTH_TAG_SIZE).toString("base64");
+  const ciphertext = combined
+    .subarray(IV_SIZE + AUTH_TAG_SIZE)
+    .toString("base64");
 
   return decryptToken({ iv, authTag, ciphertext });
 }

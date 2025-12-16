@@ -28,7 +28,9 @@ export default function AdminPolicies() {
   const [isDeleteing, setIsDeleting] = useState<string | null>(null);
   const [searchWorkspaceId, setSearchWorkspaceId] = useState("");
   const [isAddingOverride, setIsAddingOverride] = useState(false);
-  const [editingPolicies, setEditingPolicies] = useState<Record<string, Partial<PlanPolicy>>>({});
+  const [editingPolicies, setEditingPolicies] = useState<
+    Record<string, Partial<PlanPolicy>>
+  >({});
   const [newOverride, setNewOverride] = useState<{
     workspace_id: string;
     social_accounts_limit?: number;
@@ -63,7 +65,7 @@ export default function AdminPolicies() {
   const handlePolicyChange = (
     planKey: string,
     field: keyof PlanPolicy,
-    value: any
+    value: any,
   ) => {
     setEditingPolicies((prev) => ({
       ...prev,
@@ -75,15 +77,21 @@ export default function AdminPolicies() {
   };
 
   const savePolicyRow = async (planKey: string) => {
-    if (!editingPolicies[planKey] || Object.keys(editingPolicies[planKey]).length === 0) {
+    if (
+      !editingPolicies[planKey] ||
+      Object.keys(editingPolicies[planKey]).length === 0
+    ) {
       return;
     }
 
     setIsSaving(planKey);
     try {
-      const updatedPolicy = await updatePlanPolicy(planKey, editingPolicies[planKey]);
+      const updatedPolicy = await updatePlanPolicy(
+        planKey,
+        editingPolicies[planKey],
+      );
       setPolicies((prev) =>
-        prev.map((p) => (p.plan_key === planKey ? updatedPolicy : p))
+        prev.map((p) => (p.plan_key === planKey ? updatedPolicy : p)),
       );
       setEditingPolicies((prev) => {
         const copy = { ...prev };
@@ -107,19 +115,19 @@ export default function AdminPolicies() {
 
     setIsAddingOverride(true);
     try {
-      const created = await updateWorkspaceOverride(
-        newOverride.workspace_id,
-        {
-          social_accounts_limit: newOverride.social_accounts_limit,
-          allow_scheduled_refresh: newOverride.allow_scheduled_refresh,
-          allow_oauth: newOverride.allow_oauth,
-        }
-      );
+      const created = await updateWorkspaceOverride(newOverride.workspace_id, {
+        social_accounts_limit: newOverride.social_accounts_limit,
+        allow_scheduled_refresh: newOverride.allow_scheduled_refresh,
+        allow_oauth: newOverride.allow_oauth,
+      });
       setOverrides((prev) => [...prev, created]);
       setNewOverride({ workspace_id: "" });
-      toast.success(`Override created for workspace ${newOverride.workspace_id}`);
+      toast.success(
+        `Override created for workspace ${newOverride.workspace_id}`,
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to create override";
+      const message =
+        error instanceof Error ? error.message : "Failed to create override";
       toast.error(message);
     } finally {
       setIsAddingOverride(false);
@@ -130,10 +138,13 @@ export default function AdminPolicies() {
     setIsDeleting(workspaceId);
     try {
       await deleteWorkspaceOverride(workspaceId);
-      setOverrides((prev) => prev.filter((o) => o.workspace_id !== workspaceId));
+      setOverrides((prev) =>
+        prev.filter((o) => o.workspace_id !== workspaceId),
+      );
       toast.success("Override removed");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to delete";
+      const message =
+        error instanceof Error ? error.message : "Failed to delete";
       toast.error(message);
     } finally {
       setIsDeleting(null);
@@ -160,7 +171,9 @@ export default function AdminPolicies() {
         <div className="max-w-6xl mx-auto px-4 py-12">
           {/* Header */}
           <div className="mb-12">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Admin Policies</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Admin Policies
+            </h1>
             <p className="text-muted-foreground">
               Manage plan policies and workspace-level feature toggles
             </p>
@@ -168,19 +181,25 @@ export default function AdminPolicies() {
 
           {/* Plan Policies Section */}
           <div className="mb-12">
-            <h2 className="text-2xl font-semibold text-foreground mb-6">Plan Policies</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-6">
+              Plan Policies
+            </h2>
             <div className="overflow-x-auto border border-border rounded-lg">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="px-4 py-3 text-left font-medium text-foreground">Plan</th>
+                    <th className="px-4 py-3 text-left font-medium text-foreground">
+                      Plan
+                    </th>
                     <th className="px-4 py-3 text-left font-medium text-foreground">
                       Accounts Limit
                     </th>
                     <th className="px-4 py-3 text-left font-medium text-foreground">
                       Scheduled Refresh
                     </th>
-                    <th className="px-4 py-3 text-left font-medium text-foreground">OAuth</th>
+                    <th className="px-4 py-3 text-left font-medium text-foreground">
+                      OAuth
+                    </th>
                     <th className="px-4 py-3 text-left font-medium text-foreground">
                       Default Interval (h)
                     </th>
@@ -195,7 +214,10 @@ export default function AdminPolicies() {
                     const isEditing = edited && Object.keys(edited).length > 0;
 
                     return (
-                      <tr key={policy.plan_key} className="border-b border-border hover:bg-muted/30">
+                      <tr
+                        key={policy.plan_key}
+                        className="border-b border-border hover:bg-muted/30"
+                      >
                         {/* Plan */}
                         <td className="px-4 py-3 font-medium text-foreground capitalize">
                           {policy.plan_key}
@@ -205,12 +227,15 @@ export default function AdminPolicies() {
                         <td className="px-4 py-3">
                           <input
                             type="number"
-                            value={edited?.social_accounts_limit ?? policy.social_accounts_limit}
+                            value={
+                              edited?.social_accounts_limit ??
+                              policy.social_accounts_limit
+                            }
                             onChange={(e) =>
                               handlePolicyChange(
                                 policy.plan_key,
                                 "social_accounts_limit",
-                                e.target.value ? parseInt(e.target.value) : 0
+                                e.target.value ? parseInt(e.target.value) : 0,
                               )
                             }
                             className="w-20 px-2 py-1 rounded border border-border bg-card text-foreground text-sm"
@@ -222,13 +247,14 @@ export default function AdminPolicies() {
                           <input
                             type="checkbox"
                             checked={
-                              edited?.allow_scheduled_refresh ?? policy.allow_scheduled_refresh
+                              edited?.allow_scheduled_refresh ??
+                              policy.allow_scheduled_refresh
                             }
                             onChange={(e) =>
                               handlePolicyChange(
                                 policy.plan_key,
                                 "allow_scheduled_refresh",
-                                e.target.checked
+                                e.target.checked,
                               )
                             }
                             className="w-4 h-4"
@@ -244,7 +270,7 @@ export default function AdminPolicies() {
                               handlePolicyChange(
                                 policy.plan_key,
                                 "allow_oauth",
-                                e.target.checked
+                                e.target.checked,
                               )
                             }
                             className="w-4 h-4"
@@ -262,7 +288,7 @@ export default function AdminPolicies() {
                               handlePolicyChange(
                                 policy.plan_key,
                                 "default_refresh_interval_hours",
-                                parseInt(e.target.value)
+                                parseInt(e.target.value),
                               )
                             }
                             className="px-2 py-1 rounded border border-border bg-card text-foreground text-sm"
@@ -281,7 +307,9 @@ export default function AdminPolicies() {
                               disabled={isSaving === policy.plan_key}
                               className="px-3 py-1 rounded bg-accent-blue text-black text-sm font-medium hover:bg-highlight-blue disabled:opacity-50"
                             >
-                              {isSaving === policy.plan_key ? "Saving..." : "Save"}
+                              {isSaving === policy.plan_key
+                                ? "Saving..."
+                                : "Save"}
                             </button>
                           ) : null}
                         </td>
@@ -296,7 +324,9 @@ export default function AdminPolicies() {
           {/* Workspace Overrides Section */}
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-foreground">Workspace Overrides</h2>
+              <h2 className="text-2xl font-semibold text-foreground">
+                Workspace Overrides
+              </h2>
               <Dialog>
                 <DialogTrigger asChild>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium">
@@ -321,7 +351,10 @@ export default function AdminPolicies() {
                         placeholder="e.g., ws_123456789"
                         value={newOverride.workspace_id}
                         onChange={(e) =>
-                          setNewOverride({ ...newOverride, workspace_id: e.target.value })
+                          setNewOverride({
+                            ...newOverride,
+                            workspace_id: e.target.value,
+                          })
                         }
                         className="w-full px-3 py-2 rounded border border-border bg-card text-foreground"
                       />
@@ -359,7 +392,10 @@ export default function AdminPolicies() {
                           })
                         }
                       />
-                      <label htmlFor="scheduled" className="text-sm font-medium text-foreground">
+                      <label
+                        htmlFor="scheduled"
+                        className="text-sm font-medium text-foreground"
+                      >
                         Allow Scheduled Refresh
                       </label>
                     </div>
@@ -370,10 +406,16 @@ export default function AdminPolicies() {
                         id="oauth"
                         checked={newOverride.allow_oauth ?? false}
                         onChange={(e) =>
-                          setNewOverride({ ...newOverride, allow_oauth: e.target.checked })
+                          setNewOverride({
+                            ...newOverride,
+                            allow_oauth: e.target.checked,
+                          })
                         }
                       />
-                      <label htmlFor="oauth" className="text-sm font-medium text-foreground">
+                      <label
+                        htmlFor="oauth"
+                        className="text-sm font-medium text-foreground"
+                      >
                         Allow OAuth
                       </label>
                     </div>
@@ -432,7 +474,9 @@ export default function AdminPolicies() {
                       <th className="px-4 py-3 text-left font-medium text-foreground">
                         Scheduled Refresh
                       </th>
-                      <th className="px-4 py-3 text-left font-medium text-foreground">OAuth</th>
+                      <th className="px-4 py-3 text-left font-medium text-foreground">
+                        OAuth
+                      </th>
                       <th className="px-4 py-3 text-center font-medium text-foreground">
                         Action
                       </th>
@@ -440,7 +484,10 @@ export default function AdminPolicies() {
                   </thead>
                   <tbody>
                     {filteredOverrides.map((override) => (
-                      <tr key={override.workspace_id} className="border-b border-border hover:bg-muted/30">
+                      <tr
+                        key={override.workspace_id}
+                        className="border-b border-border hover:bg-muted/30"
+                      >
                         <td className="px-4 py-3 font-mono text-sm text-foreground">
                           {override.workspace_id}
                         </td>
@@ -463,7 +510,9 @@ export default function AdminPolicies() {
                         </td>
                         <td className="px-4 py-3 text-center">
                           <button
-                            onClick={() => removeWorkspaceOverride(override.workspace_id)}
+                            onClick={() =>
+                              removeWorkspaceOverride(override.workspace_id)
+                            }
                             disabled={isDeleteing === override.workspace_id}
                             className="p-2 text-red-500 hover:bg-red-500/10 rounded disabled:opacity-50"
                           >

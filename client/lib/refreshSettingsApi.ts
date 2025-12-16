@@ -7,13 +7,16 @@ export interface RefreshSettings {
 
 export async function updateRefreshSettings(
   accountId: string,
-  settings: RefreshSettings
+  settings: RefreshSettings,
 ): Promise<{ account: any }> {
-  const response = await fetch(`/api/social-accounts/${accountId}/refresh-settings`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(settings),
-  });
+  const response = await fetch(
+    `/api/social-accounts/${accountId}/refresh-settings`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings),
+    },
+  );
 
   if (!response.ok) {
     const error = await response.json();

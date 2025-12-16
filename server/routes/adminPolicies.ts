@@ -26,7 +26,7 @@ export const handleGetPlanPolicies: RequestHandler = async (req, res) => {
   try {
     const policies = await queryAll<PlanPolicy>(
       "SELECT * FROM plan_policies ORDER BY plan_key ASC",
-      []
+      [],
     );
 
     return res.json({
@@ -37,7 +37,7 @@ export const handleGetPlanPolicies: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to fetch plan policies",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to fetch policies",
@@ -72,7 +72,8 @@ export const handleUpdatePlanPolicy: RequestHandler = async (req, res) => {
 
     if (
       default_refresh_interval_hours !== undefined &&
-      (default_refresh_interval_hours < 1 || default_refresh_interval_hours > 168)
+      (default_refresh_interval_hours < 1 ||
+        default_refresh_interval_hours > 168)
     ) {
       return res.status(400).json({
         error: "default_refresh_interval_hours must be between 1 and 168",
@@ -96,7 +97,7 @@ export const handleUpdatePlanPolicy: RequestHandler = async (req, res) => {
         allow_oauth ?? null,
         default_refresh_interval_hours ?? null,
         plan_key,
-      ]
+      ],
     );
 
     if (result.rows.length === 0) {
@@ -114,7 +115,7 @@ export const handleUpdatePlanPolicy: RequestHandler = async (req, res) => {
     logError(
       { correlationId, plan_key },
       "Failed to update plan policy",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to update policy",
@@ -139,7 +140,10 @@ export const handleGetWorkspaceOverrides: RequestHandler = async (req, res) => {
 
     query_text += " ORDER BY updated_at DESC";
 
-    const overrides = await queryAll<WorkspacePolicyOverride>(query_text, params);
+    const overrides = await queryAll<WorkspacePolicyOverride>(
+      query_text,
+      params,
+    );
 
     return res.json({
       overrides,
@@ -149,7 +153,7 @@ export const handleGetWorkspaceOverrides: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to fetch workspace overrides",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to fetch overrides",
@@ -159,16 +163,16 @@ export const handleGetWorkspaceOverrides: RequestHandler = async (req, res) => {
 };
 
 // Module 2C: Create or update workspace override
-export const handleUpdateWorkspaceOverride: RequestHandler = async (req, res) => {
+export const handleUpdateWorkspaceOverride: RequestHandler = async (
+  req,
+  res,
+) => {
   const correlationId = (req as any).correlationId || "unknown";
   const { workspace_id } = req.params;
 
   try {
-    const {
-      social_accounts_limit,
-      allow_scheduled_refresh,
-      allow_oauth,
-    } = req.body;
+    const { social_accounts_limit, allow_scheduled_refresh, allow_oauth } =
+      req.body;
 
     if (!workspace_id) {
       return res.status(400).json({
@@ -203,7 +207,7 @@ export const handleUpdateWorkspaceOverride: RequestHandler = async (req, res) =>
         social_accounts_limit ?? null,
         allow_scheduled_refresh ?? null,
         allow_oauth ?? null,
-      ]
+      ],
     );
 
     return res.json({
@@ -214,7 +218,7 @@ export const handleUpdateWorkspaceOverride: RequestHandler = async (req, res) =>
     logError(
       { correlationId, workspace_id },
       "Failed to update workspace override",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to update override",
@@ -224,14 +228,18 @@ export const handleUpdateWorkspaceOverride: RequestHandler = async (req, res) =>
 };
 
 // Module 2C: Delete workspace override (revert to plan defaults)
-export const handleDeleteWorkspaceOverride: RequestHandler = async (req, res) => {
+export const handleDeleteWorkspaceOverride: RequestHandler = async (
+  req,
+  res,
+) => {
   const correlationId = (req as any).correlationId || "unknown";
   const { workspace_id } = req.params;
 
   try {
-    await query("DELETE FROM workspace_policy_overrides WHERE workspace_id = $1", [
-      workspace_id,
-    ]);
+    await query(
+      "DELETE FROM workspace_policy_overrides WHERE workspace_id = $1",
+      [workspace_id],
+    );
 
     return res.json({
       success: true,
@@ -242,7 +250,7 @@ export const handleDeleteWorkspaceOverride: RequestHandler = async (req, res) =>
     logError(
       { correlationId, workspace_id },
       "Failed to delete workspace override",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to delete override",

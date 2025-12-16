@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Trash2, RefreshCw, AlertCircle, CheckCircle, Loader2, Lock } from "lucide-react";
+import {
+  Trash2,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Lock,
+} from "lucide-react";
 import AccountMetricsPreview from "./AccountMetricsPreview";
 import {
   AlertDialog,
@@ -80,7 +87,8 @@ export default function SocialAccountCard({
 }: SocialAccountCardProps) {
   const [isSavingRefreshSettings, setIsSavingRefreshSettings] = useState(false);
   const [localRefreshMode, setLocalRefreshMode] = useState(refreshMode);
-  const [localRefreshInterval, setLocalRefreshInterval] = useState(refreshIntervalHours);
+  const [localRefreshInterval, setLocalRefreshInterval] =
+    useState(refreshIntervalHours);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const canScheduleRefresh = plan !== "free";
@@ -109,7 +117,8 @@ export default function SocialAccountCard({
         await onRefreshSettingsUpdate();
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update";
+      const message =
+        error instanceof Error ? error.message : "Failed to update";
       toast.error(message);
       // Revert UI
       setLocalRefreshMode(refreshMode);
@@ -123,9 +132,10 @@ export default function SocialAccountCard({
     ? format(new Date(lastSyncedAt), "MMM dd, yyyy HH:mm")
     : "Never";
 
-  const nextRefreshTime = nextRefreshAt && localRefreshMode === "scheduled"
-    ? format(new Date(nextRefreshAt), "MMM dd, yyyy HH:mm")
-    : null;
+  const nextRefreshTime =
+    nextRefreshAt && localRefreshMode === "scheduled"
+      ? format(new Date(nextRefreshAt), "MMM dd, yyyy HH:mm")
+      : null;
 
   const statusColor =
     status === "active"
@@ -167,11 +177,13 @@ export default function SocialAccountCard({
       {/* Data source badge + OAuth button */}
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-            dataSource === "oauth"
-              ? "bg-green-500/20 text-green-700"
-              : "bg-muted text-muted-foreground"
-          }`}>
+          <span
+            className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+              dataSource === "oauth"
+                ? "bg-green-500/20 text-green-700"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
             {dataSource === "oauth" ? "🔐 OAuth" : "📊 Public"}
           </span>
         </div>
@@ -233,21 +245,27 @@ export default function SocialAccountCard({
                         type="radio"
                         value="manual"
                         checked={localRefreshMode === "manual"}
-                        onChange={(e) => setLocalRefreshMode(e.target.value as any)}
+                        onChange={(e) =>
+                          setLocalRefreshMode(e.target.value as any)
+                        }
                         className="w-4 h-4"
                       />
                       <span className="text-sm text-foreground">Manual</span>
                     </label>
                     <label
                       className={`flex items-center gap-2 cursor-pointer ${
-                        !canScheduleRefresh ? "opacity-50 cursor-not-allowed" : ""
+                        !canScheduleRefresh
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
                     >
                       <input
                         type="radio"
                         value="scheduled"
                         checked={localRefreshMode === "scheduled"}
-                        onChange={(e) => setLocalRefreshMode(e.target.value as any)}
+                        onChange={(e) =>
+                          setLocalRefreshMode(e.target.value as any)
+                        }
                         disabled={!canScheduleRefresh}
                         className="w-4 h-4"
                       />
@@ -271,7 +289,9 @@ export default function SocialAccountCard({
                     </label>
                     <select
                       value={localRefreshInterval}
-                      onChange={(e) => setLocalRefreshInterval(parseInt(e.target.value))}
+                      onChange={(e) =>
+                        setLocalRefreshInterval(parseInt(e.target.value))
+                      }
                       className="w-full px-2 py-1 rounded border border-border bg-card text-foreground text-sm"
                     >
                       <option value="6">Every 6 hours</option>
@@ -325,7 +345,8 @@ export default function SocialAccountCard({
       {/* Monetization Hint */}
       <div className="mt-4 pt-4 border-t border-border">
         <p className="text-xs text-muted-foreground">
-          💰 <span className="font-medium">Monetization:</span> Set up link tracking in affiliate code to earn commissions
+          💰 <span className="font-medium">Monetization:</span> Set up link
+          tracking in affiliate code to earn commissions
         </p>
       </div>
 
@@ -358,8 +379,8 @@ export default function SocialAccountCard({
           <AlertDialogContent>
             <AlertDialogTitle>Remove Account</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove @{username} from {platformNames[platform]}? 
-              This action cannot be undone.
+              Are you sure you want to remove @{username} from{" "}
+              {platformNames[platform]}? This action cannot be undone.
             </AlertDialogDescription>
             <div className="flex gap-3 justify-end">
               <AlertDialogCancel>Cancel</AlertDialogCancel>

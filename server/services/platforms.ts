@@ -1,4 +1,9 @@
-export type Platform = "tiktok" | "instagram" | "youtube" | "twitter" | "linkedin";
+export type Platform =
+  | "tiktok"
+  | "instagram"
+  | "youtube"
+  | "twitter"
+  | "linkedin";
 
 export interface PlatformMetrics {
   follower_count: number;
@@ -25,7 +30,13 @@ export interface PlatformAdapter {
   fetchMetrics(username: string): Promise<PlatformMetrics>;
   // Module 2B: OAuth methods (optional)
   getOAuthConfig?(): OAuthConfig;
-  exchangeCodeForToken?(code: string): Promise<{ access_token: string; refresh_token?: string; expires_at?: Date }>;
+  exchangeCodeForToken?(
+    code: string,
+  ): Promise<{
+    access_token: string;
+    refresh_token?: string;
+    expires_at?: Date;
+  }>;
   fetchOAuthMetrics?(accessToken: string): Promise<PlatformMetrics>;
 }
 
@@ -135,8 +146,12 @@ export const YouTubeAdapter: PlatformAdapter = {
     };
   },
   async exchangeCodeForToken?(
-    code: string
-  ): Promise<{ access_token: string; refresh_token?: string; expires_at?: Date }> {
+    code: string,
+  ): Promise<{
+    access_token: string;
+    refresh_token?: string;
+    expires_at?: Date;
+  }> {
     // TODO: Implement YouTube OAuth code exchange
     // 1. POST to tokenUrl with code, clientId, clientSecret
     // 2. Return access_token and refresh_token

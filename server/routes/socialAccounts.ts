@@ -21,10 +21,12 @@ interface SocialAccount {
 }
 
 // Helper: Get user's subscription plan
-async function getUserPlan(userId: string): Promise<"free" | "pro" | "enterprise"> {
+async function getUserPlan(
+  userId: string,
+): Promise<"free" | "pro" | "enterprise"> {
   const sub = await queryOne<{ plan: string }>(
     "SELECT plan FROM subscriptions WHERE user_id = $1",
-    [userId]
+    [userId],
   );
   return (sub?.plan as any) || "free";
 }
@@ -46,7 +48,7 @@ function getAccountLimits(plan: string): number {
 async function getUserAccountCount(userId: string): Promise<number> {
   const result = await queryOne<{ count: number }>(
     "SELECT COUNT(*) as count FROM social_accounts WHERE user_id = $1 AND status != 'error'",
-    [userId]
+    [userId],
   );
   return result?.count || 0;
 }
@@ -105,7 +107,7 @@ export const handleAddAccount: RequestHandler = async (req, res) => {
     // Check for duplicate account
     const existing = await queryOne<{ id: string }>(
       "SELECT id FROM social_accounts WHERE user_id = $1 AND platform = $2 AND username = $3",
-      [userId, platform, username]
+      [userId, platform, username],
     );
 
     if (existing) {
@@ -126,7 +128,7 @@ export const handleAddAccount: RequestHandler = async (req, res) => {
       logError(
         { correlationId, userId },
         `Failed to fetch metrics for ${platform}/${username}`,
-        error instanceof Error ? error : new Error(String(error))
+        error instanceof Error ? error : new Error(String(error)),
       );
       status = "error";
       metrics = {
@@ -153,7 +155,7 @@ export const handleAddAccount: RequestHandler = async (req, res) => {
         metrics.engagement_rate || null,
         metrics.is_verified || false,
         status,
-      ]
+      ],
     );
 
     const account = result.rows[0];
@@ -164,7 +166,13 @@ export const handleAddAccount: RequestHandler = async (req, res) => {
         `INSERT INTO social_metrics_snapshots (
           social_account_id, followers, likes, comments, engagement_rate
         ) VALUES ($1, $2, $3, $4, $5)`,
-        [account.id, metrics.follower_count, 0, 0, metrics.engagement_rate || null]
+        [
+          account.id,
+          metrics.follower_count,
+          0,
+          0,
+          metrics.engagement_rate || null,
+        ],
       );
     }
 
@@ -177,7 +185,7 @@ export const handleAddAccount: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId: (req as any).auth?.userId },
       "Failed to add social account",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to add account",
@@ -198,7 +206,7 @@ export const handleListAccounts: RequestHandler = async (req, res) => {
   try {
     const accounts = await queryAll<SocialAccount>(
       `SELECT * FROM social_accounts WHERE user_id = $1 ORDER BY created_at DESC`,
-      [userId]
+      [userId],
     );
 
     const plan = await getUserPlan(userId);
@@ -215,7 +223,7 @@ export const handleListAccounts: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId },
       "Failed to list accounts",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to fetch accounts",
@@ -238,7 +246,7 @@ export const handleRefreshAccount: RequestHandler = async (req, res) => {
     // Get account
     const account = await queryOne<SocialAccount>(
       "SELECT * FROM social_accounts WHERE id = $1 AND user_id = $2",
-      [accountId, userId]
+      [accountId, userId],
     );
 
     if (!account) {
@@ -259,7 +267,7 @@ export const handleRefreshAccount: RequestHandler = async (req, res) => {
       logError(
         { correlationId, userId, accountId },
         `Refresh failed for ${account.platform}/${account.username}`,
-        error instanceof Error ? error : new Error(String(error))
+        error instanceof Error ? error : new Error(String(error)),
       );
       newStatus = "error";
       metrics = {
@@ -287,7 +295,7 @@ export const handleRefreshAccount: RequestHandler = async (req, res) => {
         metrics.is_verified || false,
         newStatus,
         accountId,
-      ]
+      ],
     );
 
     const updatedAccount = result.rows[0];
@@ -298,7 +306,7 @@ export const handleRefreshAccount: RequestHandler = async (req, res) => {
         `INSERT INTO social_metrics_snapshots (
           social_account_id, followers, engagement_rate, captured_at
         ) VALUES ($1, $2, $3, NOW())`,
-        [accountId, metrics.follower_count, metrics.engagement_rate || null]
+        [accountId, metrics.follower_count, metrics.engagement_rate || null],
       );
     }
 
@@ -311,7 +319,7 @@ export const handleRefreshAccount: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId, accountId },
       "Failed to refresh account",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to refresh account",
@@ -334,7 +342,7 @@ export const handleRemoveAccount: RequestHandler = async (req, res) => {
     // Verify ownership
     const account = await queryOne<{ id: string }>(
       "SELECT id FROM social_accounts WHERE id = $1 AND user_id = $2",
-      [accountId, userId]
+      [accountId, userId],
     );
 
     if (!account) {
@@ -356,7 +364,7 @@ export const handleRemoveAccount: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId, accountId },
       "Failed to remove account",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to remove account",
@@ -381,7 +389,7 @@ export const handleUpdateRefreshSettings: RequestHandler = async (req, res) => {
     // Verify ownership
     const account = await queryOne<SocialAccount>(
       "SELECT * FROM social_accounts WHERE id = $1 AND user_id = $2",
-      [accountId, userId]
+      [accountId, userId],
     );
 
     if (!account) {
@@ -399,7 +407,10 @@ export const handleUpdateRefreshSettings: RequestHandler = async (req, res) => {
       });
     }
 
-    if (refresh_interval_hours && (refresh_interval_hours < 1 || refresh_interval_hours > 168)) {
+    if (
+      refresh_interval_hours &&
+      (refresh_interval_hours < 1 || refresh_interval_hours > 168)
+    ) {
       return res.status(400).json({
         error: "refresh_interval_hours must be between 1 and 168",
         correlationId,
@@ -438,7 +449,7 @@ export const handleUpdateRefreshSettings: RequestHandler = async (req, res) => {
         refresh_interval_hours || null,
         nextRefreshAt,
         accountId,
-      ]
+      ],
     );
 
     return res.json({
@@ -450,7 +461,7 @@ export const handleUpdateRefreshSettings: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId, accountId },
       "Failed to update refresh settings",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to update refresh settings",
@@ -488,7 +499,7 @@ export const handleRunRefreshCycle: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to run refresh cycle",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to run refresh cycle",

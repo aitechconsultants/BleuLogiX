@@ -30,7 +30,7 @@ export const handleGetAffiliateProfile: RequestHandler = async (req, res) => {
   try {
     let profile = await queryOne<AffiliateProfile>(
       "SELECT * FROM affiliate_profiles WHERE user_id = $1",
-      [userId]
+      [userId],
     );
 
     // If no profile, create one
@@ -40,7 +40,7 @@ export const handleGetAffiliateProfile: RequestHandler = async (req, res) => {
         `INSERT INTO affiliate_profiles (user_id, affiliate_code)
         VALUES ($1, $2)
         RETURNING *`,
-        [userId, code]
+        [userId, code],
       );
       profile = result.rows[0];
     }
@@ -48,22 +48,22 @@ export const handleGetAffiliateProfile: RequestHandler = async (req, res) => {
     // Get event counts
     const clickCount = await queryOne<{ count: number }>(
       "SELECT COUNT(*) as count FROM affiliate_events WHERE affiliate_code = $1 AND event_type = 'click'",
-      [profile.affiliate_code]
+      [profile.affiliate_code],
     );
 
     const signupCount = await queryOne<{ count: number }>(
       "SELECT COUNT(*) as count FROM affiliate_events WHERE affiliate_code = $1 AND event_type = 'signup'",
-      [profile.affiliate_code]
+      [profile.affiliate_code],
     );
 
     const upgradeCount = await queryOne<{ count: number }>(
       "SELECT COUNT(*) as count FROM affiliate_events WHERE affiliate_code = $1 AND event_type = 'upgrade'",
-      [profile.affiliate_code]
+      [profile.affiliate_code],
     );
 
     const revenue = await queryOne<{ total: number }>(
       "SELECT COALESCE(SUM(value_usd), 0) as total FROM affiliate_events WHERE affiliate_code = $1 AND event_type = 'upgrade'",
-      [profile.affiliate_code]
+      [profile.affiliate_code],
     );
 
     return res.json({
@@ -82,7 +82,7 @@ export const handleGetAffiliateProfile: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId },
       "Failed to get affiliate profile",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to fetch profile",
@@ -92,7 +92,10 @@ export const handleGetAffiliateProfile: RequestHandler = async (req, res) => {
 };
 
 // Module 2D: Create affiliate profile (explicit)
-export const handleCreateAffiliateProfile: RequestHandler = async (req, res) => {
+export const handleCreateAffiliateProfile: RequestHandler = async (
+  req,
+  res,
+) => {
   const correlationId = (req as any).correlationId || "unknown";
   const userId = (req as any).auth?.userId;
 
@@ -104,7 +107,7 @@ export const handleCreateAffiliateProfile: RequestHandler = async (req, res) => 
     // Check if profile already exists
     const existing = await queryOne<{ id: string }>(
       "SELECT id FROM affiliate_profiles WHERE user_id = $1",
-      [userId]
+      [userId],
     );
 
     if (existing) {
@@ -119,7 +122,7 @@ export const handleCreateAffiliateProfile: RequestHandler = async (req, res) => 
       `INSERT INTO affiliate_profiles (user_id, affiliate_code)
       VALUES ($1, $2)
       RETURNING *`,
-      [userId, code]
+      [userId, code],
     );
 
     return res.status(201).json({
@@ -130,7 +133,7 @@ export const handleCreateAffiliateProfile: RequestHandler = async (req, res) => 
     logError(
       { correlationId, userId },
       "Failed to create affiliate profile",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to create profile",
@@ -149,22 +152,20 @@ export const handleAffiliateRedirect: RequestHandler = async (req, res) => {
     await query(
       `INSERT INTO affiliate_events (affiliate_code, event_type, metadata)
       VALUES ($1, 'click', $2)`,
-      [code, JSON.stringify({ userAgent: req.headers["user-agent"] })]
+      [code, JSON.stringify({ userAgent: req.headers["user-agent"] })],
     );
 
     // Redirect to configured landing page or home
-    const redirectUrl =
-      process.env.AFFILIATE_DEFAULT_REDIRECT_URL || "/";
+    const redirectUrl = process.env.AFFILIATE_DEFAULT_REDIRECT_URL || "/";
     return res.redirect(redirectUrl);
   } catch (error) {
     logError(
       { correlationId, code },
       "Failed to log affiliate click",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     // Still redirect even if logging fails
-    const redirectUrl =
-      process.env.AFFILIATE_DEFAULT_REDIRECT_URL || "/";
+    const redirectUrl = process.env.AFFILIATE_DEFAULT_REDIRECT_URL || "/";
     return res.redirect(redirectUrl);
   }
 };
@@ -194,7 +195,12 @@ export const handleRecordAffiliateEvent: RequestHandler = async (req, res) => {
     await query(
       `INSERT INTO affiliate_events (affiliate_code, event_type, value_usd, metadata)
       VALUES ($1, $2, $3, $4)`,
-      [affiliateCode, eventType, valueUsd || null, metadata ? JSON.stringify(metadata) : null]
+      [
+        affiliateCode,
+        eventType,
+        valueUsd || null,
+        metadata ? JSON.stringify(metadata) : null,
+      ],
     );
 
     return res.json({
@@ -205,7 +211,7 @@ export const handleRecordAffiliateEvent: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to record affiliate event",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to record event",

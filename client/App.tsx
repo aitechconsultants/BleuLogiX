@@ -43,8 +43,14 @@ const AppContent = () => (
             }
           />
           <Route path="/video-generator" element={<VideoGenerator />} />
-          <Route path="/video-generator/create" element={<VideoGeneratorCreate />} />
-          <Route path="/video-generator/history" element={<VideoGeneratorHistory />} />
+          <Route
+            path="/video-generator/create"
+            element={<VideoGeneratorCreate />}
+          />
+          <Route
+            path="/video-generator/history"
+            element={<VideoGeneratorHistory />}
+          />
           <Route
             path="/accounts"
             element={

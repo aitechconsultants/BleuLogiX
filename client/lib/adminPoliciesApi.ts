@@ -26,7 +26,7 @@ export async function getPlanPolicies(): Promise<PlanPolicy[]> {
 
 export async function updatePlanPolicy(
   planKey: string,
-  updates: Partial<Omit<PlanPolicy, "plan_key" | "updated_at">>
+  updates: Partial<Omit<PlanPolicy, "plan_key" | "updated_at">>,
 ): Promise<PlanPolicy> {
   const response = await fetch(`/api/admin/plan-policies/${planKey}`, {
     method: "PUT",
@@ -44,7 +44,7 @@ export async function updatePlanPolicy(
 }
 
 export async function getWorkspaceOverrides(
-  workspaceId?: string
+  workspaceId?: string,
 ): Promise<WorkspacePolicyOverride[]> {
   const params = new URLSearchParams();
   if (workspaceId) {
@@ -62,13 +62,18 @@ export async function getWorkspaceOverrides(
 
 export async function updateWorkspaceOverride(
   workspaceId: string,
-  updates: Partial<Omit<WorkspacePolicyOverride, "workspace_id" | "updated_at">>
+  updates: Partial<
+    Omit<WorkspacePolicyOverride, "workspace_id" | "updated_at">
+  >,
 ): Promise<WorkspacePolicyOverride> {
-  const response = await fetch(`/api/admin/workspace-overrides/${workspaceId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates),
-  });
+  const response = await fetch(
+    `/api/admin/workspace-overrides/${workspaceId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    },
+  );
 
   if (!response.ok) {
     const error = await response.json();
@@ -79,10 +84,15 @@ export async function updateWorkspaceOverride(
   return data.override;
 }
 
-export async function deleteWorkspaceOverride(workspaceId: string): Promise<void> {
-  const response = await fetch(`/api/admin/workspace-overrides/${workspaceId}`, {
-    method: "DELETE",
-  });
+export async function deleteWorkspaceOverride(
+  workspaceId: string,
+): Promise<void> {
+  const response = await fetch(
+    `/api/admin/workspace-overrides/${workspaceId}`,
+    {
+      method: "DELETE",
+    },
+  );
 
   if (!response.ok) {
     throw new Error("Failed to delete workspace override");

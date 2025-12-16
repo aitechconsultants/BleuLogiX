@@ -15,8 +15,22 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-background sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-3 md:px-4" style={{ minHeight: "120px", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "14px", paddingBottom: "24px" }}>
-          <Link to={ROUTES.home} className="flex items-center justify-center flex-shrink-0" style={{ paddingLeft: "50px" }}>
+        <div
+          className="max-w-6xl mx-auto px-3 md:px-4"
+          style={{
+            minHeight: "120px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingTop: "14px",
+            paddingBottom: "24px",
+          }}
+        >
+          <Link
+            to={ROUTES.home}
+            className="flex items-center justify-center flex-shrink-0"
+            style={{ paddingLeft: "50px" }}
+          >
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2Fc92f13e987b1426eb13c7d459f7c6254%2F54f45d34be3943c08a0aecacd9df4dac?format=webp&width=800"
               alt="BleuLogiX"

@@ -40,7 +40,8 @@ export default function AccountHub() {
   const [plan, setPlan] = useState("free");
   const [accountLimit, setAccountLimit] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const [affiliateProfile, setAffiliateProfile] = useState<AffiliateProfile | null>(null);
+  const [affiliateProfile, setAffiliateProfile] =
+    useState<AffiliateProfile | null>(null);
   const [isLoadingAffiliate, setIsLoadingAffiliate] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
@@ -123,7 +124,8 @@ export default function AccountHub() {
       toast.success(`@${username} added successfully`);
       await fetchAccounts();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to add account";
+      const message =
+        err instanceof Error ? err.message : "Failed to add account";
       toast.error(message);
       throw err;
     } finally {
@@ -135,9 +137,12 @@ export default function AccountHub() {
   const handleRefreshAccount = async (accountId: string) => {
     setRefreshingId(accountId);
     try {
-      const response = await fetch(`/api/social-accounts/${accountId}/refresh`, {
-        method: "POST",
-      });
+      const response = await fetch(
+        `/api/social-accounts/${accountId}/refresh`,
+        {
+          method: "POST",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to refresh account");
@@ -184,7 +189,9 @@ export default function AccountHub() {
       <Layout>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
-            <p className="text-foreground mb-4">Please sign in to view your accounts</p>
+            <p className="text-foreground mb-4">
+              Please sign in to view your accounts
+            </p>
           </div>
         </div>
       </Layout>
@@ -249,7 +256,9 @@ export default function AccountHub() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Code Badge */}
                 <div className="md:col-span-2">
-                  <p className="text-xs text-muted-foreground mb-2">Your Referral Code</p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Your Referral Code
+                  </p>
                   <div className="flex items-center gap-2">
                     <code className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-mono text-lg font-semibold">
                       {affiliateProfile.affiliate_code}
@@ -296,7 +305,9 @@ export default function AccountHub() {
             <div className="mb-8 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-red-700">Error loading accounts</p>
+                <p className="font-medium text-red-700">
+                  Error loading accounts
+                </p>
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             </div>
@@ -349,26 +360,31 @@ export default function AccountHub() {
                   onRefreshSettingsUpdate={fetchAccounts}
                   oauthConnected={account.oauth_connected}
                   dataSource={account.data_source}
-                  onOAuthConnect={() => handleOAuthConnect(account.id, account.platform)}
+                  onOAuthConnect={() =>
+                    handleOAuthConnect(account.id, account.platform)
+                  }
                 />
               ))}
             </div>
           )}
 
           {/* Plan upgrade hint */}
-          {!isLoading && accounts.length >= accountLimit && plan !== "enterprise" && (
-            <div className="mt-12 p-6 rounded-lg bg-accent-blue/5 border border-accent-blue/30">
-              <h3 className="font-semibold text-foreground mb-2">
-                Need more accounts?
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Upgrade your plan to add more social accounts and unlock additional features.
-              </p>
-              <button className="px-6 py-2 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium transition-colors">
-                Upgrade Plan
-              </button>
-            </div>
-          )}
+          {!isLoading &&
+            accounts.length >= accountLimit &&
+            plan !== "enterprise" && (
+              <div className="mt-12 p-6 rounded-lg bg-accent-blue/5 border border-accent-blue/30">
+                <h3 className="font-semibold text-foreground mb-2">
+                  Need more accounts?
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Upgrade your plan to add more social accounts and unlock
+                  additional features.
+                </p>
+                <button className="px-6 py-2 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium transition-colors">
+                  Upgrade Plan
+                </button>
+              </div>
+            )}
         </div>
       </div>
 

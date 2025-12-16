@@ -12,7 +12,10 @@ interface AccountToRefresh {
 }
 
 // Calculate exponential backoff, max 24 hours
-function calculateNextRefreshTime(failCount: number, intervalHours: number): Date {
+function calculateNextRefreshTime(
+  failCount: number,
+  intervalHours: number,
+): Date {
   let backoffHours = Math.pow(2, Math.min(failCount, 4)); // 1, 2, 4, 8, 16 hours
   backoffHours = Math.min(backoffHours, 24); // Cap at 24 hours
   const nextRefresh = new Date();
@@ -27,7 +30,7 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
     // Set last_refresh_attempt_at
     await query(
       "UPDATE social_accounts SET last_refresh_attempt_at = NOW() WHERE id = $1",
-      [account.id]
+      [account.id],
     );
 
     // Get platform adapter and fetch new metrics
@@ -36,7 +39,9 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
 
     // Success: clear error, reset fail count, update metrics, calculate next refresh
     const nextRefresh = new Date();
-    nextRefresh.setHours(nextRefresh.getHours() + account.refresh_interval_hours);
+    nextRefresh.setHours(
+      nextRefresh.getHours() + account.refresh_interval_hours,
+    );
 
     await query(
       `UPDATE social_accounts SET
@@ -58,7 +63,7 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
         metrics.is_verified || false,
         nextRefresh.toISOString(),
         account.id,
-      ]
+      ],
     );
 
     // Create metrics snapshot
@@ -66,19 +71,24 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
       `INSERT INTO social_metrics_snapshots (
         social_account_id, followers, engagement_rate, captured_at
       ) VALUES ($1, $2, $3, NOW())`,
-      [account.id, metrics.follower_count, metrics.engagement_rate || null]
+      [account.id, metrics.follower_count, metrics.engagement_rate || null],
     );
 
-    console.log(`[Worker] Successfully refreshed ${account.platform}/@${account.username}`);
+    console.log(
+      `[Worker] Successfully refreshed ${account.platform}/@${account.username}`,
+    );
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     const failCount = account.refresh_fail_count + 1;
-    const nextRefresh = calculateNextRefreshTime(failCount, account.refresh_interval_hours);
+    const nextRefresh = calculateNextRefreshTime(
+      failCount,
+      account.refresh_interval_hours,
+    );
 
     logError(
       { correlationId, accountId: account.id },
       `Failed to refresh ${account.platform}/@${account.username}`,
-      error instanceof Error ? error : new Error(errorMsg)
+      error instanceof Error ? error : new Error(errorMsg),
     );
 
     // Failure: increment fail count, set error, schedule retry with backoff
@@ -90,7 +100,7 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
         next_refresh_at = $3,
         updated_at = NOW()
       WHERE id = $4`,
-      [errorMsg, failCount, nextRefresh.toISOString(), account.id]
+      [errorMsg, failCount, nextRefresh.toISOString(), account.id],
     );
   }
 }
@@ -107,7 +117,7 @@ export async function runRefreshCycle(): Promise<void> {
        AND status != 'paused'
        ORDER BY next_refresh_at ASC
        LIMIT 100`, // Process max 100 per cycle to avoid overload
-      []
+      [],
     );
 
     if (duAccounts.length === 0) {
@@ -125,18 +135,20 @@ export async function runRefreshCycle(): Promise<void> {
         logError(
           { accountId: account.id },
           "Worker failed to process account",
-          err instanceof Error ? err : new Error(String(err))
+          err instanceof Error ? err : new Error(String(err)),
         );
         // Continue to next account even if one fails
       }
     }
 
-    console.log(`[Worker] Refresh cycle completed (${duAccounts.length} accounts processed)`);
+    console.log(
+      `[Worker] Refresh cycle completed (${duAccounts.length} accounts processed)`,
+    );
   } catch (error) {
     logError(
       { context: "refreshWorker" },
       "Fatal error in refresh worker",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
   }
 }
@@ -156,7 +168,7 @@ export function startRefreshWorker(intervalMs: number = 10 * 60 * 1000): void {
     logError(
       { context: "refreshWorker" },
       "Error in initial refresh cycle",
-      err instanceof Error ? err : new Error(String(err))
+      err instanceof Error ? err : new Error(String(err)),
     );
   });
 
@@ -166,7 +178,7 @@ export function startRefreshWorker(intervalMs: number = 10 * 60 * 1000): void {
       logError(
         { context: "refreshWorker" },
         "Error in scheduled refresh cycle",
-        err instanceof Error ? err : new Error(String(err))
+        err instanceof Error ? err : new Error(String(err)),
       );
     });
   }, intervalMs);

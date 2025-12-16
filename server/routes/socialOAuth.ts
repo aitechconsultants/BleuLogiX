@@ -2,7 +2,10 @@ import { RequestHandler } from "express";
 import { query, queryOne } from "../db";
 import { logError } from "../logging";
 import { getPlatformAdapter, Platform } from "../services/platforms";
-import { encryptAndSerialize, deserializeAndDecrypt } from "../services/tokenEncryption";
+import {
+  encryptAndSerialize,
+  deserializeAndDecrypt,
+} from "../services/tokenEncryption";
 import { isFeatureAllowed } from "../services/policies";
 
 interface SocialOAuthConnection {
@@ -47,7 +50,7 @@ export const handleGetOAuthConfig: RequestHandler = async (req, res) => {
     logError(
       { correlationId, platform },
       "Failed to get OAuth config",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(400).json({
       error: "Invalid platform or OAuth not available",
@@ -110,7 +113,7 @@ export const handleStartOAuthFlow: RequestHandler = async (req, res) => {
     logError(
       { correlationId, platform, userId },
       "Failed to start OAuth flow",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(400).json({
       error: "Failed to start OAuth flow",
@@ -169,7 +172,7 @@ export const handleOAuthCallback: RequestHandler = async (req, res) => {
     logError(
       { correlationId, platform, code },
       "Failed to handle OAuth callback",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(400).json({
       error: "Failed to process OAuth callback",
@@ -193,7 +196,7 @@ export const handleLinkOAuthConnection: RequestHandler = async (req, res) => {
     // Verify account ownership
     const account = await queryOne<{ id: string }>(
       "SELECT id FROM social_accounts WHERE id = $1 AND user_id = $2",
-      [accountId, userId]
+      [accountId, userId],
     );
 
     if (!account) {
@@ -227,13 +230,13 @@ export const handleLinkOAuthConnection: RequestHandler = async (req, res) => {
         encryptedAccessToken,
         encryptedRefreshToken,
         expiresAt ? new Date(expiresAt).toISOString() : null,
-      ]
+      ],
     );
 
     // Update social_account to mark OAuth as connected
     await query(
       "UPDATE social_accounts SET oauth_connected = TRUE, data_source = 'oauth', updated_at = NOW() WHERE id = $1",
-      [accountId]
+      [accountId],
     );
 
     return res.json({
@@ -245,7 +248,7 @@ export const handleLinkOAuthConnection: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId, accountId },
       "Failed to link OAuth connection",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to establish OAuth connection",
@@ -268,7 +271,7 @@ export const handleUseOAuthData: RequestHandler = async (req, res) => {
     // Verify OAuth connection exists
     const oauthConnection = await queryOne<{ id: string }>(
       "SELECT id FROM social_oauth_connections WHERE social_account_id = $1",
-      [accountId]
+      [accountId],
     );
 
     if (!oauthConnection) {
@@ -281,7 +284,7 @@ export const handleUseOAuthData: RequestHandler = async (req, res) => {
     // Update account to use OAuth data source
     await query(
       "UPDATE social_accounts SET data_source = 'oauth', updated_at = NOW() WHERE id = $1 AND user_id = $2",
-      [accountId, userId]
+      [accountId, userId],
     );
 
     return res.json({
@@ -293,7 +296,7 @@ export const handleUseOAuthData: RequestHandler = async (req, res) => {
     logError(
       { correlationId, userId, accountId },
       "Failed to switch to OAuth data source",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to switch data source",

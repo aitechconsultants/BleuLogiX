@@ -19,8 +19,18 @@ interface AddSocialAccountModalProps {
 
 const platforms = [
   { id: "tiktok", name: "TikTok", icon: "🎵", hint: "@username or username" },
-  { id: "instagram", name: "Instagram", icon: "📸", hint: "@username or username" },
-  { id: "youtube", name: "YouTube", icon: "▶️", hint: "@handle or channel name" },
+  {
+    id: "instagram",
+    name: "Instagram",
+    icon: "📸",
+    hint: "@username or username",
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    icon: "▶️",
+    hint: "@handle or channel name",
+  },
   { id: "twitter", name: "X (Twitter)", icon: "𝕏", hint: "@handle or handle" },
   { id: "linkedin", name: "LinkedIn", icon: "💼", hint: "profile-name" },
 ];
@@ -56,9 +66,7 @@ export default function AddSocialAccountModal({
       setUsername("");
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to add account"
-      );
+      setError(err instanceof Error ? err.message : "Failed to add account");
     }
   };
 
@@ -152,7 +160,12 @@ export default function AddSocialAccountModal({
             </button>
             <button
               onClick={handleAdd}
-              disabled={isLoading || !selectedPlatform || !username.trim() || !canAddMore}
+              disabled={
+                isLoading ||
+                !selectedPlatform ||
+                !username.trim() ||
+                !canAddMore
+              }
               className="px-4 py-2 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 font-medium transition-colors flex items-center gap-2"
             >
               {isLoading ? "Adding..." : "Add Account"}
