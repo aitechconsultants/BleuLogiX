@@ -1,4 +1,4 @@
-import { queryAll, query, queryOne } from "../db";
+import { queryAll, query } from "../db";
 import { logError } from "../logging";
 import { getPlatformAdapter } from "./platforms";
 
@@ -7,41 +7,74 @@ interface AccountToRefresh {
   user_id: string;
   platform: string;
   username: string;
-  refresh_interval_hours: number;
-  refresh_fail_count: number;
+  refresh_interval_hours: number | null;
+  refresh_fail_count: number | null;
 }
 
-// Calculate exponential backoff, max 24 hours
-function calculateNextRefreshTime(
-  failCount: number,
-  intervalHours: number,
-): Date {
-  let backoffHours = Math.pow(2, Math.min(failCount, 4)); // 1, 2, 4, 8, 16 hours
-  backoffHours = Math.min(backoffHours, 24); // Cap at 24 hours
-  const nextRefresh = new Date();
-  nextRefresh.setHours(nextRefresh.getHours() + backoffHours);
-  return nextRefresh;
+// ---- Small helpers ----
+
+function toInt(n: unknown, fallback: number) {
+  const v = typeof n === "number" ? n : Number(n);
+  return Number.isFinite(v) ? v : fallback;
+}
+
+function safeIso(d: Date) {
+  return d.toISOString();
+}
+
+/**
+ * Exponential backoff (1,2,4,8,16 hours) capped at 24h,
+ * but never sooner than the configured interval (intervalHours).
+ */
+function calculateNextRefreshTime(failCount: number, intervalHours: number): Date {
+  const backoffHours = Math.min(Math.pow(2, Math.min(failCount, 4)), 24);
+  const delayHours = Math.max(intervalHours, backoffHours);
+
+  const next = new Date();
+  next.setHours(next.getHours() + delayHours);
+  return next;
+}
+
+/**
+ * DB readiness gate:
+ * Your app initializes DB/migrations on the first request,
+ * but the worker starts at boot. So we MUST verify DB is reachable
+ * before doing any real work.
+ */
+async function isDatabaseReady(): Promise<boolean> {
+  if (!process.env.DATABASE_URL) return false;
+
+  try {
+    // lightweight check
+    await query("SELECT 1 as ok", []);
+    return true;
+  } catch (err) {
+    // Don't spam fatal logs—this is expected during cold start
+    console.warn("[Worker] DB not ready yet; skipping cycle.");
+    return false;
+  }
 }
 
 async function refreshAccount(account: AccountToRefresh): Promise<void> {
   const correlationId = `worker-${account.id}`;
 
+  const refreshIntervalHours = Math.max(1, toInt(account.refresh_interval_hours, 24));
+  const currentFailCount = Math.max(0, toInt(account.refresh_fail_count, 0));
+
   try {
-    // Set last_refresh_attempt_at
+    // Mark attempt
     await query(
       "UPDATE social_accounts SET last_refresh_attempt_at = NOW() WHERE id = $1",
       [account.id],
     );
 
-    // Get platform adapter and fetch new metrics
+    // Fetch metrics
     const adapter = getPlatformAdapter(account.platform as any);
     const metrics = await adapter.fetchMetrics(account.username);
 
-    // Success: clear error, reset fail count, update metrics, calculate next refresh
+    // Next scheduled refresh
     const nextRefresh = new Date();
-    nextRefresh.setHours(
-      nextRefresh.getHours() + account.refresh_interval_hours,
-    );
+    nextRefresh.setHours(nextRefresh.getHours() + refreshIntervalHours);
 
     await query(
       `UPDATE social_accounts SET
@@ -59,39 +92,36 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
       [
         metrics.follower_count,
         metrics.post_count,
-        metrics.engagement_rate || null,
-        metrics.is_verified || false,
-        nextRefresh.toISOString(),
+        metrics.engagement_rate ?? null,
+        metrics.is_verified ?? false,
+        safeIso(nextRefresh),
         account.id,
       ],
     );
 
-    // Create metrics snapshot
+    // Snapshot
     await query(
       `INSERT INTO social_metrics_snapshots (
         social_account_id, followers, engagement_rate, captured_at
       ) VALUES ($1, $2, $3, NOW())`,
-      [account.id, metrics.follower_count, metrics.engagement_rate || null],
+      [account.id, metrics.follower_count, metrics.engagement_rate ?? null],
     );
 
     console.log(
-      `[Worker] Successfully refreshed ${account.platform}/@${account.username}`,
+      `[Worker] Refreshed ${account.platform}/@${account.username} (next in ${refreshIntervalHours}h)`,
     );
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    const failCount = account.refresh_fail_count + 1;
-    const nextRefresh = calculateNextRefreshTime(
-      failCount,
-      account.refresh_interval_hours,
-    );
+    const nextFailCount = currentFailCount + 1;
+
+    const nextRefresh = calculateNextRefreshTime(nextFailCount, refreshIntervalHours);
 
     logError(
-      { correlationId, accountId: account.id },
+      { correlationId, accountId: account.id, platform: account.platform, username: account.username },
       `Failed to refresh ${account.platform}/@${account.username}`,
       error instanceof Error ? error : new Error(errorMsg),
     );
 
-    // Failure: increment fail count, set error, schedule retry with backoff
     await query(
       `UPDATE social_accounts SET
         refresh_error = $1,
@@ -100,60 +130,57 @@ async function refreshAccount(account: AccountToRefresh): Promise<void> {
         next_refresh_at = $3,
         updated_at = NOW()
       WHERE id = $4`,
-      [errorMsg, failCount, nextRefresh.toISOString(), account.id],
+      [errorMsg, nextFailCount, safeIso(nextRefresh), account.id],
     );
   }
 }
 
 export async function runRefreshCycle(): Promise<void> {
+  // Hard gate: if DB isn't ready, do nothing.
+  const ready = await isDatabaseReady();
+  if (!ready) return;
+
   try {
-    // Find all accounts due for refresh
-    const duAccounts = await queryAll<AccountToRefresh>(
+    const dueAccounts = await queryAll<AccountToRefresh>(
       `SELECT id, user_id, platform, username, refresh_interval_hours, refresh_fail_count
        FROM social_accounts
        WHERE refresh_mode = 'scheduled'
-       AND next_refresh_at IS NOT NULL
-       AND next_refresh_at <= NOW()
-       AND status != 'paused'
+         AND next_refresh_at IS NOT NULL
+         AND next_refresh_at <= NOW()
+         AND COALESCE(status, 'active') != 'paused'
        ORDER BY next_refresh_at ASC
-       LIMIT 100`, // Process max 100 per cycle to avoid overload
+       LIMIT 100`,
       [],
     );
 
-    if (duAccounts.length === 0) {
-      // No accounts to refresh right now
-      return;
-    }
+    if (!dueAccounts || dueAccounts.length === 0) return;
 
-    console.log(`[Worker] Found ${duAccounts.length} accounts due for refresh`);
+    console.log(`[Worker] ${dueAccounts.length} accounts due for refresh`);
 
-    // Process each account
-    for (const account of duAccounts) {
+    for (const account of dueAccounts) {
       try {
         await refreshAccount(account);
       } catch (err) {
         logError(
           { accountId: account.id },
-          "Worker failed to process account",
+          "Worker failed to process account (continuing)",
           err instanceof Error ? err : new Error(String(err)),
         );
-        // Continue to next account even if one fails
       }
     }
 
-    console.log(
-      `[Worker] Refresh cycle completed (${duAccounts.length} accounts processed)`,
-    );
+    console.log(`[Worker] Refresh cycle completed (${dueAccounts.length} processed)`);
   } catch (error) {
+    // This should be rare now; most startup issues are absorbed by isDatabaseReady()
     logError(
       { context: "refreshWorker" },
-      "Fatal error in refresh worker",
+      "Fatal error in refresh worker cycle",
       error instanceof Error ? error : new Error(String(error)),
     );
   }
 }
 
-let workerInterval: NodeJS.Timer | null = null;
+let workerInterval: NodeJS.Timeout | null = null;
 
 export function startRefreshWorker(intervalMs: number = 10 * 60 * 1000): void {
   if (workerInterval) {
@@ -163,7 +190,7 @@ export function startRefreshWorker(intervalMs: number = 10 * 60 * 1000): void {
 
   console.log(`[Worker] Starting refresh worker (interval: ${intervalMs}ms)`);
 
-  // Run immediately on start
+  // Run immediately
   runRefreshCycle().catch((err) => {
     logError(
       { context: "refreshWorker" },
@@ -185,9 +212,8 @@ export function startRefreshWorker(intervalMs: number = 10 * 60 * 1000): void {
 }
 
 export function stopRefreshWorker(): void {
-  if (workerInterval) {
-    clearInterval(workerInterval);
-    workerInterval = null;
-    console.log("[Worker] Refresh worker stopped");
-  }
+  if (!workerInterval) return;
+  clearInterval(workerInterval);
+  workerInterval = null;
+  console.log("[Worker] Refresh worker stopped");
 }
