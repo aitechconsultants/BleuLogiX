@@ -1,3 +1,5 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 import path from "path";
 import express from "express";
@@ -6,6 +8,8 @@ import { startRefreshWorker } from "./services/refreshWorker";
 import { initializeDatabase } from "./db";
 import { runMigrations } from "./migrations";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = createServer();
 const port = Number(process.env.PORT) || 3000;
 
