@@ -1,24 +1,34 @@
 import React from "react";
+import ReactDOM from "react-dom/client";
 import { ClerkProvider } from "@clerk/clerk-react";
 
-// 👉 import your real app router/layout here
-import Routes from "./pages"; // adjust if your app uses a different root
-// OR: import AppRoutes from "./routes";
+import App from "./App";
+import "./global.css";
 
-const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
+  | string
+  | undefined;
 
-if (!publishableKey) {
-  throw new Error(
-    "❌ Missing VITE_CLERK_PUBLISHABLE_KEY. Check Railway environment variables."
-  );
-}
-
-export default function App() {
+function MissingKeyScreen() {
   return (
-    <React.StrictMode>
-      <ClerkProvider publishableKey={publishableKey}>
-        <Routes />
-      </ClerkProvider>
-    </React.StrictMode>
+    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+      <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
+      <p style={{ marginTop: 8 }}>
+        Set <code>VITE_CLERK_PUBLISHABLE_KEY</code> in Railway “web” service
+        variables (and locally in <code>.env</code> if needed), then redeploy.
+      </p>
+    </div>
   );
 }
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    {publishableKey ? (
+      <ClerkProvider publishableKey={publishableKey}>
+        <App />
+      </ClerkProvider>
+    ) : (
+      <MissingKeyScreen />
+    )}
+  </React.StrictMode>,
+);
