@@ -1,34 +1,25 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { BrowserRouter } from "react-router-dom";
 
-import App from "./App";
-import "./global.css";
+/**
+ * IMPORTANT:
+ * - NO ReactDOM.createRoot here
+ * - NO ClerkProvider here
+ * - This file must be a pure component only
+ */
 
-const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
-  | string
-  | undefined;
-
-function MissingKeyScreen() {
+export default function App() {
   return (
-    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-      <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
-      <p style={{ marginTop: 8 }}>
-        Set <code>VITE_CLERK_PUBLISHABLE_KEY</code> in Railway “web” service
-        variables (and locally in <code>.env</code> if needed), then redeploy.
-      </p>
-    </div>
+    <BrowserRouter>
+      <div
+        style={{
+          padding: 24,
+          fontFamily: "system-ui, -apple-system, BlinkMacSystemFont",
+        }}
+      >
+        <h1>BleuLogix is running 🚀</h1>
+        <p>If you can see this, React + routing are working.</p>
+      </div>
+    </BrowserRouter>
   );
 }
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    {publishableKey ? (
-      <ClerkProvider publishableKey={publishableKey}>
-        <App />
-      </ClerkProvider>
-    ) : (
-      <MissingKeyScreen />
-    )}
-  </React.StrictMode>,
-);
