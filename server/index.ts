@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
+import fs from "fs";
+import path from "path";
 
 import { handleDemo } from "./routes/demo";
 import { requireClerkAuth } from "./clerk-auth";
@@ -218,6 +220,52 @@ export function createServer() {
   );
   app.get("/r/:code", handleAffiliateRedirect);
   app.post("/api/affiliate/events", handleRecordAffiliateEvent);
+
+  /**
+   * =========================
+   * SPA serving + runtime env injection
+   * =========================
+   *
+   * Why: Vite only bakes import.meta.env at build time.
+   * On Railway, you often set env vars at runtime. This injects them into index.html.
+   *
+   * Important: In production, __dirname is /app/dist/server, and spa build is /app/dist/spa
+   */
+  const spaDir = path.join(__dirname, "../spa");
+
+  // Serve SPA assets (JS/CSS)
+  app.use(express.static(spaDir));
+
+  // Serve index.html for all non-API routes (with injected runtime env)
+  app.get("*", (req, res, next) => {
+    // Never hijack API or health routes
+    if (req.path.startsWith("/api") || req.path === "/health") return next();
+
+    try {
+      const indexPath = path.join(spaDir, "index.html");
+      let html = fs.readFileSync(indexPath, "utf8");
+
+      // Inject runtime env before </head>
+      const injected = `
+<script>
+  window.__ENV__ = window.__ENV__ || {};
+  window.__ENV__.VITE_CLERK_PUBLISHABLE_KEY = ${JSON.stringify(
+    process.env.VITE_CLERK_PUBLISHABLE_KEY || "",
+  )};
+  window.__ENV__.VITE_PUBLIC_BUILDER_KEY = ${JSON.stringify(
+    process.env.VITE_PUBLIC_BUILDER_KEY || "",
+  )};
+</script>
+`;
+
+      html = html.replace("</head>", `${injected}</head>`);
+
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.status(200).send(html);
+    } catch (err) {
+      next(err);
+    }
+  });
 
   // Route self-test: validate all registered routes
   if (process.env.ROUTE_SELF_TEST === "1") {
