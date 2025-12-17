@@ -1,7 +1,9 @@
-import "dotenv/config";
+// server/node-build.ts
+// Production entry (Railway) — serves SPA + API, boots DB once, optionally starts worker.
 
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 import express from "express";
 
 import { createServer } from "./index";
@@ -13,32 +15,42 @@ import { runMigrations } from "./migrations";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Create API app
 const app = createServer();
+
+// Railway provides PORT
 const port = Number(process.env.PORT) || 3000;
 
-// Paths (built output is /dist/server and /dist/spa)
-const distPath = path.join(__dirname, "../spa");
+// Built output paths:
+// - server bundle: dist/server
+// - spa build: dist/spa
+const spaDir = path.resolve(__dirname, "../spa");
+const spaIndex = path.join(spaDir, "index.html");
 
-console.log("[BOOT] __dirname:", __dirname);
-console.log("[SPA] Serving from:", distPath);
+console.log("[BOOT] server __dirname:", __dirname);
+console.log("[BOOT] PORT:", port);
+console.log("[SPA] spaDir:", spaDir);
 
-// Serve static files (Vite build output)
-app.use(express.static(distPath));
+// Serve SPA only if it exists (prevents confusing blank deployments)
+if (fs.existsSync(spaIndex)) {
+  app.use(express.static(spaDir));
 
-/**
- * SPA fallback for React Router
- * Use a RegExp path to avoid path-to-regexp string parsing issues.
- *
- * This matches any route that does NOT start with:
- *   /api/   or   /health
- */
-app.get(/^(?!\/api\/|\/health).*/, (_req, res) => {
-  return res.sendFile(path.join(distPath, "index.html"));
-});
+  // SPA fallback (RegExp avoids path-to-regexp issues)
+  // This matches any route that does NOT start with /api/ or /health
+  app.get(/^(?!\/api\/|\/health).*/, (_req, res) => {
+    return res.sendFile(spaIndex);
+  });
+
+  console.log("[SPA] index.html found — serving SPA");
+} else {
+  console.warn(
+    `[SPA] index.html NOT found at ${spaIndex}. SPA will not be served (API only).`,
+  );
+}
 
 async function bootstrap() {
   // ---------------------------------------------
-  // DB bootstrap (do this once at startup)
+  // DB bootstrap (once at startup)
   // ---------------------------------------------
   const HAS_DB = Boolean(process.env.DATABASE_URL);
   let dbReady = false;
@@ -62,9 +74,12 @@ async function bootstrap() {
   app.listen(port, "0.0.0.0", () => {
     console.log(`🚀 Server listening on 0.0.0.0:${port}`);
     console.log(`🔧 API: http://localhost:${port}/api`);
+    if (fs.existsSync(spaIndex)) {
+      console.log(`🌐 SPA: http://localhost:${port}/`);
+    }
 
     // ---------------------------------------------
-    // Module 2A Worker (safe + gated)
+    // Optional refresh worker (safe + gated)
     // ---------------------------------------------
     const WORKER_ENABLED =
       (process.env.REFRESH_WORKER_ENABLED || "").toLowerCase() === "true";
