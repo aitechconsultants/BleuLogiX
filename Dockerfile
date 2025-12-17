@@ -22,7 +22,10 @@ COPY .npmrc package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
 
 COPY . .
-
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ARG VITE_PUBLIC_BUILDER_KEY
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_PUBLIC_BUILDER_KEY=$VITE_PUBLIC_BUILDER_KEY
 RUN pnpm run build
 
 RUN pnpm prune --prod
