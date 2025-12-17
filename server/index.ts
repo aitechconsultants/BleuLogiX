@@ -2,8 +2,6 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
-import fs from "fs";
-import path from "path";
 
 import { handleDemo } from "./routes/demo";
 import { requireClerkAuth } from "./clerk-auth";
@@ -79,8 +77,7 @@ export function createServer() {
 
   // IMPORTANT:
   // Do NOT mount clerkMiddleware() globally.
-  // Keep public routes (/, /health, SPA assets) free of Clerk handshake/auth,
-  // so Railway health checks never fail due to auth.
+  // Keep public routes (/, /health, SPA assets) free of Clerk handshake/auth.
   const clerk = clerkMiddleware();
 
   // Webhook route must be before express.json() to get raw body
@@ -148,124 +145,31 @@ export function createServer() {
   app.get("/api/social-accounts", handleListAccounts);
   app.post("/api/social-accounts/:id/refresh", handleRefreshAccount);
   app.delete("/api/social-accounts/:id", handleRemoveAccount);
-  app.put(
-    "/api/social-accounts/:id/refresh-settings",
-    handleUpdateRefreshSettings,
-  );
+  app.put("/api/social-accounts/:id/refresh-settings", handleUpdateRefreshSettings);
 
   // Module 2A: Worker endpoint (admin/dev only)
   app.post("/api/social-accounts/worker/run-once", handleRunRefreshCycle);
 
   // Module 2C: Admin policy routes (admin only)
-  app.get(
-    "/api/admin/plan-policies",
-    requireClerkAuth,
-    requireAdminAuth,
-    handleGetPlanPolicies,
-  );
-  app.put(
-    "/api/admin/plan-policies/:plan_key",
-    requireClerkAuth,
-    requireAdminAuth,
-    handleUpdatePlanPolicy,
-  );
-  app.get(
-    "/api/admin/workspace-overrides",
-    requireClerkAuth,
-    requireAdminAuth,
-    handleGetWorkspaceOverrides,
-  );
-  app.put(
-    "/api/admin/workspace-overrides/:workspace_id",
-    requireClerkAuth,
-    requireAdminAuth,
-    handleUpdateWorkspaceOverride,
-  );
-  app.delete(
-    "/api/admin/workspace-overrides/:workspace_id",
-    requireClerkAuth,
-    requireAdminAuth,
-    handleDeleteWorkspaceOverride,
-  );
+  app.get("/api/admin/plan-policies", requireClerkAuth, requireAdminAuth, handleGetPlanPolicies);
+  app.put("/api/admin/plan-policies/:plan_key", requireClerkAuth, requireAdminAuth, handleUpdatePlanPolicy);
+
+  app.get("/api/admin/workspace-overrides", requireClerkAuth, requireAdminAuth, handleGetWorkspaceOverrides);
+  app.put("/api/admin/workspace-overrides/:workspace_id", requireClerkAuth, requireAdminAuth, handleUpdateWorkspaceOverride);
+  app.delete("/api/admin/workspace-overrides/:workspace_id", requireClerkAuth, requireAdminAuth, handleDeleteWorkspaceOverride);
 
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
-  app.get(
-    "/api/social-oauth/:platform/start",
-    requireClerkAuth,
-    handleStartOAuthFlow,
-  );
+  app.get("/api/social-oauth/:platform/start", requireClerkAuth, handleStartOAuthFlow);
   app.get("/api/social-oauth/:platform/callback", handleOAuthCallback);
-  app.post(
-    "/api/social-accounts/:accountId/oauth/link",
-    requireClerkAuth,
-    handleLinkOAuthConnection,
-  );
-  app.post(
-    "/api/social-accounts/:accountId/use-oauth",
-    requireClerkAuth,
-    handleUseOAuthData,
-  );
+  app.post("/api/social-accounts/:accountId/oauth/link", requireClerkAuth, handleLinkOAuthConnection);
+  app.post("/api/social-accounts/:accountId/use-oauth", requireClerkAuth, handleUseOAuthData);
 
   // Module 2D: Affiliate routes
-  app.get(
-    "/api/affiliate/profile",
-    requireClerkAuth,
-    handleGetAffiliateProfile,
-  );
-  app.post(
-    "/api/affiliate/create",
-    requireClerkAuth,
-    handleCreateAffiliateProfile,
-  );
+  app.get("/api/affiliate/profile", requireClerkAuth, handleGetAffiliateProfile);
+  app.post("/api/affiliate/create", requireClerkAuth, handleCreateAffiliateProfile);
   app.get("/r/:code", handleAffiliateRedirect);
   app.post("/api/affiliate/events", handleRecordAffiliateEvent);
-
-  /**
-   * =========================
-   * SPA serving + runtime env injection
-   * =========================
-   *
-   * Why: Vite only bakes import.meta.env at build time.
-   * On Railway, you often set env vars at runtime. This injects them into index.html.
-   *
-   * Important: In production, __dirname is /app/dist/server, and spa build is /app/dist/spa
-   */
-  const spaDir = path.join(__dirname, "../spa");
-
-  // Serve SPA assets (JS/CSS)
-  app.use(express.static(spaDir));
-
-  // Serve index.html for all non-API routes (with injected runtime env)
-  app.get("*", (req, res, next) => {
-    // Never hijack API or health routes
-    if (req.path.startsWith("/api") || req.path === "/health") return next();
-
-    try {
-      const indexPath = path.join(spaDir, "index.html");
-      let html = fs.readFileSync(indexPath, "utf8");
-
-      // Inject runtime env before </head>
-      const injected = `
-<script>
-  window.__ENV__ = window.__ENV__ || {};
-  window.__ENV__.VITE_CLERK_PUBLISHABLE_KEY = ${JSON.stringify(
-    process.env.VITE_CLERK_PUBLISHABLE_KEY || "",
-  )};
-  window.__ENV__.VITE_PUBLIC_BUILDER_KEY = ${JSON.stringify(
-    process.env.VITE_PUBLIC_BUILDER_KEY || "",
-  )};
-</script>
-`;
-
-      html = html.replace("</head>", `${injected}</head>`);
-
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.status(200).send(html);
-    } catch (err) {
-      next(err);
-    }
-  });
 
   // Route self-test: validate all registered routes
   if (process.env.ROUTE_SELF_TEST === "1") {
