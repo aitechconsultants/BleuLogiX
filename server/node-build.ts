@@ -89,7 +89,10 @@ async function bootstrap() {
         startRefreshWorker(10 * 60 * 1000);
         console.log("[Worker] Started");
       } catch (err) {
-        console.error("[Worker] Failed to start refresh worker (non-fatal):", err);
+        console.error(
+          "[Worker] Failed to start refresh worker (non-fatal):",
+          err,
+        );
       }
     } else {
       console.log(
