@@ -9,11 +9,10 @@ primary_region = 'sjc'
 [build]
   dockerfile = "Dockerfile"
 
-  # Fly.io passes these variables as build args to Docker during build phase
-  # These must match your runtime env vars in Fly.io Variables
+  # Vite requires build-time environment variables to embed in the client bundle
+  # Hardcode the production Clerk key here since Fly.io doesn't interpolate variables in fly.toml
   [build.args]
-    VITE_CLERK_PUBLISHABLE_KEY = "${VITE_CLERK_PUBLISHABLE_KEY}"
-    VITE_PUBLIC_BUILDER_KEY = "${VITE_PUBLIC_BUILDER_KEY}"
+    VITE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuYmxldWxvZ2l4LmNvbSQ"
 
 [http_service]
   internal_port = 8080
