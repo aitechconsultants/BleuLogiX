@@ -23,13 +23,15 @@ RUN pnpm install --frozen-lockfile --prod=false
 # Copy source
 COPY . .
 
-# If you need Vite build-time env vars, keep these (Railway can pass them as build args if configured)
+# Vite build-time env vars (Fly.io: set as secrets in fly.toml or pass via build args)
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG VITE_PUBLIC_BUILDER_KEY
+
+# Make them available to the build process
 ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_PUBLIC_BUILDER_KEY=$VITE_PUBLIC_BUILDER_KEY
 
-# Build
+# Build - Vite uses these env vars to embed them into the client bundle
 RUN pnpm run build
 
 # Prune dev deps for runtime image
@@ -46,4 +48,3 @@ ENV PORT=8080
 EXPOSE 8080
 
 CMD ["node", "dist/server/node-build.mjs"]
-
