@@ -18,8 +18,8 @@ const __dirname = path.dirname(__filename);
 // Create API app
 const app = createServer();
 
-// Railway provides PORT
-const port = Number(process.env.PORT) || 3000;
+// Fly.io provides PORT environment variable; default to 8080 for production
+const port = Number(process.env.PORT) || 8080;
 
 // Built output paths:
 // - server bundle: dist/server
