@@ -10,7 +10,7 @@ primary_region = 'sjc'
   dockerfile = "Dockerfile"
 
   # Vite requires build-time environment variables to embed in the client bundle
-  # Hardcode the production Clerk key here since Fly.io doesn't interpolate variables in fly.toml
+  # Clerk key from your production instance (clerk.bleulogix.com)
   [build.args]
     VITE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuYmxldWxvZ2l4LmNvbSQ"
 
