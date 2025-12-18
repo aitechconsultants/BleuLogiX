@@ -26,7 +26,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     {publishableKey ? (
       <ClerkProvider
         publishableKey={publishableKey}
-        frontendApi="clerk.bleulogix.com"
       >
         <App />
       </ClerkProvider>
