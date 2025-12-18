@@ -24,9 +24,7 @@ function MissingKeyScreen() {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {publishableKey ? (
-      <ClerkProvider
-        publishableKey={publishableKey}
-      >
+      <ClerkProvider publishableKey={publishableKey}>
         <App />
       </ClerkProvider>
     ) : (
