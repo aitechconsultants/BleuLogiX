@@ -6,28 +6,12 @@ import App from "./App";
 import "./global.css";
 import { getClerkPublishableKey } from "./lib/clerk-config";
 
-const publishableKey = getClerkPublishableKey();
-
-function MissingKeyScreen() {
-  return (
-    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-      <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
-      <p style={{ marginTop: 8 }}>
-        Set <code>CLERK_PUBLISHABLE_KEY</code> in your environment variables,
-        then redeploy.
-      </p>
-    </div>
-  );
-}
+const publishableKey = getClerkPublishableKey() || "";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    {publishableKey ? (
-      <ClerkProvider publishableKey={publishableKey}>
-        <App />
-      </ClerkProvider>
-    ) : (
-      <MissingKeyScreen />
-    )}
+    <ClerkProvider publishableKey={publishableKey}>
+      <App />
+    </ClerkProvider>
   </React.StrictMode>,
 );
