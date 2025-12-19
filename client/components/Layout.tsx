@@ -77,7 +77,7 @@ export default function Layout({ children }: LayoutProps) {
               Learn
             </a>
 
-            {!hasClerkKey ? (
+            {!clerkKeyPresent ? (
               // Clerk not configured - show login/signup
               <>
                 <Link
