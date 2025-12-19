@@ -4,10 +4,9 @@ import { ClerkProvider } from "@clerk/clerk-react";
 
 import App from "./App";
 import "./global.css";
+import { getClerkPublishableKey } from "./lib/clerk-config";
 
-const publishableKey = (window as any).__CLERK_PUBLISHABLE_KEY as
-  | string
-  | undefined;
+const publishableKey = getClerkPublishableKey();
 
 function MissingKeyScreen() {
   return (
