@@ -96,17 +96,20 @@ npm run dev
 
 Set environment variables in your deployment platform:
 
-- **Fly.io**: Use `flyctl secrets set`
-- **Railway**: Use the Railway dashboard or CLI
+- **Vercel**: Use the Settings → Environment Variables tab
 - **Netlify**: Use the Build & deploy settings
-- **Vercel**: Use the Settings tab
+- **Railway**: Use the Railway dashboard or CLI
 - **Docker**: Pass via `-e` flag or `.env` file in container
 
-Example for Fly.io:
+Example for Vercel:
 
-```bash
-flyctl secrets set OPENAI_API_KEY=sk-proj-your-key
-flyctl secrets set SCRIPT_GEN_MODEL=gpt-4-mini
+```
+In Vercel Dashboard:
+1. Go to your project Settings
+2. Click Environment Variables
+3. Add OPENAI_API_KEY=sk-proj-your-key
+4. Add SCRIPT_GEN_MODEL=gpt-4-mini
+5. Redeploy
 ```
 
 ## Cost Estimation

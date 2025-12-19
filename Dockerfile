@@ -20,7 +20,7 @@ RUN apt-get update -qq \
 COPY .npmrc package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
 
-# Vite build-time env vars (from fly.toml build.args)
+# Build-time environment variables (passed via docker build --build-arg)
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG VITE_PUBLIC_BUILDER_KEY
 
@@ -43,7 +43,7 @@ COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 COPY --from=build /app/package.json /app/package.json
 
-# Railway provides PORT; keep a safe default
+# Keep a safe default for PORT (can be overridden by container environment)
 ENV PORT=8080
 EXPOSE 8080
 

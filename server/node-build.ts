@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 // Create API app
 const app = createServer();
 
-// Fly.io provides PORT environment variable; default to 8080 for production
+// Environment provides PORT (Vercel, Node, etc.); default to 8080 for local
 const port = Number(process.env.PORT) || 8080;
 
 // Built output paths:
