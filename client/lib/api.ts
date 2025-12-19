@@ -1,4 +1,5 @@
 import { useAuth } from "@clerk/clerk-react";
+import { hasClerkKey } from "./clerk-config";
 
 export class APIError extends Error {
   constructor(
@@ -14,11 +15,11 @@ export class APIError extends Error {
  * This hook must be called at the component level, not inside async functions
  */
 export function useApiClient() {
-  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
+  const clerkKeyPresent = hasClerkKey();
 
   // Call useAuth hook at the top level to properly manage token state
   let auth = null;
-  if (hasClerkKey) {
+  if (clerkKeyPresent) {
     try {
       auth = useAuth();
     } catch (e) {
