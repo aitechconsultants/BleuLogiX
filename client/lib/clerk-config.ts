@@ -12,10 +12,9 @@ export function getClerkPublishableKey(): string | undefined {
     return runtimeKey;
   }
 
-  // Fallback to build-time env var (for backward compatibility with local dev)
-  // Note: Vite doesn't expose non-VITE_ prefixed vars, so this will only work
-  // if explicitly injected via vite.config.ts or build-time setup
-  return import.meta.env.CLERK_PUBLISHABLE_KEY as string | undefined;
+  // Fallback to build-time env var (for dev with Vite)
+  // Vite exposes vars prefixed with VITE_
+  return import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 }
 
 export function hasClerkKey(): boolean {
