@@ -1,11 +1,22 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
+
+import Layout from "@/components/Layout";
+import { ROUTES } from "@/config/routes";
+
+// Pages
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+import Generator from "@/pages/Generator";
+import VideoGenerator from "@/pages/VideoGenerator";
+import VideoGeneratorCreate from "@/pages/VideoGeneratorCreate";
+import VideoGeneratorHistory from "@/pages/VideoGeneratorHistory";
+import AccountHub from "@/pages/AccountHub";
+import AdminAudit from "@/pages/AdminAudit";
+import AdminPolicies from "@/pages/AdminPolicies";
+import NotFound from "@/pages/NotFound";
 
 /**
  * IMPORTANT:
@@ -14,53 +25,40 @@ import {
  * - This file is a pure React component
  */
 
-function Home() {
-  return (
-    <div
-      style={{
-        padding: 24,
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont",
-      }}
-    >
-      <h1>BleuLogiX is running 🚀</h1>
-      <p>If you can see this, React + routing are working.</p>
-
-      <div style={{ marginTop: 16 }}>
-        <UserButton afterSignOutUrl="/" />
-      </div>
-    </div>
-  );
-}
-
-function SignedOutScreen() {
-  return (
-    <div
-      style={{
-        padding: 24,
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont",
-      }}
-    >
-      <h1>Welcome to BleuLogiX</h1>
-      <p>You must sign in to continue.</p>
-
-      <div style={{ marginTop: 16 }}>
-        <SignInButton mode="modal" />
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   return (
     <BrowserRouter>
       <SignedOut>
-        <SignedOutScreen />
+        <Layout>
+          <Routes>
+            <Route path={ROUTES.home} element={<Index />} />
+            <Route path={ROUTES.login} element={<Login />} />
+            <Route path={ROUTES.signup} element={<Signup />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
       </SignedOut>
 
       <SignedIn>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path={ROUTES.home} element={<Index />} />
+            <Route path={ROUTES.generator} element={<Generator />} />
+            <Route path={ROUTES.videoGenerator} element={<VideoGenerator />} />
+            <Route
+              path={ROUTES.videoGeneratorCreate}
+              element={<VideoGeneratorCreate />}
+            />
+            <Route
+              path={ROUTES.videoGeneratorHistory}
+              element={<VideoGeneratorHistory />}
+            />
+            <Route path={ROUTES.accountHub} element={<AccountHub />} />
+            <Route path={ROUTES.adminAudit} element={<AdminAudit />} />
+            <Route path={ROUTES.adminPolicies} element={<AdminPolicies />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
       </SignedIn>
     </BrowserRouter>
   );
