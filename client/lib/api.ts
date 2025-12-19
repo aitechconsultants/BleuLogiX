@@ -3,7 +3,7 @@ import { useAuth } from "@clerk/clerk-react";
 export class APIError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
   ) {
     super(message);
   }
@@ -15,7 +15,7 @@ export class APIError extends Error {
  */
 export function useApiClient() {
   const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
-  
+
   // Call useAuth hook at the top level to properly manage token state
   let auth = null;
   if (hasClerkKey) {
@@ -57,7 +57,7 @@ export function useApiClient() {
     if (!response.ok) {
       throw new APIError(
         response.status,
-        data.error || `API error: ${response.statusText}`
+        data.error || `API error: ${response.statusText}`,
       );
     }
 
@@ -72,7 +72,7 @@ export function useApiClient() {
 export async function apiCall(
   url: string,
   token: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ) {
   const headers = new Headers(options.headers || {});
   headers.set("Authorization", `Bearer ${token}`);

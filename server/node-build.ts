@@ -48,7 +48,7 @@ if (fs.existsSync(spaIndex)) {
       `<script>
 window.__CLERK_PUBLISHABLE_KEY = "${clerkKey}";
 </script>
-</head>`
+</head>`,
     );
 
     res.type("text/html").send(injectedHtml);

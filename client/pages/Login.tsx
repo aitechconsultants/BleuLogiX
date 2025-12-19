@@ -20,12 +20,18 @@ export default function Login() {
 
             <div className="bg-card border border-border rounded-lg p-8 space-y-6">
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-                Clerk authentication is not configured. Please set CLERK_PUBLISHABLE_KEY to enable login.
+                Clerk authentication is not configured. Please set
+                CLERK_PUBLISHABLE_KEY to enable login.
               </div>
 
               <div className="text-center text-sm">
-                <span className="text-muted-foreground">Don't have an account? </span>
-                <Link to="/signup" className="text-accent-blue hover:underline font-medium">
+                <span className="text-muted-foreground">
+                  Don't have an account?{" "}
+                </span>
+                <Link
+                  to="/signup"
+                  className="text-accent-blue hover:underline font-medium"
+                >
                   Sign up
                 </Link>
               </div>
@@ -40,7 +46,12 @@ export default function Login() {
     <Layout>
       <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <SignIn routing="path" path="/login" signUpUrl="/signup" redirectUrl="/generator" />
+          <SignIn
+            routing="path"
+            path="/login"
+            signUpUrl="/signup"
+            redirectUrl="/generator"
+          />
         </div>
       </div>
     </Layout>
