@@ -103,8 +103,7 @@ export default function Index() {
   ];
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-24 md:pt-32 pb-20 px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
@@ -444,6 +443,5 @@ export default function Index() {
           </div>
         </section>
       </div>
-    </Layout>
   );
 }
