@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import CreditsBadge from "./CreditsBadge";
 import { ROUTES } from "@/config/routes";
+import { hasClerkKey } from "@/lib/clerk-config";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
+  const clerkKeyPresent = hasClerkKey();
 
   return (
     <div className="min-h-screen bg-background">
