@@ -39,6 +39,10 @@ RUN pnpm prune --prod
 
 FROM base AS runtime
 
+# Accept CLERK_PUBLISHABLE_KEY as build arg for runtime injection
+ARG CLERK_PUBLISHABLE_KEY
+ENV CLERK_PUBLISHABLE_KEY=${CLERK_PUBLISHABLE_KEY}
+
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 COPY --from=build /app/package.json /app/package.json
