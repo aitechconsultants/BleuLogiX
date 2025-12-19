@@ -13,8 +13,8 @@ primary_region = 'sjc'
   # Clerk key from your production instance (clerk.bleulogix.com)
   [build.args]
   VITE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuYmxldWxvZ2l4LmNvbSQ"
-  # Force cache bust to rebuild with production Clerk key and .env update
-  CACHE_BUST = "2025-12-18-170500"
+  # Force cache bust to force rebuild with production Clerk key (Dockerfile reordered)
+  CACHE_BUST = "2025-12-18-171000"
 
 [http_service]
   internal_port = 8080
