@@ -27,4 +27,9 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
+  define: {
+    "import.meta.env.CLERK_PUBLISHABLE_KEY": JSON.stringify(
+      process.env.CLERK_PUBLISHABLE_KEY || ""
+    ),
+  },
 });
