@@ -7,7 +7,7 @@ import { hasClerkKey } from "@/lib/clerk-config";
 export default function Login() {
   const clerkKeyPresent = hasClerkKey();
 
-  if (!hasClerkKey) {
+  if (!clerkKeyPresent) {
     // Fallback UI when Clerk is not configured
     return (
       <Layout>
