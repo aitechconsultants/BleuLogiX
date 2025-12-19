@@ -3,16 +3,5 @@
   "devCommand": "npm run dev",
   "installCommand": "pnpm install",
   "framework": "vite",
-  "regions": ["iad1"],
-  "env": {
-    "CLERK_PUBLISHABLE_KEY": {
-      "description": "Clerk publishable key for client-side authentication"
-    },
-    "CLERK_SECRET_KEY": {
-      "description": "Clerk secret key for backend authentication"
-    },
-    "DATABASE_URL": {
-      "description": "PostgreSQL database connection URL"
-    }
-  }
+  "regions": ["iad1"]
 }
