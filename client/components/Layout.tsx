@@ -14,7 +14,8 @@ export default function Layout({ children }: LayoutProps) {
   const clerkKeyPresent = hasClerkKey();
 
   return (
-    <div className="min-h-screen bg-background">
+    <TooltipProvider>
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-background sticky top-0 z-50">
         <div
@@ -153,5 +154,6 @@ export default function Layout({ children }: LayoutProps) {
       {/* Main Content */}
       <main className="flex-1">{children}</main>
     </div>
+    </TooltipProvider>
   );
 }
