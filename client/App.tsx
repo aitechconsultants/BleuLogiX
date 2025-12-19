@@ -4,6 +4,7 @@ import { SignedIn, SignedOut } from "@clerk/clerk-react";
 
 import Layout from "@/components/Layout";
 import { ROUTES } from "@/config/routes";
+import { hasClerkKey } from "@/lib/clerk-config";
 
 // Pages
 import Index from "@/pages/Index";
@@ -21,11 +22,32 @@ import NotFound from "@/pages/NotFound";
 /**
  * IMPORTANT:
  * - NO ReactDOM.createRoot here
- * - NO ClerkProvider here
+ * - NO ClerkProvider here (it's in main.tsx)
  * - This file is a pure React component
  */
 
+function MissingKeyScreen() {
+  return (
+    <Layout>
+      <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+        <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
+        <p style={{ marginTop: 8 }}>
+          Set <code>CLERK_PUBLISHABLE_KEY</code> in your environment variables,
+          then redeploy.
+        </p>
+      </div>
+    </Layout>
+  );
+}
+
 export default function App() {
+  const clerkKeyPresent = hasClerkKey();
+
+  // Show error if Clerk is not configured
+  if (!clerkKeyPresent) {
+    return <MissingKeyScreen />;
+  }
+
   return (
     <BrowserRouter>
       <SignedOut>
