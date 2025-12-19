@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
+import { hasClerkKey } from "@/lib/clerk-config";
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -8,10 +9,10 @@ interface RequireAuthProps {
 
 export default function RequireAuth({ children }: RequireAuthProps) {
   const location = useLocation();
-  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
+  const clerkKeyPresent = hasClerkKey();
 
   // If Clerk is not configured, allow access (development mode)
-  if (!hasClerkKey) {
+  if (!clerkKeyPresent) {
     return <>{children}</>;
   }
 
