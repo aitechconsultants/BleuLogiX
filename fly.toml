@@ -12,7 +12,9 @@ primary_region = 'sjc'
   # Vite requires build-time environment variables to embed in the client bundle
   # Clerk key from your production instance (clerk.bleulogix.com)
   [build.args]
-    VITE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuYmxldWxvZ2l4LmNvbSQ"
+  VITE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuYmxldWxvZ2l4LmNvbSQ"
+  # Force cache bust to rebuild with new Clerk key
+  CACHE_BUST = "2025-12-18-160900"
 
 [http_service]
   internal_port = 8080
