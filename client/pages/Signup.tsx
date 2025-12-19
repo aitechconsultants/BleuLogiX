@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { SignUp } from "@clerk/clerk-react";
 import Layout from "@/components/Layout";
+import { hasClerkKey } from "@/lib/clerk-config";
 
 export default function Signup() {
-  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
+  const clerkKeyPresent = hasClerkKey();
 
-  if (!hasClerkKey) {
+  if (!clerkKeyPresent) {
     // Fallback UI when Clerk is not configured
     return (
       <Layout>
