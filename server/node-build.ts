@@ -37,8 +37,21 @@ if (fs.existsSync(spaIndex)) {
 
   // SPA fallback (RegExp avoids path-to-regexp issues)
   // This matches any route that does NOT start with /api/ or /health
+  // Inject environment variables into the SPA HTML
   app.get(/^(?!\/api\/|\/health).*/, (_req, res) => {
-    return res.sendFile(spaIndex);
+    const html = fs.readFileSync(spaIndex, "utf-8");
+    const clerkKey = process.env.CLERK_PUBLISHABLE_KEY || "";
+
+    // Inject environment variables as a script tag
+    const injectedHtml = html.replace(
+      "</head>",
+      `<script>
+window.__CLERK_PUBLISHABLE_KEY = "${clerkKey}";
+</script>
+</head>`
+    );
+
+    res.type("text/html").send(injectedHtml);
   });
 
   console.log("[SPA] index.html found — serving SPA");
