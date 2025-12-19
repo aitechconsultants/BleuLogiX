@@ -5,12 +5,6 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  define: {
-    // Manually expose CLERK_PUBLISHABLE_KEY even though it doesn't have VITE_ prefix
-    "import.meta.env.CLERK_PUBLISHABLE_KEY": JSON.stringify(
-      process.env.CLERK_PUBLISHABLE_KEY,
-    ),
-  },
   server: {
     host: "::",
     port: 8080,
