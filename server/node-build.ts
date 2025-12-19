@@ -33,7 +33,9 @@ console.log("[SPA] spaDir:", spaDir);
 
 // Serve SPA only if it exists (prevents confusing blank deployments)
 if (fs.existsSync(spaIndex)) {
-  app.use(express.static(spaDir));
+  // Use index: false so static doesn't serve index.html automatically
+  // The injection handler below will serve index.html with injected variables
+  app.use(express.static(spaDir, { index: false }));
 
   // SPA fallback (RegExp avoids path-to-regexp issues)
   // This matches any route that does NOT start with /api/ or /health
