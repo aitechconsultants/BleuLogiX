@@ -5,7 +5,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import App from "./App";
 import "./global.css";
 
-const publishableKey = import.meta.env.CLERK_PUBLISHABLE_KEY as
+const publishableKey = (window as any).__CLERK_PUBLISHABLE_KEY as
   | string
   | undefined;
 
