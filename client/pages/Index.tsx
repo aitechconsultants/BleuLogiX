@@ -9,7 +9,6 @@ import {
   Play,
   Star,
 } from "lucide-react";
-import Layout from "@/components/Layout";
 import { useAuth } from "@clerk/clerk-react";
 
 export default function Index() {
