@@ -1,0 +1,21 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "pnpm install",
+  "framework": "vite",
+  "regions": ["iad1"],
+  "env": [
+    {
+      "key": "VITE_CLERK_PUBLISHABLE_KEY",
+      "description": "Clerk publishable key for client-side authentication"
+    },
+    {
+      "key": "CLERK_SECRET_KEY",
+      "description": "Clerk secret key for backend authentication"
+    },
+    {
+      "key": "DATABASE_URL",
+      "description": "PostgreSQL database connection URL"
+    }
+  ]
+}
