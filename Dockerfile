@@ -20,15 +20,14 @@ RUN apt-get update -qq \
 COPY .npmrc package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
 
-# Copy source
-COPY . .
-
-# Vite build-time env vars (Fly.io: set in fly.toml build.args)
+# Vite build-time env vars (from fly.toml build.args)
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG VITE_PUBLIC_BUILDER_KEY
 
-# IMPORTANT: Set env vars from build args ONLY (ignore host environment)
-RUN unset VITE_CLERK_PUBLISHABLE_KEY VITE_PUBLIC_BUILDER_KEY
+# Copy source
+COPY . .
+
+# Pass build args as environment variables to the build step
 ENV VITE_CLERK_PUBLISHABLE_KEY="${VITE_CLERK_PUBLISHABLE_KEY}"
 ENV VITE_PUBLIC_BUILDER_KEY="${VITE_PUBLIC_BUILDER_KEY}"
 
