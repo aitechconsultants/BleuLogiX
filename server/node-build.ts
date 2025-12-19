@@ -42,11 +42,16 @@ if (fs.existsSync(spaIndex)) {
     const html = fs.readFileSync(spaIndex, "utf-8");
     const clerkKey = process.env.CLERK_PUBLISHABLE_KEY || "";
 
+    console.log(
+      "[SPA] Injecting Clerk key:",
+      clerkKey ? "✓ key found" : "✗ key missing"
+    );
+
     // Inject environment variables as a script tag
     const injectedHtml = html.replace(
       "</head>",
       `<script>
-window.__CLERK_PUBLISHABLE_KEY = "${clerkKey}";
+window.__CLERK_PUBLISHABLE_KEY = ${JSON.stringify(clerkKey)};
 </script>
 </head>`,
     );
