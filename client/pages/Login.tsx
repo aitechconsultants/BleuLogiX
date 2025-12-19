@@ -3,7 +3,7 @@ import { SignIn } from "@clerk/clerk-react";
 import Layout from "@/components/Layout";
 
 export default function Login() {
-  const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
 
   if (!hasClerkKey) {
     // Fallback UI when Clerk is not configured
@@ -20,7 +20,7 @@ export default function Login() {
 
             <div className="bg-card border border-border rounded-lg p-8 space-y-6">
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-                Clerk authentication is not configured. Please set VITE_CLERK_PUBLISHABLE_KEY to enable login.
+                Clerk authentication is not configured. Please set CLERK_PUBLISHABLE_KEY to enable login.
               </div>
 
               <div className="text-center text-sm">

@@ -8,7 +8,7 @@ interface RequireAuthProps {
 
 export default function RequireAuth({ children }: RequireAuthProps) {
   const location = useLocation();
-  const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
 
   // If Clerk is not configured, allow access (development mode)
   if (!hasClerkKey) {

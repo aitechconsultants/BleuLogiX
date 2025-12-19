@@ -14,7 +14,7 @@ export class APIError extends Error {
  * This hook must be called at the component level, not inside async functions
  */
 export function useApiClient() {
-  const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
   
   // Call useAuth hook at the top level to properly manage token state
   let auth = null;

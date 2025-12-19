@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const hasClerkKey = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const hasClerkKey = !!import.meta.env.CLERK_PUBLISHABLE_KEY;
 
   return (
     <div className="min-h-screen bg-background">
