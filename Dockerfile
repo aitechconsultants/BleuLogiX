@@ -23,13 +23,14 @@ RUN pnpm install --frozen-lockfile --prod=false
 # Copy source
 COPY . .
 
-# Vite build-time env vars (Fly.io: set as secrets in fly.toml or pass via build args)
+# Vite build-time env vars (Fly.io: set in fly.toml build.args)
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG VITE_PUBLIC_BUILDER_KEY
 
-# Ensure these are set during build (overrides local env vars)
-ENV VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
-ENV VITE_PUBLIC_BUILDER_KEY=${VITE_PUBLIC_BUILDER_KEY}
+# IMPORTANT: Set env vars from build args ONLY (ignore host environment)
+RUN unset VITE_CLERK_PUBLISHABLE_KEY VITE_PUBLIC_BUILDER_KEY
+ENV VITE_CLERK_PUBLISHABLE_KEY="${VITE_CLERK_PUBLISHABLE_KEY}"
+ENV VITE_PUBLIC_BUILDER_KEY="${VITE_PUBLIC_BUILDER_KEY}"
 
 # Build - Vite uses these env vars to embed them into the client bundle
 RUN pnpm run build
