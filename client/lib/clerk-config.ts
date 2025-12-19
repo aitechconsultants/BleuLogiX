@@ -3,10 +3,11 @@
 
 export function getClerkPublishableKey(): string | undefined {
   // First try the runtime-injected value (set by server/node-build.ts)
-  const runtimeKey = (typeof window !== 'undefined') 
-    ? (window as any).__CLERK_PUBLISHABLE_KEY 
-    : undefined;
-  
+  const runtimeKey =
+    typeof window !== "undefined"
+      ? (window as any).__CLERK_PUBLISHABLE_KEY
+      : undefined;
+
   if (runtimeKey) {
     return runtimeKey;
   }
