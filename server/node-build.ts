@@ -44,7 +44,7 @@ if (fs.existsSync(spaIndex)) {
 
     console.log(
       "[SPA] Injecting Clerk key:",
-      clerkKey ? "✓ key found" : "✗ key missing"
+      clerkKey ? "✓ key found" : "✗ key missing",
     );
 
     // Inject environment variables as a script tag
