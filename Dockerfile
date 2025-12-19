@@ -21,14 +21,14 @@ COPY .npmrc package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod=false
 
 # Build-time environment variables (passed via docker build --build-arg)
-ARG VITE_CLERK_PUBLISHABLE_KEY
+ARG CLERK_PUBLISHABLE_KEY
 ARG VITE_PUBLIC_BUILDER_KEY
 
 # Copy source
 COPY . .
 
 # Pass build args as environment variables to the build step
-ENV VITE_CLERK_PUBLISHABLE_KEY="${VITE_CLERK_PUBLISHABLE_KEY}"
+ENV CLERK_PUBLISHABLE_KEY="${CLERK_PUBLISHABLE_KEY}"
 ENV VITE_PUBLIC_BUILDER_KEY="${VITE_PUBLIC_BUILDER_KEY}"
 
 # Build - Vite uses these env vars to embed them into the client bundle

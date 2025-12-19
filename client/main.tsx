@@ -5,7 +5,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import App from "./App";
 import "./global.css";
 
-const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
+const publishableKey = import.meta.env.CLERK_PUBLISHABLE_KEY as
   | string
   | undefined;
 
@@ -14,8 +14,7 @@ function MissingKeyScreen() {
     <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
       <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
       <p style={{ marginTop: 8 }}>
-        Set <code>VITE_CLERK_PUBLISHABLE_KEY</code> in Vercel Settings →
-        Environment Variables, then redeploy.
+        Set <code>CLERK_PUBLISHABLE_KEY</code> in Vercel Settings → Environment Variables, then redeploy.
       </p>
     </div>
   );
