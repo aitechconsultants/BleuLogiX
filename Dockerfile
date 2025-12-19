@@ -27,9 +27,9 @@ COPY . .
 ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG VITE_PUBLIC_BUILDER_KEY
 
-# Make them available to the build process
-ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
-ENV VITE_PUBLIC_BUILDER_KEY=$VITE_PUBLIC_BUILDER_KEY
+# Ensure these are set during build (overrides local env vars)
+ENV VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
+ENV VITE_PUBLIC_BUILDER_KEY=${VITE_PUBLIC_BUILDER_KEY}
 
 # Build - Vite uses these env vars to embed them into the client bundle
 RUN pnpm run build
