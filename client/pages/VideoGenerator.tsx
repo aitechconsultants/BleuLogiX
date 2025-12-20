@@ -152,7 +152,7 @@ export default function VideoGenerator() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <button
-              onClick={() => navigate("/video-generator/create")}
+              onClick={() => navigate(ROUTES.videoCreate)}
               className="flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors glow-blue"
             >
               <Zap className="w-5 h-5" />
