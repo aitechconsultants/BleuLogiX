@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Layout from "@/components/Layout";
 import { Download, Play, Trash2, Filter } from "lucide-react";
 
 interface HistoryVideo {
@@ -157,189 +156,187 @@ export default function VideoGeneratorHistory() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background py-12 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Header */}
-          <div>
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground">
-              Video History
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              View and manage all your generated videos
-            </p>
+    <div className="min-h-screen bg-background py-12 px-4 md:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground">
+            Video History
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            View and manage all your generated videos
+          </p>
+        </div>
+
+        {/* Filters */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-accent-blue" />
+            <span className="font-semibold text-foreground">Filters</span>
           </div>
 
-          {/* Filters */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-accent-blue" />
-              <span className="font-semibold text-foreground">Filters</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Style Filter */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground block">
-                  Filter by Style
-                </label>
-                <select
-                  value={selectedStyle || ""}
-                  onChange={(e) =>
-                    setSelectedStyle(e.target.value || null)
-                  }
-                  className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
-                >
-                  <option value="">All Styles</option>
-                  {styles.map((style) => (
-                    <option key={style} value={style}>
-                      {style}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground block">
-                  Filter by Status
-                </label>
-                <select
-                  value={selectedStatus || ""}
-                  onChange={(e) =>
-                    setSelectedStatus(e.target.value || null)
-                  }
-                  className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
-                >
-                  <option value="">All Statuses</option>
-                  {statuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sort */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground block">
-                  Sort by
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) =>
-                    setSortBy(e.target.value as "recent" | "oldest" | "duration")
-                  }
-                  className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
-                >
-                  <option value="recent">Most Recent</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="duration">Longest Duration</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Video Grid */}
-          {filteredVideos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredVideos.map((video) => (
-                <div
-                  key={video.id}
-                  className="group rounded-lg border border-border bg-card overflow-hidden hover:border-accent-blue/50 transition-all"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video overflow-hidden bg-black/50">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                      <button className="p-3 rounded-full bg-accent-blue text-black hover:bg-highlight-blue transition-colors">
-                        <Play className="w-6 h-6 fill-current" />
-                      </button>
-                      <button className="p-3 rounded-full bg-accent-blue text-black hover:bg-highlight-blue transition-colors">
-                        <Download className="w-6 h-6" />
-                      </button>
-                    </div>
-
-                    {/* Duration Badge */}
-                    <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/60 text-white text-xs font-medium">
-                      {video.duration}s
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4 space-y-3">
-                    {/* Title */}
-                    <div>
-                      <h3 className="font-semibold text-foreground line-clamp-2">
-                        {video.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(video.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-
-                    {/* Style Badge */}
-                    <div>
-                      <span className="inline-flex px-2 py-1 rounded text-xs font-medium bg-accent-blue/10 text-accent-blue border border-accent-blue/30">
-                        {video.style}
-                      </span>
-                    </div>
-
-                    {/* Status */}
-                    <div>{getStatusBadge(video.status)}</div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2 pt-2">
-                      <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium">
-                        <Play className="w-4 h-4" />
-                        Preview
-                      </button>
-                      <button className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                        <Download className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 space-y-4">
-              <p className="text-muted-foreground text-lg">
-                No videos match your filters
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedStyle(null);
-                  setSelectedStatus(null);
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 transition-colors font-medium"
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Style Filter */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground block">
+                Filter by Style
+              </label>
+              <select
+                value={selectedStyle || ""}
+                onChange={(e) =>
+                  setSelectedStyle(e.target.value || null)
+                }
+                className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
               >
-                Clear Filters
-              </button>
+                <option value="">All Styles</option>
+                {styles.map((style) => (
+                  <option key={style} value={style}>
+                    {style}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
 
-          {/* Results Count */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border">
-            <span className="text-sm text-muted-foreground">
-              Showing {filteredVideos.length} video
-              {filteredVideos.length !== 1 ? "s" : ""}
-            </span>
-            {filteredVideos.length > 0 && (
-              <span className="text-xs text-muted-foreground">
-                Total duration: {filteredVideos.reduce((sum, v) => sum + v.duration, 0)}s
-              </span>
-            )}
+            {/* Status Filter */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground block">
+                Filter by Status
+              </label>
+              <select
+                value={selectedStatus || ""}
+                onChange={(e) =>
+                  setSelectedStatus(e.target.value || null)
+                }
+                className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
+              >
+                <option value="">All Statuses</option>
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sort */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground block">
+                Sort by
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) =>
+                  setSortBy(e.target.value as "recent" | "oldest" | "duration")
+                }
+                className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
+              >
+                <option value="recent">Most Recent</option>
+                <option value="oldest">Oldest First</option>
+                <option value="duration">Longest Duration</option>
+              </select>
+            </div>
           </div>
         </div>
+
+        {/* Video Grid */}
+        {filteredVideos.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredVideos.map((video) => (
+              <div
+                key={video.id}
+                className="group rounded-lg border border-border bg-card overflow-hidden hover:border-accent-blue/50 transition-all"
+              >
+                {/* Thumbnail */}
+                <div className="relative aspect-video overflow-hidden bg-black/50">
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <button className="p-3 rounded-full bg-accent-blue text-black hover:bg-highlight-blue transition-colors">
+                      <Play className="w-6 h-6 fill-current" />
+                    </button>
+                    <button className="p-3 rounded-full bg-accent-blue text-black hover:bg-highlight-blue transition-colors">
+                      <Download className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  {/* Duration Badge */}
+                  <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/60 text-white text-xs font-medium">
+                    {video.duration}s
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 space-y-3">
+                  {/* Title */}
+                  <div>
+                    <h3 className="font-semibold text-foreground line-clamp-2">
+                      {video.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(video.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {/* Style Badge */}
+                  <div>
+                    <span className="inline-flex px-2 py-1 rounded text-xs font-medium bg-accent-blue/10 text-accent-blue border border-accent-blue/30">
+                      {video.style}
+                    </span>
+                  </div>
+
+                  {/* Status */}
+                  <div>{getStatusBadge(video.status)}</div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-2">
+                    <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium">
+                      <Play className="w-4 h-4" />
+                      Preview
+                    </button>
+                    <button className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 space-y-4">
+            <p className="text-muted-foreground text-lg">
+              No videos match your filters
+            </p>
+            <button
+              onClick={() => {
+                setSelectedStyle(null);
+                setSelectedStatus(null);
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 transition-colors font-medium"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+
+        {/* Results Count */}
+        <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border">
+          <span className="text-sm text-muted-foreground">
+            Showing {filteredVideos.length} video
+            {filteredVideos.length !== 1 ? "s" : ""}
+          </span>
+          {filteredVideos.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              Total duration: {filteredVideos.reduce((sum, v) => sum + v.duration, 0)}s
+            </span>
+          )}
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 }
