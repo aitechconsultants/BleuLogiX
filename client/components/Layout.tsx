@@ -49,7 +49,7 @@ export default function Layout({ children }: LayoutProps) {
                 Home
               </Link>
               <Link
-                to={ROUTES.videoGenerator}
+                to={ROUTES.video}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Generator
