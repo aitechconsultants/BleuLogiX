@@ -17,7 +17,21 @@ import { ROUTES } from "@/config/routes";
 export default function Index() {
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Scroll to hash section when component mounts or location changes
+  useEffect(() => {
+    const hash = location.hash.slice(1); // Remove the # character
+    if (hash) {
+      const element = document.getElementById(hash);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 0);
+      }
+    }
+  }, [location]);
 
   const handleTryFree = () => {
     if (!isSignedIn) {
