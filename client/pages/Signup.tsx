@@ -49,7 +49,7 @@ export default function Signup() {
           routing="path"
           path="/signup"
           signInUrl="/login"
-          redirectUrl="/generator"
+          redirectUrl="/video"
         />
       </div>
     </div>
