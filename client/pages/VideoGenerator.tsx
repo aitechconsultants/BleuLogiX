@@ -127,8 +127,7 @@ export default function VideoGenerator() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-12 md:pt-20 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
           <div className="space-y-6 max-w-2xl">
@@ -282,6 +281,5 @@ export default function VideoGenerator() {
           </section>
         )}
       </div>
-    </Layout>
   );
 }
