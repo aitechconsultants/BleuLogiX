@@ -86,7 +86,10 @@ export default function Generator() {
           setBillingStatus(userData.billingStatus);
         } catch (userDataErr) {
           // If we can't fetch user data, use defaults and continue
-          console.warn("Could not fetch user data, using defaults:", userDataErr);
+          console.warn(
+            "Could not fetch user data, using defaults:",
+            userDataErr,
+          );
           setCreditsRemaining(100); // Default credits for demo
           setBillingStatus("free");
         }
