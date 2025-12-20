@@ -165,6 +165,12 @@ export function createServer() {
   app.put("/api/admin/workspace-overrides/:workspace_id", requireClerkAuth, requireAdminAuth, handleUpdateWorkspaceOverride);
   app.delete("/api/admin/workspace-overrides/:workspace_id", requireClerkAuth, requireAdminAuth, handleDeleteWorkspaceOverride);
 
+  // Admin users routes (admin only)
+  app.get("/api/admin/users", requireClerkAuth, requireAdminAuth, handleGetAllUsers);
+  app.put("/api/admin/users/:userId/role", requireClerkAuth, requireAdminAuth, handleUpdateUserRole);
+  app.put("/api/admin/users/:userId/plan-override", requireClerkAuth, requireAdminAuth, handleSetPlanOverride);
+  app.delete("/api/admin/users/:userId/plan-override", requireClerkAuth, requireAdminAuth, handleClearPlanOverride);
+
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
   app.get("/api/social-oauth/:platform/start", requireClerkAuth, handleStartOAuthFlow);
