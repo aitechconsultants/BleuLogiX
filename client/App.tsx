@@ -50,19 +50,17 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <SignedOut>
-        <Layout>
+      <Layout>
+        <SignedOut>
           <Routes>
             <Route path={ROUTES.home} element={<Index />} />
             <Route path={ROUTES.login} element={<Login />} />
             <Route path={ROUTES.signup} element={<Signup />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Layout>
-      </SignedOut>
+        </SignedOut>
 
-      <SignedIn>
-        <Layout>
+        <SignedIn>
           <Routes>
             <Route path={ROUTES.home} element={<Index />} />
             <Route path={ROUTES.generator} element={<Generator />} />
@@ -80,8 +78,8 @@ export default function App() {
             <Route path={ROUTES.adminPolicies} element={<AdminPolicies />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Layout>
-      </SignedIn>
+        </SignedIn>
+      </Layout>
     </BrowserRouter>
   );
 }
