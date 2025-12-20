@@ -115,7 +115,9 @@ export default function Generator() {
     };
 
     loadUserData();
-  }, [api]);
+    // Only run once on mount - api function is recreated each render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Debug logging for voiceId
   useEffect(() => {
