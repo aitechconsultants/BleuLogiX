@@ -54,46 +54,30 @@ export default function Layout({ children }: LayoutProps) {
               >
                 Generator
               </Link>
-              <Link
-                to={ROUTES.home}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("templates")?.scrollIntoView({ behavior: "smooth" });
-                }}
+              <a
+                href="#templates"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Templates
-              </Link>
-              <Link
-                to={ROUTES.home}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-                }}
+              </a>
+              <a
+                href="#pricing"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Pricing
-              </Link>
-              <Link
-                to={ROUTES.home}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
-                }}
+              </a>
+              <a
+                href="#features"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Features
-              </Link>
-              <Link
-                to={ROUTES.home}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("learn")?.scrollIntoView({ behavior: "smooth" });
-                }}
+              </a>
+              <a
+                href="#learn"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Learn
-              </Link>
+              </a>
 
               {!clerkKeyPresent ? (
                 // Clerk not configured - show login/signup
