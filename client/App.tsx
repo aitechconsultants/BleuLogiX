@@ -67,6 +67,7 @@ export default function App() {
           <Route path={ROUTES.accountHub} element={<AccountHub />} />
           <Route path={ROUTES.adminAudit} element={<AdminAudit />} />
           <Route path={ROUTES.adminPolicies} element={<AdminPolicies />} />
+          <Route path={ROUTES.adminUsers} element={<AdminUsers />} />
 
           {/* Catch-all for 404 */}
           <Route path="*" element={<NotFound />} />
