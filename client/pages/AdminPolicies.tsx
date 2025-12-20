@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2, Plus, Trash2, AlertCircle } from "lucide-react";
+import RequireAdmin from "@/components/RequireAdmin";
 import {
   Dialog,
   DialogContent,
@@ -163,8 +164,9 @@ export default function AdminPolicies() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-12">
+    <RequireAdmin>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-2">
@@ -522,7 +524,8 @@ export default function AdminPolicies() {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </RequireAdmin>
   );
 }
