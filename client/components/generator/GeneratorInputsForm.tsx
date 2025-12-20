@@ -15,6 +15,7 @@ export default function GeneratorInputsForm({
   headlineText,
   onHeadlineChange,
 }: GeneratorInputsFormProps) {
+  const { getToken } = useAuth();
   const [videoTopic, setVideoTopic] = useState("");
   const [niche, setNiche] = useState("");
   const [styleTone, setStyleTone] = useState("");
@@ -34,10 +35,18 @@ export default function GeneratorInputsForm({
     setIsGenerating(true);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required. Please sign in first.");
+        setIsGenerating(false);
+        return;
+      }
+
       const response = await fetch("/api/script/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           videoTopic,
