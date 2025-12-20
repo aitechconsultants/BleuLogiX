@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import Layout from "@/components/Layout";
 import GeneratorHeader from "@/components/generator/GeneratorHeader";
 import GeneratorTemplatePicker from "@/components/generator/GeneratorTemplatePicker";
 import GeneratorInputsForm from "@/components/generator/GeneratorInputsForm";
@@ -213,20 +212,17 @@ export default function Generator() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 rounded-full border-4 border-muted border-t-accent-blue animate-spin mx-auto"></div>
-            <p className="text-muted-foreground">Loading...</p>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 rounded-full border-4 border-muted border-t-accent-blue animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         {error && (
           <div className="max-w-6xl mx-auto px-6 md:px-8 mt-6">
             <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -285,6 +281,5 @@ export default function Generator() {
           billingStatus={billingStatus}
         />
       </div>
-    </Layout>
   );
 }
