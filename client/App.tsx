@@ -48,114 +48,75 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Routes for signed-out users */}
-        <Route
-          path={ROUTES.home}
-          element={
-            <SignedOut fallback={null}>
-              <Layout>
-                <Index />
-              </Layout>
-            </SignedOut>
-          }
-        />
-        <Route
-          path={ROUTES.login}
-          element={
-            <SignedOut fallback={null}>
-              <Layout>
-                <Login />
-              </Layout>
-            </SignedOut>
-          }
-        />
-        <Route
-          path={ROUTES.signup}
-          element={
-            <SignedOut fallback={null}>
-              <Layout>
-                <Signup />
-              </Layout>
-            </SignedOut>
-          }
-        />
+      <Layout>
+        <Routes>
+          {/* Public routes */}
+          <Route path={ROUTES.home} element={<Index />} />
+          <Route path={ROUTES.login} element={<Login />} />
+          <Route path={ROUTES.signup} element={<Signup />} />
 
-        {/* Routes for signed-in users */}
-        <Route
-          path={ROUTES.generator}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+          {/* Protected routes - only for signed-in users */}
+          <Route
+            path={ROUTES.generator}
+            element={
+              <SignedIn fallback={<Login />}>
                 <Generator />
-              </Layout>
-            </SignedIn>
-          }
-        />
-        <Route
-          path={ROUTES.videoGenerator}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+              </SignedIn>
+            }
+          />
+          <Route
+            path={ROUTES.videoGenerator}
+            element={
+              <SignedIn fallback={<Login />}>
                 <VideoGenerator />
-              </Layout>
-            </SignedIn>
-          }
-        />
-        <Route
-          path={ROUTES.videoGeneratorCreate}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+              </SignedIn>
+            }
+          />
+          <Route
+            path={ROUTES.videoGeneratorCreate}
+            element={
+              <SignedIn fallback={<Login />}>
                 <VideoGeneratorCreate />
-              </Layout>
-            </SignedIn>
-          }
-        />
-        <Route
-          path={ROUTES.videoGeneratorHistory}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+              </SignedIn>
+            }
+          />
+          <Route
+            path={ROUTES.videoGeneratorHistory}
+            element={
+              <SignedIn fallback={<Login />}>
                 <VideoGeneratorHistory />
-              </Layout>
-            </SignedIn>
-          }
-        />
-        <Route
-          path={ROUTES.accountHub}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+              </SignedIn>
+            }
+          />
+          <Route
+            path={ROUTES.accountHub}
+            element={
+              <SignedIn fallback={<Login />}>
                 <AccountHub />
-              </Layout>
-            </SignedIn>
-          }
-        />
-        <Route
-          path={ROUTES.adminAudit}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+              </SignedIn>
+            }
+          />
+          <Route
+            path={ROUTES.adminAudit}
+            element={
+              <SignedIn fallback={<Login />}>
                 <AdminAudit />
-              </Layout>
-            </SignedIn>
-          }
-        />
-        <Route
-          path={ROUTES.adminPolicies}
-          element={
-            <SignedIn fallback={null}>
-              <Layout>
+              </SignedIn>
+            }
+          />
+          <Route
+            path={ROUTES.adminPolicies}
+            element={
+              <SignedIn fallback={<Login />}>
                 <AdminPolicies />
-              </Layout>
-            </SignedIn>
-          }
-        />
+              </SignedIn>
+            }
+          />
 
-        {/* Catch-all for both signed-out and signed-in */}
-        <Route path="*" element={<Layout><NotFound /></Layout>} />
-      </Routes>
+          {/* Catch-all for 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }
