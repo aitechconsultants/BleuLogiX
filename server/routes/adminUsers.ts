@@ -35,7 +35,7 @@ export const handleGetAllUsers: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to fetch users",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     return res.status(500).json({
       error: "Failed to fetch users",
@@ -78,7 +78,7 @@ export const handleUpdateUserRole: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to update user role",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     return res.status(500).json({
       error: "Failed to update user role",
@@ -132,7 +132,7 @@ export const handleSetPlanOverride: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to set plan override",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     return res.status(500).json({
       error: "Failed to set plan override",
@@ -168,7 +168,7 @@ export const handleClearPlanOverride: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to clear plan override",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     return res.status(500).json({
       error: "Failed to clear plan override",

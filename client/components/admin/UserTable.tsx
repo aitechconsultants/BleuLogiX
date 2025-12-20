@@ -6,8 +6,16 @@ import { Badge } from "@/components/ui/badge";
 interface UserTableProps {
   users: User[];
   isLoading?: boolean;
-  onRoleChange: (userId: string, role: "user" | "admin" | "superadmin") => Promise<void>;
-  onSetPlanOverride: (userId: string, plan: string, expiresAt?: string, reason?: string) => Promise<void>;
+  onRoleChange: (
+    userId: string,
+    role: "user" | "admin" | "superadmin",
+  ) => Promise<void>;
+  onSetPlanOverride: (
+    userId: string,
+    plan: string,
+    expiresAt?: string,
+    reason?: string,
+  ) => Promise<void>;
   onClearPlanOverride: (userId: string) => Promise<void>;
 }
 
@@ -118,7 +126,9 @@ export default function UserTable({
               </td>
 
               <td className="px-4 py-3">
-                <Badge className={getPlanBadgeColor(user.effective_plan_calculated)}>
+                <Badge
+                  className={getPlanBadgeColor(user.effective_plan_calculated)}
+                >
                   {user.effective_plan_calculated}
                 </Badge>
               </td>
@@ -150,7 +160,9 @@ export default function UserTable({
 
               <td className="px-4 py-3">
                 {user.subscription_status ? (
-                  <Badge className={getStatusBadgeColor(user.subscription_status)}>
+                  <Badge
+                    className={getStatusBadgeColor(user.subscription_status)}
+                  >
                     {user.subscription_status}
                   </Badge>
                 ) : (

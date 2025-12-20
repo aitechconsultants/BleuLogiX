@@ -152,35 +152,103 @@ export function createServer() {
   app.get("/api/social-accounts", handleListAccounts);
   app.post("/api/social-accounts/:id/refresh", handleRefreshAccount);
   app.delete("/api/social-accounts/:id", handleRemoveAccount);
-  app.put("/api/social-accounts/:id/refresh-settings", handleUpdateRefreshSettings);
+  app.put(
+    "/api/social-accounts/:id/refresh-settings",
+    handleUpdateRefreshSettings,
+  );
 
   // Module 2A: Worker endpoint (admin/dev only)
   app.post("/api/social-accounts/worker/run-once", handleRunRefreshCycle);
 
   // Module 2C: Admin policy routes (admin only)
-  app.get("/api/admin/plan-policies", requireClerkAuth, requireAdminAuth, handleGetPlanPolicies);
-  app.put("/api/admin/plan-policies/:plan_key", requireClerkAuth, requireAdminAuth, handleUpdatePlanPolicy);
+  app.get(
+    "/api/admin/plan-policies",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleGetPlanPolicies,
+  );
+  app.put(
+    "/api/admin/plan-policies/:plan_key",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleUpdatePlanPolicy,
+  );
 
-  app.get("/api/admin/workspace-overrides", requireClerkAuth, requireAdminAuth, handleGetWorkspaceOverrides);
-  app.put("/api/admin/workspace-overrides/:workspace_id", requireClerkAuth, requireAdminAuth, handleUpdateWorkspaceOverride);
-  app.delete("/api/admin/workspace-overrides/:workspace_id", requireClerkAuth, requireAdminAuth, handleDeleteWorkspaceOverride);
+  app.get(
+    "/api/admin/workspace-overrides",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleGetWorkspaceOverrides,
+  );
+  app.put(
+    "/api/admin/workspace-overrides/:workspace_id",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleUpdateWorkspaceOverride,
+  );
+  app.delete(
+    "/api/admin/workspace-overrides/:workspace_id",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleDeleteWorkspaceOverride,
+  );
 
   // Admin users routes (admin only)
-  app.get("/api/admin/users", requireClerkAuth, requireAdminAuth, handleGetAllUsers);
-  app.put("/api/admin/users/:userId/role", requireClerkAuth, requireAdminAuth, handleUpdateUserRole);
-  app.put("/api/admin/users/:userId/plan-override", requireClerkAuth, requireAdminAuth, handleSetPlanOverride);
-  app.delete("/api/admin/users/:userId/plan-override", requireClerkAuth, requireAdminAuth, handleClearPlanOverride);
+  app.get(
+    "/api/admin/users",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleGetAllUsers,
+  );
+  app.put(
+    "/api/admin/users/:userId/role",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleUpdateUserRole,
+  );
+  app.put(
+    "/api/admin/users/:userId/plan-override",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleSetPlanOverride,
+  );
+  app.delete(
+    "/api/admin/users/:userId/plan-override",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleClearPlanOverride,
+  );
 
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
-  app.get("/api/social-oauth/:platform/start", requireClerkAuth, handleStartOAuthFlow);
+  app.get(
+    "/api/social-oauth/:platform/start",
+    requireClerkAuth,
+    handleStartOAuthFlow,
+  );
   app.get("/api/social-oauth/:platform/callback", handleOAuthCallback);
-  app.post("/api/social-accounts/:accountId/oauth/link", requireClerkAuth, handleLinkOAuthConnection);
-  app.post("/api/social-accounts/:accountId/use-oauth", requireClerkAuth, handleUseOAuthData);
+  app.post(
+    "/api/social-accounts/:accountId/oauth/link",
+    requireClerkAuth,
+    handleLinkOAuthConnection,
+  );
+  app.post(
+    "/api/social-accounts/:accountId/use-oauth",
+    requireClerkAuth,
+    handleUseOAuthData,
+  );
 
   // Module 2D: Affiliate routes
-  app.get("/api/affiliate/profile", requireClerkAuth, handleGetAffiliateProfile);
-  app.post("/api/affiliate/create", requireClerkAuth, handleCreateAffiliateProfile);
+  app.get(
+    "/api/affiliate/profile",
+    requireClerkAuth,
+    handleGetAffiliateProfile,
+  );
+  app.post(
+    "/api/affiliate/create",
+    requireClerkAuth,
+    handleCreateAffiliateProfile,
+  );
   app.get("/r/:code", handleAffiliateRedirect);
   app.post("/api/affiliate/events", handleRecordAffiliateEvent);
 

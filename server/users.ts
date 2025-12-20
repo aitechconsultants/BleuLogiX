@@ -23,12 +23,12 @@ export interface User {
  */
 export async function upsertUser(
   clerkUserId: string,
-  email?: string
+  email?: string,
 ): Promise<User> {
   // Try to find existing user
   let user = await queryOne<User>(
     "SELECT * FROM users WHERE clerk_user_id = $1",
-    [clerkUserId]
+    [clerkUserId],
   );
 
   if (user) {
@@ -36,7 +36,7 @@ export async function upsertUser(
     if (email && email !== user.email) {
       const result = await query<User>(
         "UPDATE users SET email = $1, updated_at = NOW() WHERE clerk_user_id = $2 RETURNING *",
-        [email, clerkUserId]
+        [email, clerkUserId],
       );
       user = result.rows[0];
     }
@@ -48,7 +48,7 @@ export async function upsertUser(
     `INSERT INTO users (clerk_user_id, email, role)
      VALUES ($1, $2, 'user')
      RETURNING *`,
-    [clerkUserId, email || null]
+    [clerkUserId, email || null],
   );
 
   return result.rows[0];
@@ -58,39 +58,43 @@ export async function upsertUser(
  * Get user by internal UUID
  */
 export async function getUserById(userId: string): Promise<User | null> {
-  return queryOne<User>(
-    "SELECT * FROM users WHERE id = $1",
-    [userId]
-  );
+  return queryOne<User>("SELECT * FROM users WHERE id = $1", [userId]);
 }
 
 /**
  * Get user by Clerk user ID
  */
-export async function getUserByClerkId(clerkUserId: string): Promise<User | null> {
-  return queryOne<User>(
-    "SELECT * FROM users WHERE clerk_user_id = $1",
-    [clerkUserId]
-  );
+export async function getUserByClerkId(
+  clerkUserId: string,
+): Promise<User | null> {
+  return queryOne<User>("SELECT * FROM users WHERE clerk_user_id = $1", [
+    clerkUserId,
+  ]);
 }
 
 /**
  * Get all users (admin only)
  */
-export async function getAllUsers(limit: number = 100, offset: number = 0): Promise<User[]> {
+export async function getAllUsers(
+  limit: number = 100,
+  offset: number = 0,
+): Promise<User[]> {
   return queryAll<User>(
     "SELECT * FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2",
-    [limit, offset]
+    [limit, offset],
   );
 }
 
 /**
  * Update user role
  */
-export async function updateUserRole(userId: string, role: "user" | "admin" | "superadmin"): Promise<User> {
+export async function updateUserRole(
+  userId: string,
+  role: "user" | "admin" | "superadmin",
+): Promise<User> {
   const result = await query<User>(
     "UPDATE users SET role = $1, updated_at = NOW() WHERE id = $2 RETURNING *",
-    [role, userId]
+    [role, userId],
   );
   return result.rows[0];
 }
@@ -102,12 +106,12 @@ export async function setPlanOverride(
   userId: string,
   plan: "free" | "pro" | "enterprise",
   expiresAt?: string,
-  reason?: string
+  reason?: string,
 ): Promise<User> {
   const result = await query<User>(
     `UPDATE users SET plan_override = $1, plan_override_expires_at = $2, plan_override_reason = $3, updated_at = NOW()
      WHERE id = $4 RETURNING *`,
-    [plan, expiresAt || null, reason || null, userId]
+    [plan, expiresAt || null, reason || null, userId],
   );
   return result.rows[0];
 }
@@ -119,7 +123,7 @@ export async function clearPlanOverride(userId: string): Promise<User> {
   const result = await query<User>(
     `UPDATE users SET plan_override = NULL, plan_override_expires_at = NULL, plan_override_reason = NULL, updated_at = NOW()
      WHERE id = $1 RETURNING *`,
-    [userId]
+    [userId],
   );
   return result.rows[0];
 }
@@ -128,16 +132,24 @@ export async function clearPlanOverride(userId: string): Promise<User> {
  * Recalculate effective plan based on override and Stripe status
  * Priority: Active override > Stripe subscription > Free
  */
-export function calculateEffectivePlan(user: User): "free" | "pro" | "enterprise" {
+export function calculateEffectivePlan(
+  user: User,
+): "free" | "pro" | "enterprise" {
   // Check if override exists and is not expired
   if (user.plan_override) {
-    if (!user.plan_override_expires_at || new Date(user.plan_override_expires_at) > new Date()) {
+    if (
+      !user.plan_override_expires_at ||
+      new Date(user.plan_override_expires_at) > new Date()
+    ) {
       return user.plan_override;
     }
   }
 
   // Check Stripe subscription status
-  if (user.subscription_status === "active" || user.subscription_status === "trialing") {
+  if (
+    user.subscription_status === "active" ||
+    user.subscription_status === "trialing"
+  ) {
     // Map Stripe plan to our plan types - assume subscription_status maps to a plan
     // This would need to be enhanced based on actual Stripe plan data
     if (user.stripe_subscription_id) {

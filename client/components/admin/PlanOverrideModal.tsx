@@ -18,7 +18,11 @@ import { Button } from "@/components/ui/button";
 interface PlanOverrideModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (plan: string, expiresAt?: string, reason?: string) => Promise<void>;
+  onSubmit: (
+    plan: string,
+    expiresAt?: string,
+    reason?: string,
+  ) => Promise<void>;
   isLoading?: boolean;
   userEmail?: string;
 }

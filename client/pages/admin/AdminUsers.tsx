@@ -53,13 +53,11 @@ export default function AdminUsers() {
 
   const handleRoleChange = async (
     userId: string,
-    role: "user" | "admin" | "superadmin"
+    role: "user" | "admin" | "superadmin",
   ) => {
     try {
       const updatedUser = await updateUserRole(userId, role);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? updatedUser : u))
-      );
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast.success("User role updated");
     } catch (error) {
       const message =
@@ -72,13 +70,16 @@ export default function AdminUsers() {
     userId: string,
     plan: string,
     expiresAt?: string,
-    reason?: string
+    reason?: string,
   ) => {
     try {
-      const updatedUser = await setPlanOverride(userId, plan, expiresAt, reason);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? updatedUser : u))
+      const updatedUser = await setPlanOverride(
+        userId,
+        plan,
+        expiresAt,
+        reason,
       );
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast.success("Plan override set");
     } catch (error) {
       const message =
@@ -90,9 +91,7 @@ export default function AdminUsers() {
   const handleClearPlanOverride = async (userId: string) => {
     try {
       const updatedUser = await clearPlanOverride(userId);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? updatedUser : u))
-      );
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
       toast.success("Plan override cleared");
     } catch (error) {
       const message =
@@ -141,7 +140,9 @@ export default function AdminUsers() {
             {/* Summary Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               <div className="p-4 rounded-lg border border-border bg-card">
-                <p className="text-sm text-muted-foreground mb-1">Total Users</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Total Users
+                </p>
                 <p className="text-2xl font-bold text-foreground">
                   {users.length}
                 </p>
@@ -149,13 +150,20 @@ export default function AdminUsers() {
               <div className="p-4 rounded-lg border border-border bg-card">
                 <p className="text-sm text-muted-foreground mb-1">Admins</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {users.filter((u) => u.role === "admin" || u.role === "superadmin").length}
+                  {
+                    users.filter(
+                      (u) => u.role === "admin" || u.role === "superadmin",
+                    ).length
+                  }
                 </p>
               </div>
               <div className="p-4 rounded-lg border border-border bg-card">
                 <p className="text-sm text-muted-foreground mb-1">Pro Users</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {users.filter((u) => u.effective_plan_calculated === "pro").length}
+                  {
+                    users.filter((u) => u.effective_plan_calculated === "pro")
+                      .length
+                  }
                 </p>
               </div>
               <div className="p-4 rounded-lg border border-border bg-card">

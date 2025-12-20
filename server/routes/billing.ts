@@ -31,12 +31,10 @@ interface CreditLedgerEntry {
 }
 
 // Helper: Get or create subscription record
-async function getOrCreateSubscription(
-  userId: string
-): Promise<Subscription> {
+async function getOrCreateSubscription(userId: string): Promise<Subscription> {
   let sub = await queryOne<Subscription>(
     "SELECT * FROM subscriptions WHERE user_id = $1",
-    [userId]
+    [userId],
   );
 
   if (!sub) {
@@ -44,7 +42,7 @@ async function getOrCreateSubscription(
       `INSERT INTO subscriptions (user_id, plan, status)
        VALUES ($1, 'free', 'active')
        RETURNING *`,
-      [userId]
+      [userId],
     );
     sub = result.rows[0];
   }
@@ -56,7 +54,7 @@ async function getOrCreateSubscription(
 async function getCreditsRemaining(userId: string): Promise<number> {
   const result = await queryOne<{ total: number }>(
     `SELECT COALESCE(SUM(delta), 0) as total FROM credit_ledger WHERE user_id = $1`,
-    [userId]
+    [userId],
   );
   return result?.total || 0;
 }
@@ -65,19 +63,16 @@ async function getCreditsRemaining(userId: string): Promise<number> {
 async function grantCredits(
   userId: string,
   delta: number,
-  reason: string
+  reason: string,
 ): Promise<void> {
   await query(
     `INSERT INTO credit_ledger (user_id, delta, reason)
      VALUES ($1, $2, $3)`,
-    [userId, delta, reason]
+    [userId, delta, reason],
   );
 }
 
-export const handleCreateCheckoutSession: RequestHandler = async (
-  req,
-  res
-) => {
+export const handleCreateCheckoutSession: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
 
   try {
@@ -87,7 +82,7 @@ export const handleCreateCheckoutSession: RequestHandler = async (
     if (!auth || !auth.clerkUserId) {
       logError(
         { correlationId },
-        "Checkout session requested without authentication"
+        "Checkout session requested without authentication",
       );
       return res.status(401).json({
         error: "Unauthorized",
@@ -116,7 +111,7 @@ export const handleCreateCheckoutSession: RequestHandler = async (
         { correlationId, userId },
         "Price ID not configured for plan",
         undefined,
-        { plan }
+        { plan },
       );
       return res.status(500).json({
         error: "Upgrade is temporarily unavailable. Please try again later.",
@@ -135,7 +130,7 @@ export const handleCreateCheckoutSession: RequestHandler = async (
 
       await query(
         `UPDATE subscriptions SET stripe_customer_id = $1 WHERE user_id = $2`,
-        [customerId, userId]
+        [customerId, userId],
       );
     }
 
@@ -164,7 +159,7 @@ export const handleCreateCheckoutSession: RequestHandler = async (
     logError(
       { correlationId },
       "Failed to create checkout session",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to create checkout session",
@@ -187,17 +182,20 @@ export const handleWebhook: RequestHandler = async (req, res) => {
   let event: Stripe.Event;
 
   try {
-    const body = req.body instanceof Buffer ? req.body.toString("utf8") : JSON.stringify(req.body);
+    const body =
+      req.body instanceof Buffer
+        ? req.body.toString("utf8")
+        : JSON.stringify(req.body);
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ""
+      process.env.STRIPE_WEBHOOK_SECRET || "",
     );
   } catch (error) {
     logError(
       { correlationId },
       "Webhook signature verification failed",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     return res.status(400).json({
       error: "Signature verification failed",
@@ -209,14 +207,14 @@ export const handleWebhook: RequestHandler = async (req, res) => {
     // Check for idempotency: has this event been processed before?
     const existingEvent = await queryOne<{ id: string }>(
       "SELECT id FROM stripe_events WHERE stripe_event_id = $1",
-      [event.id]
+      [event.id],
     );
 
     if (existingEvent) {
       logWebhookProcessing(
         { correlationId, stripeEventId: event.id },
         event.type,
-        "Event already processed (idempotent)"
+        "Event already processed (idempotent)",
       );
       return res.json({ received: true });
     }
@@ -225,7 +223,7 @@ export const handleWebhook: RequestHandler = async (req, res) => {
     await query(
       `INSERT INTO stripe_events (stripe_event_id, type, payload)
        VALUES ($1, $2, $3)`,
-      [event.id, event.type, JSON.stringify(event)]
+      [event.id, event.type, JSON.stringify(event)],
     );
 
     let userId: string | undefined;
@@ -246,7 +244,7 @@ export const handleWebhook: RequestHandler = async (req, res) => {
             `UPDATE subscriptions
              SET stripe_subscription_id = $1, plan = $2, status = 'active', current_period_end = $3, updated_at = NOW()
              WHERE user_id = $4`,
-            [subscriptionId, plan, periodEnd, userId]
+            [subscriptionId, plan, periodEnd, userId],
           );
 
           // Grant initial credits based on plan
@@ -254,13 +252,18 @@ export const handleWebhook: RequestHandler = async (req, res) => {
           await grantCredits(
             userId,
             creditAmount,
-            `${plan.toUpperCase()} plan activation`
+            `${plan.toUpperCase()} plan activation`,
           );
 
           logWebhookProcessing(
-            { correlationId, userId, stripeEventId: event.id, stripeSubscriptionId: subscriptionId },
+            {
+              correlationId,
+              userId,
+              stripeEventId: event.id,
+              stripeSubscriptionId: subscriptionId,
+            },
             event.type,
-            "Checkout session processed - credits granted"
+            "Checkout session processed - credits granted",
           );
         }
         break;
@@ -284,14 +287,19 @@ export const handleWebhook: RequestHandler = async (req, res) => {
             `UPDATE subscriptions
              SET status = $1, current_period_end = $2, updated_at = NOW()
              WHERE user_id = $3`,
-            [status, new Date(subscription.current_period_end * 1000), userId]
+            [status, new Date(subscription.current_period_end * 1000), userId],
           );
 
           logWebhookProcessing(
-            { correlationId, userId, stripeEventId: event.id, stripeSubscriptionId: subscriptionId },
+            {
+              correlationId,
+              userId,
+              stripeEventId: event.id,
+              stripeSubscriptionId: subscriptionId,
+            },
             event.type,
             "Subscription status updated",
-            { status }
+            { status },
           );
         }
         break;
@@ -310,13 +318,18 @@ export const handleWebhook: RequestHandler = async (req, res) => {
             `UPDATE subscriptions
              SET plan = 'free', status = 'canceled', stripe_subscription_id = NULL, updated_at = NOW()
              WHERE user_id = $1`,
-            [userId]
+            [userId],
           );
 
           logWebhookProcessing(
-            { correlationId, userId, stripeEventId: event.id, stripeSubscriptionId: subscriptionId },
+            {
+              correlationId,
+              userId,
+              stripeEventId: event.id,
+              stripeSubscriptionId: subscriptionId,
+            },
             event.type,
-            "Subscription deleted - downgraded to free"
+            "Subscription deleted - downgraded to free",
           );
         }
         break;
@@ -333,25 +346,31 @@ export const handleWebhook: RequestHandler = async (req, res) => {
         if (userId && subscriptionId) {
           const sub = await queryOne<Subscription>(
             "SELECT * FROM subscriptions WHERE user_id = $1",
-            [userId]
+            [userId],
           );
 
           if (sub && sub.plan !== "free") {
             // Get the actual Stripe subscription to check current_period_end
-            const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
-            const currentPeriodEnd = new Date(stripeSubscription.current_period_end * 1000);
+            const stripeSubscription =
+              await stripe.subscriptions.retrieve(subscriptionId);
+            const currentPeriodEnd = new Date(
+              stripeSubscription.current_period_end * 1000,
+            );
             const lastGrantPeriodEnd = sub.last_credit_grant_period_end
               ? new Date(sub.last_credit_grant_period_end)
               : null;
 
             // Only grant if this is a different billing period
             // (current_period_end differs from last_credit_grant_period_end)
-            if (!lastGrantPeriodEnd || lastGrantPeriodEnd.getTime() !== currentPeriodEnd.getTime()) {
+            if (
+              !lastGrantPeriodEnd ||
+              lastGrantPeriodEnd.getTime() !== currentPeriodEnd.getTime()
+            ) {
               const creditAmount = sub.plan === "enterprise" ? 9999 : 500;
               await grantCredits(
                 userId,
                 creditAmount,
-                `${sub.plan.toUpperCase()} plan monthly renewal`
+                `${sub.plan.toUpperCase()} plan monthly renewal`,
               );
 
               // Update the period end to prevent duplicate grants in this period
@@ -359,20 +378,30 @@ export const handleWebhook: RequestHandler = async (req, res) => {
                 `UPDATE subscriptions
                  SET last_credit_grant_period_end = $1, updated_at = NOW()
                  WHERE user_id = $2`,
-                [currentPeriodEnd, userId]
+                [currentPeriodEnd, userId],
               );
 
               logWebhookProcessing(
-                { correlationId, userId, stripeEventId: event.id, stripeSubscriptionId: subscriptionId },
+                {
+                  correlationId,
+                  userId,
+                  stripeEventId: event.id,
+                  stripeSubscriptionId: subscriptionId,
+                },
                 event.type,
                 "Monthly credits renewed",
-                { amount: creditAmount }
+                { amount: creditAmount },
               );
             } else {
               logWebhookProcessing(
-                { correlationId, userId, stripeEventId: event.id, stripeSubscriptionId: subscriptionId },
+                {
+                  correlationId,
+                  userId,
+                  stripeEventId: event.id,
+                  stripeSubscriptionId: subscriptionId,
+                },
                 event.type,
-                "Invoice paid but credits already granted for this period"
+                "Invoice paid but credits already granted for this period",
               );
             }
           }
@@ -384,7 +413,7 @@ export const handleWebhook: RequestHandler = async (req, res) => {
         logWebhookProcessing(
           { correlationId, stripeEventId: event.id },
           event.type,
-          "Event type not handled"
+          "Event type not handled",
         );
     }
 
@@ -393,7 +422,7 @@ export const handleWebhook: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Webhook processing failed",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Webhook processing failed",
@@ -402,10 +431,7 @@ export const handleWebhook: RequestHandler = async (req, res) => {
   }
 };
 
-export const handleCreatePortalSession: RequestHandler = async (
-  req,
-  res
-) => {
+export const handleCreatePortalSession: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
 
   try {
@@ -414,7 +440,7 @@ export const handleCreatePortalSession: RequestHandler = async (
     if (!auth || !auth.clerkUserId) {
       logError(
         { correlationId },
-        "Portal session requested without authentication"
+        "Portal session requested without authentication",
       );
       return res.status(401).json({
         error: "Unauthorized",
@@ -431,7 +457,7 @@ export const handleCreatePortalSession: RequestHandler = async (
     if (!sub.stripe_customer_id) {
       logError(
         { correlationId, userId },
-        "Portal session requested but no Stripe customer found"
+        "Portal session requested but no Stripe customer found",
       );
       return res.status(400).json({
         error: "No active billing account. Please upgrade first.",
@@ -449,7 +475,7 @@ export const handleCreatePortalSession: RequestHandler = async (
     logError(
       { correlationId },
       "Failed to create portal session",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to create portal session",

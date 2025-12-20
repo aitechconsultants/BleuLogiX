@@ -24,13 +24,13 @@ export interface GetUsersResponse {
 
 export async function getAllUsers(
   limit: number = 100,
-  offset: number = 0
+  offset: number = 0,
 ): Promise<User[]> {
   const response = await fetch(
     `/api/admin/users?limit=${limit}&offset=${offset}`,
     {
       headers: { "Content-Type": "application/json" },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -44,7 +44,7 @@ export async function getAllUsers(
 
 export async function updateUserRole(
   userId: string,
-  role: "user" | "admin" | "superadmin"
+  role: "user" | "admin" | "superadmin",
 ): Promise<User> {
   const response = await fetch(`/api/admin/users/${userId}/role`, {
     method: "PUT",
@@ -65,7 +65,7 @@ export async function setPlanOverride(
   userId: string,
   plan: string,
   expiresAt?: string,
-  reason?: string
+  reason?: string,
 ): Promise<User> {
   const response = await fetch(`/api/admin/users/${userId}/plan-override`, {
     method: "PUT",

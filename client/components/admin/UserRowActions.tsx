@@ -22,8 +22,16 @@ interface User {
 
 interface UserRowActionsProps {
   user: User;
-  onRoleChange: (userId: string, role: "user" | "admin" | "superadmin") => Promise<void>;
-  onSetPlanOverride: (userId: string, plan: string, expiresAt?: string, reason?: string) => Promise<void>;
+  onRoleChange: (
+    userId: string,
+    role: "user" | "admin" | "superadmin",
+  ) => Promise<void>;
+  onSetPlanOverride: (
+    userId: string,
+    plan: string,
+    expiresAt?: string,
+    reason?: string,
+  ) => Promise<void>;
   onClearPlanOverride: (userId: string) => Promise<void>;
   isLoading?: boolean;
 }
@@ -52,7 +60,7 @@ export default function UserRowActions({
   const handleSetPlanOverride = async (
     plan: string,
     expiresAt?: string,
-    reason?: string
+    reason?: string,
   ) => {
     setIsProcessing(true);
     try {

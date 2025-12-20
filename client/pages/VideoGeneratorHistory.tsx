@@ -15,7 +15,7 @@ export default function VideoGeneratorHistory() {
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"recent" | "oldest" | "duration">(
-    "recent"
+    "recent",
   );
 
   const videos: HistoryVideo[] = [
@@ -119,9 +119,13 @@ export default function VideoGeneratorHistory() {
     .filter((v) => !selectedStatus || v.status === selectedStatus)
     .sort((a, b) => {
       if (sortBy === "recent") {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       } else if (sortBy === "oldest") {
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       } else {
         return b.duration - a.duration;
       }
@@ -183,9 +187,7 @@ export default function VideoGeneratorHistory() {
               </label>
               <select
                 value={selectedStyle || ""}
-                onChange={(e) =>
-                  setSelectedStyle(e.target.value || null)
-                }
+                onChange={(e) => setSelectedStyle(e.target.value || null)}
                 className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
               >
                 <option value="">All Styles</option>
@@ -204,9 +206,7 @@ export default function VideoGeneratorHistory() {
               </label>
               <select
                 value={selectedStatus || ""}
-                onChange={(e) =>
-                  setSelectedStatus(e.target.value || null)
-                }
+                onChange={(e) => setSelectedStatus(e.target.value || null)}
                 className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground focus:outline-none focus:border-accent-blue"
               >
                 <option value="">All Statuses</option>
@@ -332,7 +332,8 @@ export default function VideoGeneratorHistory() {
           </span>
           {filteredVideos.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              Total duration: {filteredVideos.reduce((sum, v) => sum + v.duration, 0)}s
+              Total duration:{" "}
+              {filteredVideos.reduce((sum, v) => sum + v.duration, 0)}s
             </span>
           )}
         </div>
