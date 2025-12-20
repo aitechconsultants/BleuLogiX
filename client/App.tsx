@@ -54,17 +54,18 @@ export default function App() {
           <Route path={ROUTES.login} element={<Login />} />
           <Route path={ROUTES.signup} element={<Signup />} />
 
-          {/* Protected routes - only for signed-in users */}
-          <Route path={ROUTES.generator} element={<Generator />} />
-          <Route path={ROUTES.videoGenerator} element={<VideoGenerator />} />
+          {/* Video generator routes */}
+          <Route path={ROUTES.video} element={<VideoGenerator />} />
           <Route
-            path={ROUTES.videoGeneratorCreate}
+            path={ROUTES.videoCreate}
             element={<VideoGeneratorCreate />}
           />
           <Route
-            path={ROUTES.videoGeneratorHistory}
+            path={ROUTES.videoHistory}
             element={<VideoGeneratorHistory />}
           />
+
+          {/* Protected routes - only for signed-in users */}
           <Route path={ROUTES.accountHub} element={<AccountHub />} />
           <Route path={ROUTES.adminAudit} element={<AdminAudit />} />
           <Route path={ROUTES.adminPolicies} element={<AdminPolicies />} />
