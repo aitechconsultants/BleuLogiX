@@ -209,6 +209,83 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Templates Section */}
+      <section
+        id="templates"
+        className="py-24 px-4 md:px-8 border-t border-border"
+      >
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
+              Professionally Designed Templates
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Choose from 8+ carefully crafted templates optimized for different content types
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                name: "Product Showcase",
+                description: "Perfect for demo videos and product launches",
+              },
+              {
+                name: "Social Media",
+                description: "Optimized dimensions for TikTok, Reels, and Shorts",
+              },
+              {
+                name: "Educational",
+                description: "Great for tutorials and how-to content",
+              },
+              {
+                name: "Marketing",
+                description: "Convert viewers with compelling promotions",
+              },
+              {
+                name: "News & Updates",
+                description: "Keep your audience informed with crisp summaries",
+              },
+              {
+                name: "Testimonials",
+                description: "Showcase customer success stories",
+              },
+              {
+                name: "Behind The Scenes",
+                description: "Build authentic connection with your audience",
+              },
+              {
+                name: "Announcements",
+                description: "Make important news stand out",
+              },
+            ].map((template, idx) => (
+              <div
+                key={idx}
+                className="p-6 rounded-lg border border-border bg-card/50 hover:border-accent-blue/50 transition-all space-y-3 group cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-lg bg-accent-blue/20 group-hover:bg-accent-blue/30 transition-colors" />
+                <h3 className="font-display text-lg font-semibold text-foreground">
+                  {template.name}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  {template.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center pt-8">
+            <Link
+              to="/video-generator"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors glow-blue"
+            >
+              <Zap className="w-5 h-5" />
+              Browse All Templates
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section
         id="features"
