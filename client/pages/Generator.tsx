@@ -69,7 +69,8 @@ export default function Generator() {
   >("free");
   const [error, setError] = useState<string | null>(null);
 
-  const premiumAccess = billingStatus === "pro" || billingStatus === "enterprise";
+  const premiumAccess =
+    billingStatus === "pro" || billingStatus === "enterprise";
 
   // Load initial user data and history on mount
   useEffect(() => {
@@ -87,7 +88,8 @@ export default function Generator() {
         const history: GeneratedVideo[] = await api("/api/generator/history");
         setGeneratedVideos(history);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load data";
+        const message =
+          err instanceof Error ? err.message : "Failed to load data";
         setError(message);
         console.error("Load error:", err);
       } finally {
@@ -108,18 +110,21 @@ export default function Generator() {
       setIsGenerating(true);
       setError(null);
 
-      const newGeneration: GeneratedVideo = await api("/api/generator/generate", {
-        method: "POST",
-        body: JSON.stringify({
-          templateId: selectedTemplate,
-          voiceId: selectedVoice,
-          captionStyle: selectedCaptionStyle,
-          inputJson: {
-            script: scriptText,
-            headline: headlineText,
-          },
-        }),
-      });
+      const newGeneration: GeneratedVideo = await api(
+        "/api/generator/generate",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            templateId: selectedTemplate,
+            voiceId: selectedVoice,
+            captionStyle: selectedCaptionStyle,
+            inputJson: {
+              script: scriptText,
+              headline: headlineText,
+            },
+          }),
+        },
+      );
 
       setGeneratedVideos((prev) => [newGeneration, ...prev]);
       setCreditsRemaining((prev) => Math.max(0, prev - 10));
@@ -131,7 +136,8 @@ export default function Generator() {
         return;
       }
 
-      const message = err instanceof Error ? err.message : "Failed to generate video";
+      const message =
+        err instanceof Error ? err.message : "Failed to generate video";
       setError(message);
       console.error("Generate error:", err);
     } finally {
@@ -179,7 +185,7 @@ export default function Generator() {
 
   const handleDownloadVideo = async (
     id: string,
-    quality: "watermarked" | "hd"
+    quality: "watermarked" | "hd",
   ) => {
     try {
       const data = await api("/api/generator/download", {
@@ -223,63 +229,63 @@ export default function Generator() {
 
   return (
     <div className="min-h-screen bg-background">
-        {error && (
-          <div className="max-w-6xl mx-auto px-6 md:px-8 mt-6">
-            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-              {error}
-            </div>
+      {error && (
+        <div className="max-w-6xl mx-auto px-6 md:px-8 mt-6">
+          <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            {error}
           </div>
-        )}
-        <GeneratorHeader />
-        <GeneratorTemplatePicker
-          selectedTemplate={selectedTemplate}
-          onSelectTemplate={setSelectedTemplate}
-        />
-        <GeneratorInputsForm
-          scriptText={scriptText}
-          onScriptChange={setScriptText}
-          headlineText={headlineText}
-          onHeadlineChange={setHeadlineText}
-        />
-        <VoiceoverSelector
-          voices={VOICES}
-          value={voiceId}
-          onChange={setVoiceId}
-        />
-        <CaptionsSelector
-          selectedStyle={selectedCaptionStyle}
-          onSelectStyle={setSelectedCaptionStyle}
-          enableCaptions={enableCaptions}
-          onToggleCaptions={setEnableCaptions}
-        />
-        <GeneratorPreviewPanel
-          headlineText={headlineText}
-          scriptText={scriptText}
-          selectedTemplate={selectedTemplate}
-          selectedVoice={selectedVoice}
-          selectedCaptionStyle={selectedCaptionStyle}
-        />
-        <GenerateBar
-          onGenerate={handleGenerate}
-          onGenerateBlocked={handleGenerateBlocked}
-          isGenerating={isGenerating}
-          creditsRemaining={creditsRemaining}
-        />
-        <GenerationHistoryList
-          videos={generatedVideos}
-          onView={handleViewVideo}
-          onDownload={handleDownloadVideo}
-          onDownloadBlocked={handleDownloadBlocked}
-          onDelete={handleDeleteVideo}
-          billingStatus={billingStatus}
-        />
-        <UpgradeModal
-          isOpen={isUpgradeModalOpen}
-          reason={upgradeReason}
-          onClose={() => setIsUpgradeModalOpen(false)}
-          onSelectPlan={handleSelectPlan}
-          billingStatus={billingStatus}
-        />
-      </div>
+        </div>
+      )}
+      <GeneratorHeader />
+      <GeneratorTemplatePicker
+        selectedTemplate={selectedTemplate}
+        onSelectTemplate={setSelectedTemplate}
+      />
+      <GeneratorInputsForm
+        scriptText={scriptText}
+        onScriptChange={setScriptText}
+        headlineText={headlineText}
+        onHeadlineChange={setHeadlineText}
+      />
+      <VoiceoverSelector
+        voices={VOICES}
+        value={voiceId}
+        onChange={setVoiceId}
+      />
+      <CaptionsSelector
+        selectedStyle={selectedCaptionStyle}
+        onSelectStyle={setSelectedCaptionStyle}
+        enableCaptions={enableCaptions}
+        onToggleCaptions={setEnableCaptions}
+      />
+      <GeneratorPreviewPanel
+        headlineText={headlineText}
+        scriptText={scriptText}
+        selectedTemplate={selectedTemplate}
+        selectedVoice={selectedVoice}
+        selectedCaptionStyle={selectedCaptionStyle}
+      />
+      <GenerateBar
+        onGenerate={handleGenerate}
+        onGenerateBlocked={handleGenerateBlocked}
+        isGenerating={isGenerating}
+        creditsRemaining={creditsRemaining}
+      />
+      <GenerationHistoryList
+        videos={generatedVideos}
+        onView={handleViewVideo}
+        onDownload={handleDownloadVideo}
+        onDownloadBlocked={handleDownloadBlocked}
+        onDelete={handleDeleteVideo}
+        billingStatus={billingStatus}
+      />
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        reason={upgradeReason}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        onSelectPlan={handleSelectPlan}
+        billingStatus={billingStatus}
+      />
+    </div>
   );
 }
