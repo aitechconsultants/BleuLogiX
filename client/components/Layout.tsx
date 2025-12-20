@@ -114,7 +114,7 @@ export default function Layout({ children }: LayoutProps) {
 
                   <SignedIn>
                     <Link
-                      to={ROUTES.generator}
+                      to={ROUTES.video}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       Dashboard
