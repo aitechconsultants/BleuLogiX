@@ -434,110 +434,108 @@ export default function VideoGeneratorCreate() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background py-12 px-4 md:px-8">
-        <div className="max-w-4xl mx-auto space-y-12">
-          {/* Stepper */}
-          <div className="space-y-6">
-            <h1 className="font-display text-4xl font-bold text-foreground">
-              Create Your Video
-            </h1>
+    <div className="min-h-screen bg-background py-12 px-4 md:px-8">
+      <div className="max-w-4xl mx-auto space-y-12">
+        {/* Stepper */}
+        <div className="space-y-6">
+          <h1 className="font-display text-4xl font-bold text-foreground">
+            Create Your Video
+          </h1>
 
-            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2">
-              {steps.map((step, idx) => (
-                <div
-                  key={step.number}
-                  className="flex items-center gap-2 md:gap-4"
+          <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2">
+            {steps.map((step, idx) => (
+              <div
+                key={step.number}
+                className="flex items-center gap-2 md:gap-4"
+              >
+                <button
+                  onClick={() => setCurrentStep(step.number)}
+                  className={`flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full font-semibold transition-all whitespace-nowrap text-sm md:text-base ${
+                    currentStep === step.number
+                      ? "bg-accent-blue text-black glow-blue"
+                      : currentStep > step.number
+                        ? "bg-accent-blue/20 text-accent-blue"
+                        : "bg-card border border-border text-muted-foreground"
+                  }`}
                 >
-                  <button
-                    onClick={() => setCurrentStep(step.number)}
-                    className={`flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full font-semibold transition-all whitespace-nowrap text-sm md:text-base ${
-                      currentStep === step.number
-                        ? "bg-accent-blue text-black glow-blue"
-                        : currentStep > step.number
-                          ? "bg-accent-blue/20 text-accent-blue"
-                          : "bg-card border border-border text-muted-foreground"
-                    }`}
-                  >
-                    {currentStep > step.number ? "✓" : step.number}
-                  </button>
-                  <span className="text-xs md:text-sm font-medium text-muted-foreground hidden sm:inline">
-                    {step.title}
-                  </span>
-                  {idx < steps.length - 1 && (
-                    <div className="h-0.5 w-4 md:w-8 bg-border" />
-                  )}
-                </div>
-              ))}
-            </div>
+                  {currentStep > step.number ? "✓" : step.number}
+                </button>
+                <span className="text-xs md:text-sm font-medium text-muted-foreground hidden sm:inline">
+                  {step.title}
+                </span>
+                {idx < steps.length - 1 && (
+                  <div className="h-0.5 w-4 md:w-8 bg-border" />
+                )}
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* Step Content */}
-          <div className="bg-card border border-border rounded-lg p-8">
-            {renderStep()}
-          </div>
+        {/* Step Content */}
+        <div className="bg-card border border-border rounded-lg p-8">
+          {renderStep()}
+        </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-4 justify-between">
-            <button
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              Previous
-            </button>
+        {/* Navigation Buttons */}
+        <div className="flex gap-4 justify-between">
+          <button
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Previous
+          </button>
 
-            <button
-              onClick={handleNext}
-              className="flex items-center gap-2 px-8 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue transition-colors font-medium glow-blue"
-            >
-              {currentStep === 5 ? "Review & Export" : "Next"}
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={handleNext}
+            className="flex items-center gap-2 px-8 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue transition-colors font-medium glow-blue"
+          >
+            {currentStep === 5 ? "Review & Export" : "Next"}
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Preview Section */}
-          {currentStep === 5 && (
-            <div className="mt-12 pt-12 border-t border-border space-y-6">
-              <h2 className="font-display text-2xl font-bold text-foreground">
-                Preview
-              </h2>
-              <PreviewPlayer
-                title={formState.script.slice(0, 50) || "Your Video"}
-                duration={formState.duration}
-              />
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div className="p-3 rounded-lg bg-muted/30">
-                  <p className="text-muted-foreground text-xs">Format</p>
-                  <p className="font-semibold text-foreground">
-                    {formState.resolution === "portrait"
-                      ? "1080 x 1920"
-                      : "1080 x 1080"}
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-muted/30">
-                  <p className="text-muted-foreground text-xs">Duration</p>
-                  <p className="font-semibold text-foreground">
-                    {formState.duration}s
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-muted/30">
-                  <p className="text-muted-foreground text-xs">Voice</p>
-                  <p className="font-semibold text-foreground">
-                    {formState.selectedVoice || "None"}
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-muted/30">
-                  <p className="text-muted-foreground text-xs">Captions</p>
-                  <p className="font-semibold text-foreground">
-                    {formState.captionsEnabled ? "Enabled" : "Disabled"}
-                  </p>
-                </div>
+        {/* Preview Section */}
+        {currentStep === 5 && (
+          <div className="mt-12 pt-12 border-t border-border space-y-6">
+            <h2 className="font-display text-2xl font-bold text-foreground">
+              Preview
+            </h2>
+            <PreviewPlayer
+              title={formState.script.slice(0, 50) || "Your Video"}
+              duration={formState.duration}
+            />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="p-3 rounded-lg bg-muted/30">
+                <p className="text-muted-foreground text-xs">Format</p>
+                <p className="font-semibold text-foreground">
+                  {formState.resolution === "portrait"
+                    ? "1080 x 1920"
+                    : "1080 x 1080"}
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <p className="text-muted-foreground text-xs">Duration</p>
+                <p className="font-semibold text-foreground">
+                  {formState.duration}s
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <p className="text-muted-foreground text-xs">Voice</p>
+                <p className="font-semibold text-foreground">
+                  {formState.selectedVoice || "None"}
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <p className="text-muted-foreground text-xs">Captions</p>
+                <p className="font-semibold text-foreground">
+                  {formState.captionsEnabled ? "Enabled" : "Disabled"}
+                </p>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Export Confirmation Modal */}
@@ -549,6 +547,6 @@ export default function VideoGeneratorCreate() {
         creditsAvailable={42}
         videoTitle={formState.script.slice(0, 50) || "Untitled Video"}
       />
-    </Layout>
+    </div>
   );
 }
