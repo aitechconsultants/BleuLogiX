@@ -185,15 +185,13 @@ export default function AccountHub() {
 
   if (!isSignedIn) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-foreground mb-4">
-              Please sign in to view your accounts
-            </p>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-foreground mb-4">
+            Please sign in to view your accounts
+          </p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
