@@ -41,40 +41,40 @@ export default function Layout({ children }: LayoutProps) {
               />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-5 flex-1 justify-center">
+            <nav className="hidden md:flex items-center gap-4 flex-1 justify-center">
               <Link
                 to={ROUTES.home}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
                 Home
               </Link>
               <Link
                 to={ROUTES.video}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
                 Generator
               </Link>
               <Link
                 to="/#templates"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
                 Templates
               </Link>
               <Link
                 to="/#pricing"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
                 Pricing
               </Link>
               <Link
                 to="/#features"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
                 Features
               </Link>
               <Link
                 to="/#learn"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
               >
                 Learn
               </Link>
