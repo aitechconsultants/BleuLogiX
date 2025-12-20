@@ -212,7 +212,8 @@ export default function Index() {
     {
       name: "Nina P.",
       role: "E-commerce Owner",
-      quote: "My product videos converted 3x better after switching to BleuLogiX.",
+      quote:
+        "My product videos converted 3x better after switching to BleuLogiX.",
     },
   ];
 
@@ -292,8 +293,8 @@ export default function Index() {
             </div>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">
-              Pick a template → Paste your script → Generate a professional video.
-              No editing skills required.
+              Pick a template → Paste your script → Generate a professional
+              video. No editing skills required.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 pt-7">
@@ -350,7 +351,10 @@ export default function Index() {
       </section>
 
       {/* Templates Section */}
-      <section id="templates" className="py-24 px-4 md:px-8 border-t border-border">
+      <section
+        id="templates"
+        className="py-24 px-4 md:px-8 border-t border-border"
+      >
         <div className="max-w-6xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -459,7 +463,10 @@ export default function Index() {
       </section>
 
       {/* Features Section: Voices, Captions, Export Formats */}
-      <section id="features" className="py-24 px-4 md:px-8 border-t border-border">
+      <section
+        id="features"
+        className="py-24 px-4 md:px-8 border-t border-border"
+      >
         <div className="max-w-6xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
@@ -654,7 +661,10 @@ export default function Index() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-4 md:px-8 border-t border-border">
+      <section
+        id="pricing"
+        className="py-24 px-4 md:px-8 border-t border-border"
+      >
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-4">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">

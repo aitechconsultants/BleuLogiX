@@ -56,10 +56,7 @@ export default function App() {
 
           {/* Video generator routes */}
           <Route path={ROUTES.video} element={<VideoGenerator />} />
-          <Route
-            path={ROUTES.videoCreate}
-            element={<VideoGeneratorCreate />}
-          />
+          <Route path={ROUTES.videoCreate} element={<VideoGeneratorCreate />} />
           <Route
             path={ROUTES.videoHistory}
             element={<VideoGeneratorHistory />}
