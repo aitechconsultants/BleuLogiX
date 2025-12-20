@@ -54,30 +54,30 @@ export default function Layout({ children }: LayoutProps) {
               >
                 Generator
               </Link>
-              <a
-                href="#templates"
+              <Link
+                to="/#templates"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Templates
-              </a>
-              <a
-                href="#pricing"
+              </Link>
+              <Link
+                to="/#pricing"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Pricing
-              </a>
-              <a
-                href="#features"
+              </Link>
+              <Link
+                to="/#features"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Features
-              </a>
-              <a
-                href="#learn"
+              </Link>
+              <Link
+                to="/#learn"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Learn
-              </a>
+              </Link>
 
               {!clerkKeyPresent ? (
                 // Clerk not configured - show login/signup
