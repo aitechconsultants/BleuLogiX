@@ -182,8 +182,7 @@ export default function AdminAudit() {
         // Audit links from navigation
         const navLinks: LinkAuditResult[] = [
           { href: "/", label: "Home" },
-          { href: "/generator", label: "Generator" },
-          { href: "/video-generator", label: "Video Generator" },
+          { href: "/video", label: "Video Generator" },
           { href: "/login", label: "Login" },
           { href: "/signup", label: "Sign Up" },
           { href: "/admin/audit", label: "Admin Audit" },
