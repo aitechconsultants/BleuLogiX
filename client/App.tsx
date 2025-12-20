@@ -16,6 +16,7 @@ import VideoGeneratorHistory from "@/pages/VideoGeneratorHistory";
 import AccountHub from "@/pages/AccountHub";
 import AdminAudit from "@/pages/AdminAudit";
 import AdminPolicies from "@/pages/AdminPolicies";
+import AdminUsers from "@/pages/admin/AdminUsers";
 import NotFound from "@/pages/NotFound";
 
 /**
