@@ -8,6 +8,7 @@ export const ROUTES = {
   accountHub: "/accounts",
   adminAudit: "/admin/audit",
   adminPolicies: "/admin/policies",
+  adminUsers: "/admin/users",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
