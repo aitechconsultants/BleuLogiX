@@ -48,7 +48,7 @@ export default function Login() {
           routing="path"
           path="/login"
           signUpUrl="/signup"
-          redirectUrl="/generator"
+          redirectUrl="/video"
         />
       </div>
     </div>
