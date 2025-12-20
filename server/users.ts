@@ -73,3 +73,79 @@ export async function getUserByClerkId(clerkUserId: string): Promise<User | null
     [clerkUserId]
   );
 }
+
+/**
+ * Get all users (admin only)
+ */
+export async function getAllUsers(limit: number = 100, offset: number = 0): Promise<User[]> {
+  return queryAll<User>(
+    "SELECT * FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+    [limit, offset]
+  );
+}
+
+/**
+ * Update user role
+ */
+export async function updateUserRole(userId: string, role: "user" | "admin" | "superadmin"): Promise<User> {
+  const result = await query<User>(
+    "UPDATE users SET role = $1, updated_at = NOW() WHERE id = $2 RETURNING *",
+    [role, userId]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Set plan override for a user
+ */
+export async function setPlanOverride(
+  userId: string,
+  plan: "free" | "pro" | "enterprise",
+  expiresAt?: string,
+  reason?: string
+): Promise<User> {
+  const result = await query<User>(
+    `UPDATE users SET plan_override = $1, plan_override_expires_at = $2, plan_override_reason = $3, updated_at = NOW()
+     WHERE id = $4 RETURNING *`,
+    [plan, expiresAt || null, reason || null, userId]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Clear plan override for a user
+ */
+export async function clearPlanOverride(userId: string): Promise<User> {
+  const result = await query<User>(
+    `UPDATE users SET plan_override = NULL, plan_override_expires_at = NULL, plan_override_reason = NULL, updated_at = NOW()
+     WHERE id = $1 RETURNING *`,
+    [userId]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Recalculate effective plan based on override and Stripe status
+ * Priority: Active override > Stripe subscription > Free
+ */
+export function calculateEffectivePlan(user: User): "free" | "pro" | "enterprise" {
+  // Check if override exists and is not expired
+  if (user.plan_override) {
+    if (!user.plan_override_expires_at || new Date(user.plan_override_expires_at) > new Date()) {
+      return user.plan_override;
+    }
+  }
+
+  // Check Stripe subscription status
+  if (user.subscription_status === "active" || user.subscription_status === "trialing") {
+    // Map Stripe plan to our plan types - assume subscription_status maps to a plan
+    // This would need to be enhanced based on actual Stripe plan data
+    if (user.stripe_subscription_id) {
+      // For now, return pro if subscription exists; enhance as needed
+      return "pro";
+    }
+  }
+
+  // Default to free
+  return "free";
+}
