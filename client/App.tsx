@@ -28,15 +28,13 @@ import NotFound from "@/pages/NotFound";
 
 function MissingKeyScreen() {
   return (
-    <Layout>
-      <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-        <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
-        <p style={{ marginTop: 8 }}>
-          Set <code>CLERK_PUBLISHABLE_KEY</code> in your environment variables,
-          then redeploy.
-        </p>
-      </div>
-    </Layout>
+    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+      <h2 style={{ margin: 0 }}>Clerk publishable key is missing</h2>
+      <p style={{ marginTop: 8 }}>
+        Set <code>CLERK_PUBLISHABLE_KEY</code> in your environment variables,
+        then redeploy.
+      </p>
+    </div>
   );
 }
 
