@@ -284,7 +284,7 @@ export default function VideoGenerator() {
               No videos yet. Create your first video to get started!
             </p>
             <button
-              onClick={() => navigate("/video-generator/create")}
+              onClick={() => navigate(ROUTES.videoCreate)}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 transition-colors font-medium"
             >
               <Zap className="w-5 h-5" />
