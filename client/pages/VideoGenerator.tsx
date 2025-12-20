@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
 import TemplateCard from "@/components/TemplateCard";
 import { Play, Download, Zap, ArrowRight } from "lucide-react";
 
