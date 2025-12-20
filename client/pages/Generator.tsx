@@ -79,9 +79,17 @@ export default function Generator() {
         setIsLoading(true);
         setError(null);
 
-        // Fetch user data
+        // Fetch user data with timeout
         try {
-          const userData: UserData = await api("/api/generator/me");
+          const userData: UserData = await Promise.race([
+            api("/api/generator/me"),
+            new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("User data fetch timed out")),
+                5000,
+              ),
+            ),
+          ]);
           setCreditsRemaining(userData.creditsRemaining);
           setBillingStatus(userData.billingStatus);
         } catch (userDataErr) {
@@ -94,9 +102,17 @@ export default function Generator() {
           setBillingStatus("free");
         }
 
-        // Fetch generation history
+        // Fetch generation history with timeout
         try {
-          const history: GeneratedVideo[] = await api("/api/generator/history");
+          const history: GeneratedVideo[] = await Promise.race([
+            api("/api/generator/history"),
+            new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("History fetch timed out")),
+                5000,
+              ),
+            ),
+          ]);
           setGeneratedVideos(history);
         } catch (historyErr) {
           // If we can't fetch history, continue with empty list
