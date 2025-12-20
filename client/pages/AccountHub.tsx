@@ -196,193 +196,191 @@ export default function AccountHub() {
   }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background">
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-12">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-12">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Social Account Hub
+            </h1>
+            <p className="text-muted-foreground">
+              Manage and monitor all your social media accounts in one place
+            </p>
+          </div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            disabled={accounts.length >= accountLimit}
+            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Add Account
+          </button>
+        </div>
+
+        {/* Plan and Limits Info */}
+        <div className="mb-8 p-4 rounded-lg bg-card border border-border">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                Social Account Hub
-              </h1>
-              <p className="text-muted-foreground">
-                Manage and monitor all your social media accounts in one place
+              <p className="text-sm text-muted-foreground mb-1">Plan</p>
+              <p className="text-lg font-semibold text-foreground capitalize">
+                {plan}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">
+                Accounts ({accounts.length}/{accountLimit})
+              </p>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div
+                  className="bg-accent-blue h-2 rounded-full transition-all"
+                  style={{
+                    width: `${Math.min((accounts.length / accountLimit) * 100, 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Module 2D: Affiliate Code Banner */}
+        {affiliateProfile && (
+          <div className="mb-8 p-6 rounded-lg bg-gradient-to-r from-accent-blue/10 to-highlight-blue/10 border border-accent-blue/30">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
+              🎯 Affiliate Code
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Code Badge */}
+              <div className="md:col-span-2">
+                <p className="text-xs text-muted-foreground mb-2">
+                  Your Referral Code
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-mono text-lg font-semibold">
+                    {affiliateProfile.affiliate_code}
+                  </code>
+                  <button
+                    onClick={handleCopyAffiliateCode}
+                    className="p-2 rounded-lg bg-card hover:bg-muted border border-border transition-colors"
+                    title="Copy code"
+                  >
+                    {copiedCode ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-foreground" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Clicks</p>
+                <p className="text-2xl font-bold text-accent-blue">
+                  {affiliateProfile.stats.clicks}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Signups</p>
+                <p className="text-2xl font-bold text-accent-blue">
+                  {affiliateProfile.stats.signups}
+                </p>
+              </div>
+              <div className="md:col-span-2">
+                <p className="text-xs text-muted-foreground mb-2">Revenue</p>
+                <p className="text-2xl font-bold text-accent-blue">
+                  ${affiliateProfile.stats.revenue.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !isLoading && (
+          <div className="mb-8 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-red-700">
+                Error loading accounts
+              </p>
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-accent-blue" />
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && accounts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground mb-6">
+              No social accounts connected yet
+            </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              disabled={accounts.length >= accountLimit}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium transition-colors"
             >
               <Plus className="w-5 h-5" />
-              Add Account
+              Add Your First Account
             </button>
           </div>
+        )}
 
-          {/* Plan and Limits Info */}
-          <div className="mb-8 p-4 rounded-lg bg-card border border-border">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Plan</p>
-                <p className="text-lg font-semibold text-foreground capitalize">
-                  {plan}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Accounts ({accounts.length}/{accountLimit})
-                </p>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div
-                    className="bg-accent-blue h-2 rounded-full transition-all"
-                    style={{
-                      width: `${Math.min((accounts.length / accountLimit) * 100, 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+        {/* Accounts Grid */}
+        {!isLoading && accounts.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {accounts.map((account) => (
+              <SocialAccountCard
+                key={account.id}
+                id={account.id}
+                platform={account.platform}
+                username={account.username}
+                followerCount={account.follower_count}
+                postCount={account.post_count}
+                engagementRate={account.engagement_rate}
+                lastSyncedAt={account.last_synced_at}
+                status={account.status}
+                isRefreshing={refreshingId === account.id}
+                onRefresh={() => handleRefreshAccount(account.id)}
+                onRemove={() => handleRemoveAccount(account.id)}
+                plan={plan}
+                refreshMode={account.refresh_mode}
+                refreshIntervalHours={account.refresh_interval_hours}
+                nextRefreshAt={account.next_refresh_at}
+                onRefreshSettingsUpdate={fetchAccounts}
+                oauthConnected={account.oauth_connected}
+                dataSource={account.data_source}
+                onOAuthConnect={() =>
+                  handleOAuthConnect(account.id, account.platform)
+                }
+              />
+            ))}
           </div>
+        )}
 
-          {/* Module 2D: Affiliate Code Banner */}
-          {affiliateProfile && (
-            <div className="mb-8 p-6 rounded-lg bg-gradient-to-r from-accent-blue/10 to-highlight-blue/10 border border-accent-blue/30">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                🎯 Affiliate Code
+        {/* Plan upgrade hint */}
+        {!isLoading &&
+          accounts.length >= accountLimit &&
+          plan !== "enterprise" && (
+            <div className="mt-12 p-6 rounded-lg bg-accent-blue/5 border border-accent-blue/30">
+              <h3 className="font-semibold text-foreground mb-2">
+                Need more accounts?
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Code Badge */}
-                <div className="md:col-span-2">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Your Referral Code
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <code className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-mono text-lg font-semibold">
-                      {affiliateProfile.affiliate_code}
-                    </code>
-                    <button
-                      onClick={handleCopyAffiliateCode}
-                      className="p-2 rounded-lg bg-card hover:bg-muted border border-border transition-colors"
-                      title="Copy code"
-                    >
-                      {copiedCode ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-foreground" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">Clicks</p>
-                  <p className="text-2xl font-bold text-accent-blue">
-                    {affiliateProfile.stats.clicks}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">Signups</p>
-                  <p className="text-2xl font-bold text-accent-blue">
-                    {affiliateProfile.stats.signups}
-                  </p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-xs text-muted-foreground mb-2">Revenue</p>
-                  <p className="text-2xl font-bold text-accent-blue">
-                    ${affiliateProfile.stats.revenue.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Error State */}
-          {error && !isLoading && (
-            <div className="mb-8 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-red-700">
-                  Error loading accounts
-                </p>
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-accent-blue" />
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!isLoading && accounts.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-lg text-muted-foreground mb-6">
-                No social accounts connected yet
+              <p className="text-muted-foreground mb-4">
+                Upgrade your plan to add more social accounts and unlock
+                additional features.
               </p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                Add Your First Account
+              <button className="px-6 py-2 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium transition-colors">
+                Upgrade Plan
               </button>
             </div>
           )}
-
-          {/* Accounts Grid */}
-          {!isLoading && accounts.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {accounts.map((account) => (
-                <SocialAccountCard
-                  key={account.id}
-                  id={account.id}
-                  platform={account.platform}
-                  username={account.username}
-                  followerCount={account.follower_count}
-                  postCount={account.post_count}
-                  engagementRate={account.engagement_rate}
-                  lastSyncedAt={account.last_synced_at}
-                  status={account.status}
-                  isRefreshing={refreshingId === account.id}
-                  onRefresh={() => handleRefreshAccount(account.id)}
-                  onRemove={() => handleRemoveAccount(account.id)}
-                  plan={plan}
-                  refreshMode={account.refresh_mode}
-                  refreshIntervalHours={account.refresh_interval_hours}
-                  nextRefreshAt={account.next_refresh_at}
-                  onRefreshSettingsUpdate={fetchAccounts}
-                  oauthConnected={account.oauth_connected}
-                  dataSource={account.data_source}
-                  onOAuthConnect={() =>
-                    handleOAuthConnect(account.id, account.platform)
-                  }
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Plan upgrade hint */}
-          {!isLoading &&
-            accounts.length >= accountLimit &&
-            plan !== "enterprise" && (
-              <div className="mt-12 p-6 rounded-lg bg-accent-blue/5 border border-accent-blue/30">
-                <h3 className="font-semibold text-foreground mb-2">
-                  Need more accounts?
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  Upgrade your plan to add more social accounts and unlock
-                  additional features.
-                </p>
-                <button className="px-6 py-2 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue font-medium transition-colors">
-                  Upgrade Plan
-                </button>
-              </div>
-            )}
-        </div>
       </div>
 
       {/* Add Account Modal */}
@@ -394,6 +392,6 @@ export default function AccountHub() {
         accountLimit={accountLimit}
         currentAccountCount={accounts.length}
       />
-    </Layout>
+    </div>
   );
 }
