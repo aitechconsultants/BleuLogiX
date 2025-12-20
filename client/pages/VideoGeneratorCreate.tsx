@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Layout from "@/components/Layout";
 import ScriptPanel from "@/components/ScriptPanel";
 import StyleCard from "@/components/StyleCard";
 import VoiceCard from "@/components/VoiceCard";
