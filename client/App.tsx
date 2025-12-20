@@ -10,7 +10,6 @@ import { hasClerkKey } from "@/lib/clerk-config";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
-import Generator from "@/pages/Generator";
 import VideoGenerator from "@/pages/VideoGenerator";
 import VideoGeneratorCreate from "@/pages/VideoGeneratorCreate";
 import VideoGeneratorHistory from "@/pages/VideoGeneratorHistory";
