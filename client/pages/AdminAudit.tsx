@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { Check, X, Copy, AlertCircle } from "lucide-react";
+import RequireAdmin from "@/components/RequireAdmin";
 
 interface HealthCheck {
   name: string;
@@ -289,9 +290,10 @@ export default function AdminAudit() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-12">
-        <div className="space-y-8">
+    <RequireAdmin>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-6 md:px-8 py-12">
+          <div className="space-y-8">
           {/* Header */}
           <div className="space-y-4">
             <h1 className="font-display text-3xl font-bold text-foreground">
@@ -539,8 +541,9 @@ export default function AdminAudit() {
               </div>
             )}
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </RequireAdmin>
   );
 }
