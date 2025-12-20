@@ -140,8 +140,8 @@ export function createServer() {
   app.get("/api/generator/history", handleGetHistory);
   app.post("/api/generator/download", handleDownload);
 
-  // Script generation proxy route
-  app.post("/api/script/generate", handleGenerateScript);
+  // Script generation proxy route (requires auth)
+  app.post("/api/script/generate", requireClerkAuth, handleGenerateScript);
 
   // Script generation service routes
   app.use("/api/script-gen", scriptGenRouter);
