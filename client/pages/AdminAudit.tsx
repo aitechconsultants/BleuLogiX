@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import Layout from "@/components/Layout";
 import { Check, X, Copy, AlertCircle } from "lucide-react";
 
 interface HealthCheck {
@@ -280,272 +279,268 @@ export default function AdminAudit() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 rounded-full border-4 border-muted border-t-accent-blue animate-spin mx-auto"></div>
-            <p className="text-muted-foreground">Loading audit data...</p>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 rounded-full border-4 border-muted border-t-accent-blue animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Loading audit data...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 py-12">
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="space-y-4">
-              <h1 className="font-display text-3xl font-bold text-foreground">
-                Admin Audit Dashboard
-              </h1>
-              <p className="text-muted-foreground">
-                Real-time health checks for BleuLogix integrations, routes, and
-                APIs
-              </p>
-              <button
-                onClick={copyReport}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors"
-              >
-                <Copy className="w-4 h-4" />
-                {copied ? "Copied!" : "Copy Report"}
-              </button>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-6 md:px-8 py-12">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="space-y-4">
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              Admin Audit Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Real-time health checks for BleuLogix integrations, routes, and
+              APIs
+            </p>
+            <button
+              onClick={copyReport}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors"
+            >
+              <Copy className="w-4 h-4" />
+              {copied ? "Copied!" : "Copy Report"}
+            </button>
+          </div>
+
+          {error && (
+            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
+          )}
 
-            {error && (
-              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>{error}</span>
-              </div>
-            )}
+          {/* Stripe Status Summary */}
+          {integrations &&
+            (() => {
+              const stripeStatus = getStripeStatus();
+              return (
+                <div
+                  className={`p-4 rounded-lg border flex items-start justify-between ${
+                    stripeStatus.ok
+                      ? "bg-green-500/10 border-green-500/30"
+                      : "bg-red-500/10 border-red-500/30"
+                  }`}
+                >
+                  <div>
+                    <p
+                      className={`font-semibold ${stripeStatus.ok ? "text-green-400" : "text-red-400"}`}
+                    >
+                      Stripe Connected
+                    </p>
+                    <p
+                      className={`text-sm ${stripeStatus.ok ? "text-green-400/80" : "text-red-400/80"}`}
+                    >
+                      {stripeStatus.message}
+                    </p>
+                  </div>
+                  {stripeStatus.ok ? (
+                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
+                  ) : (
+                    <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
+                  )}
+                </div>
+              );
+            })()}
 
-            {/* Stripe Status Summary */}
-            {integrations &&
-              (() => {
-                const stripeStatus = getStripeStatus();
-                return (
+          {/* Integration Status Panel */}
+          {integrations && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-foreground">
+                Integration Status
+              </h2>
+              <div className="space-y-3">
+                {integrations.checks.map((check) => (
                   <div
-                    className={`p-4 rounded-lg border flex items-start justify-between ${
-                      stripeStatus.ok
-                        ? "bg-green-500/10 border-green-500/30"
-                        : "bg-red-500/10 border-red-500/30"
-                    }`}
+                    key={check.name}
+                    className="p-4 rounded-lg border border-border bg-card flex items-start justify-between"
                   >
-                    <div>
-                      <p
-                        className={`font-semibold ${stripeStatus.ok ? "text-green-400" : "text-red-400"}`}
-                      >
-                        Stripe Connected
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground capitalize">
+                        {check.name.replace(/_/g, " ")}
                       </p>
-                      <p
-                        className={`text-sm ${stripeStatus.ok ? "text-green-400/80" : "text-red-400/80"}`}
-                      >
-                        {stripeStatus.message}
+                      <p className="text-sm text-muted-foreground">
+                        {check.message}
                       </p>
                     </div>
-                    {stripeStatus.ok ? (
+                    {check.ok ? (
                       <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
                     ) : (
                       <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
                     )}
                   </div>
-                );
-              })()}
-
-            {/* Integration Status Panel */}
-            {integrations && (
-              <div className="space-y-4">
-                <h2 className="font-display text-xl font-bold text-foreground">
-                  Integration Status
-                </h2>
-                <div className="space-y-3">
-                  {integrations.checks.map((check) => (
-                    <div
-                      key={check.name}
-                      className="p-4 rounded-lg border border-border bg-card flex items-start justify-between"
-                    >
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground capitalize">
-                          {check.name.replace(/_/g, " ")}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {check.message}
-                        </p>
-                      </div>
-                      {check.ok ? (
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
-                      ) : (
-                        <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
-                      )}
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Routes Panel */}
-            {routes && (
-              <div className="space-y-4">
-                <h2 className="font-display text-xl font-bold text-foreground">
-                  Available Routes
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {Object.entries(routes.routes).map(([key, path]) => (
-                    <div
-                      key={key}
-                      className="p-3 rounded-lg border border-border bg-card"
-                    >
-                      <p className="font-mono text-sm font-semibold text-accent-blue">
-                        {path}
-                      </p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {key}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Link Audit Panel */}
-            {linkAudit.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="font-display text-xl font-bold text-foreground">
-                  Navigation Links
-                </h2>
-                <div className="space-y-3">
-                  {linkAudit.map((item) => (
-                    <div
-                      key={item.href}
-                      className="p-4 rounded-lg border border-border bg-card flex items-start justify-between"
-                    >
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground">
-                          {item.label}
-                        </p>
-                        <p className="text-sm text-muted-foreground font-mono">
-                          {item.href}
-                        </p>
-                      </div>
-                      {item.found ? (
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
-                      ) : (
-                        <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* API Audit Panel */}
-            {apiAudit.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="font-display text-xl font-bold text-foreground">
-                  API Endpoints
-                </h2>
-                <div className="space-y-3">
-                  {apiAudit.map((item) => (
-                    <div
-                      key={item.endpoint}
-                      className="p-4 rounded-lg border border-border bg-card flex items-start justify-between"
-                    >
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground font-mono text-sm">
-                          {item.endpoint}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {item.message}
-                        </p>
-                      </div>
-                      {item.ok ? (
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
-                      ) : (
-                        <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Test Script Generation Panel */}
+          {/* Routes Panel */}
+          {routes && (
             <div className="space-y-4">
               <h2 className="font-display text-xl font-bold text-foreground">
-                Test Script Generation
+                Available Routes
               </h2>
-              <button
-                onClick={handleTestScriptGeneration}
-                disabled={testScriptLoading}
-                className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {testScriptLoading ? "Generating..." : "Test Script Generation"}
-              </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Object.entries(routes.routes).map(([key, path]) => (
+                  <div
+                    key={key}
+                    className="p-3 rounded-lg border border-border bg-card"
+                  >
+                    <p className="font-mono text-sm font-semibold text-accent-blue">
+                      {path}
+                    </p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {key}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-              {testScriptError && (
-                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <span>{testScriptError}</span>
-                </div>
-              )}
+          {/* Link Audit Panel */}
+          {linkAudit.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-foreground">
+                Navigation Links
+              </h2>
+              <div className="space-y-3">
+                {linkAudit.map((item) => (
+                  <div
+                    key={item.href}
+                    className="p-4 rounded-lg border border-border bg-card flex items-start justify-between"
+                  >
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">
+                        {item.label}
+                      </p>
+                      <p className="text-sm text-muted-foreground font-mono">
+                        {item.href}
+                      </p>
+                    </div>
+                    {item.found ? (
+                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
+                    ) : (
+                      <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-              {testScriptResult && (
-                <div className="space-y-3">
-                  <div className="p-4 rounded-lg border border-border bg-card">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Status Code
-                        </p>
-                        <p className="text-lg font-semibold text-foreground">
-                          {testScriptResult.status || "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Response Time
-                        </p>
-                        <p className="text-lg font-semibold text-foreground">
-                          {testScriptResult.responseTime}ms
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Script Length
-                        </p>
-                        <p className="text-lg font-semibold text-foreground">
-                          {testScriptResult.scriptLength} chars
-                        </p>
-                      </div>
+          {/* API Audit Panel */}
+          {apiAudit.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-foreground">
+                API Endpoints
+              </h2>
+              <div className="space-y-3">
+                {apiAudit.map((item) => (
+                  <div
+                    key={item.endpoint}
+                    className="p-4 rounded-lg border border-border bg-card flex items-start justify-between"
+                  >
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground font-mono text-sm">
+                        {item.endpoint}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.message}
+                      </p>
+                    </div>
+                    {item.ok ? (
+                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 ml-4" />
+                    ) : (
+                      <X className="w-5 h-5 text-red-500 flex-shrink-0 ml-4" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Test Script Generation Panel */}
+          <div className="space-y-4">
+            <h2 className="font-display text-xl font-bold text-foreground">
+              Test Script Generation
+            </h2>
+            <button
+              onClick={handleTestScriptGeneration}
+              disabled={testScriptLoading}
+              className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {testScriptLoading ? "Generating..." : "Test Script Generation"}
+            </button>
+
+            {testScriptError && (
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>{testScriptError}</span>
+              </div>
+            )}
+
+            {testScriptResult && (
+              <div className="space-y-3">
+                <div className="p-4 rounded-lg border border-border bg-card">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Status Code
+                      </p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {testScriptResult.status || "—"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Response Time
+                      </p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {testScriptResult.responseTime}ms
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Script Length
+                      </p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {testScriptResult.scriptLength} chars
+                      </p>
                     </div>
                   </div>
-
-                  {testScriptResult.preview && (
-                    <div className="p-4 rounded-lg border border-border bg-card">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Preview (first 120 chars)
-                      </p>
-                      <p className="text-sm text-foreground font-mono bg-background/50 p-3 rounded border border-border break-words">
-                        {testScriptResult.preview}
-                        {testScriptResult.scriptLength > 120 ? "..." : ""}
-                      </p>
-                    </div>
-                  )}
-
-                  {testScriptResult.status === 200 && (
-                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm flex items-start gap-2">
-                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                      <span>Script generated successfully!</span>
-                    </div>
-                  )}
                 </div>
-              )}
-            </div>
+
+                {testScriptResult.preview && (
+                  <div className="p-4 rounded-lg border border-border bg-card">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Preview (first 120 chars)
+                    </p>
+                    <p className="text-sm text-foreground font-mono bg-background/50 p-3 rounded border border-border break-words">
+                      {testScriptResult.preview}
+                      {testScriptResult.scriptLength > 120 ? "..." : ""}
+                    </p>
+                  </div>
+                )}
+
+                {testScriptResult.status === 200 && (
+                  <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm flex items-start gap-2">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Script generated successfully!</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
