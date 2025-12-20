@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TemplateCard from "@/components/TemplateCard";
 import { Play, Download, Zap, ArrowRight } from "lucide-react";
+import { ROUTES } from "@/config/routes";
 
 interface RecentVideo {
   id: string;
