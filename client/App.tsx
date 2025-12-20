@@ -52,8 +52,8 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path={ROUTES.home} element={<Index />} />
-          <Route path={ROUTES.login} element={<Login />} />
-          <Route path={ROUTES.signup} element={<Signup />} />
+          <Route path={`${ROUTES.login}/*`} element={<Login />} />
+          <Route path={`${ROUTES.signup}/*`} element={<Signup />} />
 
           {/* Video generator routes */}
           <Route path={ROUTES.video} element={<VideoGenerator />} />
