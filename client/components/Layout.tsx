@@ -84,13 +84,13 @@ export default function Layout({ children }: LayoutProps) {
                 <>
                   <Link
                     to={ROUTES.login}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
                   >
                     Login
                   </Link>
                   <Link
                     to={ROUTES.signup}
-                    className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
+                    className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm whitespace-nowrap"
                   >
                     Sign Up
                   </Link>
@@ -100,13 +100,13 @@ export default function Layout({ children }: LayoutProps) {
                   <SignedOut>
                     <Link
                       to={ROUTES.login}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
                     >
                       Login
                     </Link>
                     <Link
                       to={ROUTES.signup}
-                      className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm"
+                      className="px-4 py-2 rounded-lg bg-accent-blue text-black font-semibold hover:bg-highlight-blue transition-colors text-sm whitespace-nowrap"
                     >
                       Sign Up
                     </Link>
@@ -115,26 +115,26 @@ export default function Layout({ children }: LayoutProps) {
                   <SignedIn>
                     <Link
                       to={ROUTES.video}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
                     >
                       Dashboard
                     </Link>
                     <Link
                       to={ROUTES.accountHub}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
                     >
                       Accounts
                     </Link>
                     <Link
                       to={ROUTES.adminPolicies}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-xs opacity-75"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-xs opacity-75 whitespace-nowrap"
                       title="Admin only"
                     >
                       Admin Policies
                     </Link>
                     <Link
                       to={ROUTES.adminUsers}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-xs opacity-75"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-xs opacity-75 whitespace-nowrap"
                       title="Admin only"
                     >
                       Admin Users
