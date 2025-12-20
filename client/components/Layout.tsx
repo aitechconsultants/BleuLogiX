@@ -132,6 +132,13 @@ export default function Layout({ children }: LayoutProps) {
                     >
                       Admin Policies
                     </Link>
+                    <Link
+                      to={ROUTES.adminUsers}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-xs opacity-75"
+                      title="Admin only"
+                    >
+                      Admin Users
+                    </Link>
                     <UserButton
                       afterSignOutUrl={ROUTES.home}
                       appearance={{
