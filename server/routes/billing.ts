@@ -441,7 +441,7 @@ export const handleCreatePortalSession: RequestHandler = async (
 
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
-      return_url: `${process.env.APP_URL || "http://localhost:5173"}/generator`,
+      return_url: `${process.env.APP_URL || "http://localhost:5173"}/video`,
     });
 
     res.json({ url: session.url });
