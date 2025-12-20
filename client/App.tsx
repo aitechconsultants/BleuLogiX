@@ -56,62 +56,19 @@ export default function App() {
           <Route path={ROUTES.signup} element={<Signup />} />
 
           {/* Protected routes - only for signed-in users */}
-          <Route
-            path={ROUTES.generator}
-            element={
-              <SignedIn fallback={<Login />}>
-                <Generator />
-              </SignedIn>
-            }
-          />
-          <Route
-            path={ROUTES.videoGenerator}
-            element={
-              <SignedIn fallback={<Login />}>
-                <VideoGenerator />
-              </SignedIn>
-            }
-          />
+          <Route path={ROUTES.generator} element={<Generator />} />
+          <Route path={ROUTES.videoGenerator} element={<VideoGenerator />} />
           <Route
             path={ROUTES.videoGeneratorCreate}
-            element={
-              <SignedIn fallback={<Login />}>
-                <VideoGeneratorCreate />
-              </SignedIn>
-            }
+            element={<VideoGeneratorCreate />}
           />
           <Route
             path={ROUTES.videoGeneratorHistory}
-            element={
-              <SignedIn fallback={<Login />}>
-                <VideoGeneratorHistory />
-              </SignedIn>
-            }
+            element={<VideoGeneratorHistory />}
           />
-          <Route
-            path={ROUTES.accountHub}
-            element={
-              <SignedIn fallback={<Login />}>
-                <AccountHub />
-              </SignedIn>
-            }
-          />
-          <Route
-            path={ROUTES.adminAudit}
-            element={
-              <SignedIn fallback={<Login />}>
-                <AdminAudit />
-              </SignedIn>
-            }
-          />
-          <Route
-            path={ROUTES.adminPolicies}
-            element={
-              <SignedIn fallback={<Login />}>
-                <AdminPolicies />
-              </SignedIn>
-            }
-          />
+          <Route path={ROUTES.accountHub} element={<AccountHub />} />
+          <Route path={ROUTES.adminAudit} element={<AdminAudit />} />
+          <Route path={ROUTES.adminPolicies} element={<AdminPolicies />} />
 
           {/* Catch-all for 404 */}
           <Route path="*" element={<NotFound />} />
