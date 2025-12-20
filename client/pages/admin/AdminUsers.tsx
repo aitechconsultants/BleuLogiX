@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
-import Layout from "@/components/Layout";
 import RequireAdmin from "@/components/RequireAdmin";
 import UserTable from "@/components/admin/UserTable";
 import { Button } from "@/components/ui/button";
