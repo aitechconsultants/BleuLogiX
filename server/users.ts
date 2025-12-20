@@ -5,6 +5,14 @@ export interface User {
   clerk_user_id: string;
   email: string | null;
   role: "user" | "admin" | "superadmin";
+  effective_plan: "free" | "pro" | "enterprise";
+  plan_override: "free" | "pro" | "enterprise" | null;
+  plan_override_expires_at: string | null;
+  plan_override_reason: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_status: "active" | "trialing" | "canceled" | "past_due" | null;
+  current_period_end: string | null;
   created_at: string;
   updated_at: string;
 }
