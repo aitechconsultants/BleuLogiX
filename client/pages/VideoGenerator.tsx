@@ -108,7 +108,7 @@ export default function VideoGenerator() {
   ];
 
   const handleUseTemplate = (templateId: string) => {
-    navigate("/video-generator/create", { state: { templateId } });
+    navigate(ROUTES.videoCreate, { state: { templateId } });
   };
 
   const getStatusBadge = (status: RecentVideo["status"]) => {
