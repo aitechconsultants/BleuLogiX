@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { SignUp } from "@clerk/clerk-react";
-import Layout from "@/components/Layout";
 import { hasClerkKey } from "@/lib/clerk-config";
 
 export default function Signup() {
@@ -9,54 +8,50 @@ export default function Signup() {
   if (!clerkKeyPresent) {
     // Fallback UI when Clerk is not configured
     return (
-      <Layout>
-        <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
-          <div className="w-full max-w-md space-y-8">
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl font-bold text-foreground">
-                Create Account
-              </h1>
-              <p className="text-muted-foreground">
-                Sign up to start creating videos
-              </p>
+      <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold text-foreground">
+              Create Account
+            </h1>
+            <p className="text-muted-foreground">
+              Sign up to start creating videos
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-lg p-8 space-y-6">
+            <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
+              Clerk authentication is not configured. Please set
+              CLERK_PUBLISHABLE_KEY to enable signup.
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-8 space-y-6">
-              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-                Clerk authentication is not configured. Please set
-                CLERK_PUBLISHABLE_KEY to enable signup.
-              </div>
-
-              <div className="text-center text-sm">
-                <span className="text-muted-foreground">
-                  Already have an account?{" "}
-                </span>
-                <Link
-                  to="/login"
-                  className="text-accent-blue hover:underline font-medium"
-                >
-                  Log in
-                </Link>
-              </div>
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">
+                Already have an account?{" "}
+              </span>
+              <Link
+                to="/login"
+                className="text-accent-blue hover:underline font-medium"
+              >
+                Log in
+              </Link>
             </div>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <SignUp
-            routing="path"
-            path="/signup"
-            signInUrl="/login"
-            redirectUrl="/generator"
-          />
-        </div>
+    <div className="min-h-[calc(100vh-120px)] bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <SignUp
+          routing="path"
+          path="/signup"
+          signInUrl="/login"
+          redirectUrl="/generator"
+        />
       </div>
-    </Layout>
+    </div>
   );
 }
