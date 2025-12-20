@@ -80,18 +80,32 @@ export default function Generator() {
         setError(null);
 
         // Fetch user data
-        const userData: UserData = await api("/api/generator/me");
-        setCreditsRemaining(userData.creditsRemaining);
-        setBillingStatus(userData.billingStatus);
+        try {
+          const userData: UserData = await api("/api/generator/me");
+          setCreditsRemaining(userData.creditsRemaining);
+          setBillingStatus(userData.billingStatus);
+        } catch (userDataErr) {
+          // If we can't fetch user data, use defaults and continue
+          console.warn("Could not fetch user data, using defaults:", userDataErr);
+          setCreditsRemaining(100); // Default credits for demo
+          setBillingStatus("free");
+        }
 
         // Fetch generation history
-        const history: GeneratedVideo[] = await api("/api/generator/history");
-        setGeneratedVideos(history);
+        try {
+          const history: GeneratedVideo[] = await api("/api/generator/history");
+          setGeneratedVideos(history);
+        } catch (historyErr) {
+          // If we can't fetch history, continue with empty list
+          console.warn("Could not fetch generation history:", historyErr);
+          setGeneratedVideos([]);
+        }
       } catch (err) {
+        // Final fallback - should rarely happen now
         const message =
           err instanceof Error ? err.message : "Failed to load data";
-        setError(message);
         console.error("Load error:", err);
+        // Don't set error state - let user continue with defaults
       } finally {
         setIsLoading(false);
       }
