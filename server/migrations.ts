@@ -11,6 +11,14 @@ export async function runMigrations() {
         clerk_user_id TEXT NOT NULL UNIQUE,
         email TEXT,
         role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'superadmin')),
+        effective_plan TEXT DEFAULT 'free' CHECK (effective_plan IN ('free', 'pro', 'enterprise')),
+        plan_override TEXT CHECK (plan_override IN ('free', 'pro', 'enterprise', NULL)),
+        plan_override_expires_at TIMESTAMPTZ,
+        plan_override_reason TEXT,
+        stripe_customer_id TEXT,
+        stripe_subscription_id TEXT,
+        subscription_status TEXT CHECK (subscription_status IN ('active', 'trialing', 'canceled', 'past_due', NULL)),
+        current_period_end TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
