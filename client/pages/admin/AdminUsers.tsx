@@ -101,91 +101,85 @@ export default function AdminUsers() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue" />
-        </div>
-      </Layout>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent-blue" />
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <RequireAdmin>
-        <div className="min-h-screen bg-background">
-          <div className="max-w-7xl mx-auto px-4 py-12">
-            {/* Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-2">
-                <h1 className="text-4xl font-bold text-foreground">
-                  Admin Users
-                </h1>
-                <Button
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  variant="outline"
-                  size="sm"
-                  className="border-border"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  {isRefreshing ? "Refreshing..." : "Refresh"}
-                </Button>
-              </div>
-              <p className="text-muted-foreground">
-                Manage user roles and subscription plans
+    <RequireAdmin>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-4xl font-bold text-foreground">
+                Admin Users
+              </h1>
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                variant="outline"
+                size="sm"
+                className="border-border"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </Button>
+            </div>
+            <p className="text-muted-foreground">
+              Manage user roles and subscription plans
+            </p>
+          </div>
+
+          {/* Summary Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="p-4 rounded-lg border border-border bg-card">
+              <p className="text-sm text-muted-foreground mb-1">Total Users</p>
+              <p className="text-2xl font-bold text-foreground">
+                {users.length}
               </p>
             </div>
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="p-4 rounded-lg border border-border bg-card">
-                <p className="text-sm text-muted-foreground mb-1">
-                  Total Users
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  {users.length}
-                </p>
-              </div>
-              <div className="p-4 rounded-lg border border-border bg-card">
-                <p className="text-sm text-muted-foreground mb-1">Admins</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {
-                    users.filter(
-                      (u) => u.role === "admin" || u.role === "superadmin",
-                    ).length
-                  }
-                </p>
-              </div>
-              <div className="p-4 rounded-lg border border-border bg-card">
-                <p className="text-sm text-muted-foreground mb-1">Pro Users</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {
-                    users.filter((u) => u.effective_plan_calculated === "pro")
-                      .length
-                  }
-                </p>
-              </div>
-              <div className="p-4 rounded-lg border border-border bg-card">
-                <p className="text-sm text-muted-foreground mb-1">
-                  Active Overrides
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  {users.filter((u) => u.plan_override).length}
-                </p>
-              </div>
+            <div className="p-4 rounded-lg border border-border bg-card">
+              <p className="text-sm text-muted-foreground mb-1">Admins</p>
+              <p className="text-2xl font-bold text-foreground">
+                {
+                  users.filter(
+                    (u) => u.role === "admin" || u.role === "superadmin",
+                  ).length
+                }
+              </p>
             </div>
-
-            {/* Users Table */}
-            <UserTable
-              users={users}
-              isLoading={isRefreshing}
-              onRoleChange={handleRoleChange}
-              onSetPlanOverride={handleSetPlanOverride}
-              onClearPlanOverride={handleClearPlanOverride}
-            />
+            <div className="p-4 rounded-lg border border-border bg-card">
+              <p className="text-sm text-muted-foreground mb-1">Pro Users</p>
+              <p className="text-2xl font-bold text-foreground">
+                {
+                  users.filter((u) => u.effective_plan_calculated === "pro")
+                    .length
+                }
+              </p>
+            </div>
+            <div className="p-4 rounded-lg border border-border bg-card">
+              <p className="text-sm text-muted-foreground mb-1">
+                Active Overrides
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {users.filter((u) => u.plan_override).length}
+              </p>
+            </div>
           </div>
+
+          {/* Users Table */}
+          <UserTable
+            users={users}
+            isLoading={isRefreshing}
+            onRoleChange={handleRoleChange}
+            onSetPlanOverride={handleSetPlanOverride}
+            onClearPlanOverride={handleClearPlanOverride}
+          />
         </div>
-      </RequireAdmin>
-    </Layout>
+      </div>
+    </RequireAdmin>
   );
 }
