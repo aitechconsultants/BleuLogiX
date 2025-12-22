@@ -65,10 +65,38 @@ export default function App() {
           />
 
           {/* Protected routes - only for signed-in users */}
-          <Route path={ROUTES.accountHub} element={<AccountHub />} />
-          <Route path={ROUTES.adminAudit} element={<AdminAudit />} />
-          <Route path={ROUTES.adminPolicies} element={<AdminPolicies />} />
-          <Route path={ROUTES.adminUsers} element={<AdminUsers />} />
+          <Route
+            path={ROUTES.accountHub}
+            element={
+              <RequireAuth>
+                <AccountHub />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path={ROUTES.adminAudit}
+            element={
+              <RequireAuth>
+                <AdminAudit />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path={ROUTES.adminPolicies}
+            element={
+              <RequireAuth>
+                <AdminPolicies />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path={ROUTES.adminUsers}
+            element={
+              <RequireAuth>
+                <AdminUsers />
+              </RequireAuth>
+            }
+          />
 
           {/* Catch-all for 404 */}
           <Route path="*" element={<NotFound />} />
