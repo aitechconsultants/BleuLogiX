@@ -224,8 +224,8 @@ class ScriptGenService {
         throw new Error(`Generated script does not match schema: ${ajv.errorsText(v.errors || [])}`);
       }
 
-      const tokensIn = response?.usage?.input_tokens || 0;
-      const tokensOut = response?.usage?.output_tokens || 0;
+      const tokensIn = response?.usage?.prompt_tokens || 0;
+      const tokensOut = response?.usage?.completion_tokens || 0;
       const costEstimate = (tokensIn / 1000) * 0.0005 + (tokensOut / 1000) * 0.0015;
 
       await query(
