@@ -143,8 +143,8 @@ export function createServer() {
   // Script generation proxy route (requires auth)
   app.post("/api/script/generate", requireClerkAuth, handleGenerateScript);
 
-  // Script generation service routes
-  app.use("/api/script-gen", scriptGenRouter);
+  // Script generation service routes (requires auth)
+  app.use("/api/script-gen", requireClerkAuth, scriptGenRouter);
 
   // Social accounts routes (require auth)
   app.use("/api/social-accounts", requireClerkAuth);
