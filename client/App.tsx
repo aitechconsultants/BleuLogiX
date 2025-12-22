@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 
 import Layout from "@/components/Layout";
+import RequireAuth from "@/components/RequireAuth";
 import { ROUTES } from "@/config/routes";
 import { hasClerkKey } from "@/lib/clerk-config";
 
