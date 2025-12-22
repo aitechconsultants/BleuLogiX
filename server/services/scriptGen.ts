@@ -197,20 +197,18 @@ class ScriptGenService {
       );
 
       const response: any = await Promise.race([
-        this.openai.responses.create({
+        this.openai.chat.completions.create({
           model: this.model,
-          max_output_tokens: this.maxTokens,
-          input: [
+          max_tokens: this.maxTokens,
+          messages: [
             { role: "system", content: template.system_prompt },
             { role: "user", content: userPrompt },
           ],
-        } as any),
+        }),
         timeoutPromise,
       ]);
 
-      const text =
-        response?.output_text ||
-        response?.output?.[0]?.content?.find((c: any) => c.type === "output_text")?.text;
+      const text = response?.choices?.[0]?.message?.content;
 
       if (!text || typeof text !== "string") {
         throw new Error("Unexpected response format from OpenAI");
