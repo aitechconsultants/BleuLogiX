@@ -144,7 +144,11 @@ class ScriptGenService {
     };
   }
 
-  private async updateDailyUsage(_userId: string, _tokensIn: number, _tokensOut: number) {
+  private async updateDailyUsage(
+    _userId: string,
+    _tokensIn: number,
+    _tokensOut: number,
+  ) {
     // TODO: Implement usage accounting if you have a table for it.
     return;
   }
@@ -171,7 +175,8 @@ class ScriptGenService {
       );
 
       jobId = jobResult.rows[0]?.id;
-      if (!jobId) throw new Error("Failed to create script_gen_jobs row (missing id)");
+      if (!jobId)
+        throw new Error("Failed to create script_gen_jobs row (missing id)");
 
       const template = await this.getTemplate();
 
@@ -191,7 +196,10 @@ class ScriptGenService {
 
       const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(
-          () => reject(new Error(`Script generation timeout after ${this.timeoutMs}ms`)),
+          () =>
+            reject(
+              new Error(`Script generation timeout after ${this.timeoutMs}ms`),
+            ),
           this.timeoutMs,
         ),
       );
@@ -219,20 +227,33 @@ class ScriptGenService {
       const scriptOutput = JSON.parse(jsonText);
 
       const cacheKey = `${template.id}:${template.version}`;
-      const v = this.validateOutput(scriptOutput, template.json_schema, cacheKey);
+      const v = this.validateOutput(
+        scriptOutput,
+        template.json_schema,
+        cacheKey,
+      );
       if (!v.ok) {
-        throw new Error(`Generated script does not match schema: ${ajv.errorsText(v.errors || [])}`);
+        throw new Error(
+          `Generated script does not match schema: ${ajv.errorsText(v.errors || [])}`,
+        );
       }
 
       const tokensIn = response?.usage?.prompt_tokens || 0;
       const tokensOut = response?.usage?.completion_tokens || 0;
-      const costEstimate = (tokensIn / 1000) * 0.0005 + (tokensOut / 1000) * 0.0015;
+      const costEstimate =
+        (tokensIn / 1000) * 0.0005 + (tokensOut / 1000) * 0.0015;
 
       await query(
         `UPDATE script_gen_jobs
          SET status='succeeded', output_json=$1, tokens_in=$2, tokens_out=$3, cost_usd_estimate=$4, updated_at=NOW()
          WHERE id=$5`,
-        [JSON.stringify(scriptOutput), tokensIn, tokensOut, costEstimate, jobId],
+        [
+          JSON.stringify(scriptOutput),
+          tokensIn,
+          tokensOut,
+          costEstimate,
+          jobId,
+        ],
       );
 
       await this.updateDailyUsage(userId, tokensIn, tokensOut);
