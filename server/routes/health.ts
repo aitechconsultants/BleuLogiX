@@ -128,14 +128,36 @@ export const handleHealthIntegrations: RequestHandler = async (req, res) => {
     };
     checks.push(stripePricesCheck);
 
-    // 7. Script generation URL check
-    const scriptGenCheck: HealthCheck = {
+    // 7. Script generation (Pipedream) reachability check
+    let scriptGenCheck: HealthCheck = {
       name: "script_generation",
-      ok: !!process.env.SCRIPT_GEN_URL,
-      message: process.env.SCRIPT_GEN_URL
-        ? "Configured"
-        : "Not configured (SCRIPT_GEN_URL missing)",
+      ok: false,
+      message: "Not configured",
     };
+
+    if (process.env.SCRIPT_GEN_URL && process.env.SCRIPT_GEN_TOKEN) {
+      try {
+        const service = getScriptGenService();
+        const isHealthy = await service.checkPipedrreamHealth();
+        scriptGenCheck = {
+          name: "script_generation",
+          ok: isHealthy,
+          message: isHealthy ? "Reachable" : "Unreachable",
+        };
+      } catch (error) {
+        scriptGenCheck = {
+          name: "script_generation",
+          ok: false,
+          message: `Health check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        };
+      }
+    } else {
+      scriptGenCheck = {
+        name: "script_generation",
+        ok: false,
+        message: `Missing: ${!process.env.SCRIPT_GEN_URL ? "SCRIPT_GEN_URL " : ""}${!process.env.SCRIPT_GEN_TOKEN ? "SCRIPT_GEN_TOKEN" : ""}`.trim(),
+      };
+    }
     checks.push(scriptGenCheck);
 
     // 6. Database tables check
