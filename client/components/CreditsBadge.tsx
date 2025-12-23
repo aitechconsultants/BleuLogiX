@@ -59,7 +59,7 @@ export default function CreditsBadge() {
         <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-border hover:border-accent-blue/50 transition-colors cursor-pointer">
           <Zap className="w-4 h-4 text-accent-blue" />
           <span className="text-sm font-medium">
-            {credits.current}/{credits.max}
+            {loading ? "..." : credits.current}
           </span>
         </div>
       </TooltipTrigger>
