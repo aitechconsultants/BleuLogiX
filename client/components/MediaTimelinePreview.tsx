@@ -207,6 +207,9 @@ export default function MediaTimelinePreview({
 
   return (
     <div className="space-y-6">
+      {/* Hidden audio element for voiceover playback */}
+      {audioUrl && <audio ref={audioRef} src={audioUrl} />}
+
       <div>
         <h3 className="font-display text-2xl font-bold text-foreground mb-6">
           Preview
