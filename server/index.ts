@@ -160,6 +160,13 @@ export function createServer() {
   app.get("/api/voices", handleGetVoices);
   app.get("/api/voices/:voiceId/preview", handleGetVoicePreview);
 
+  // Projects routes (protected)
+  app.get("/api/projects", requireClerkAuth, handleListProjects);
+  app.get("/api/projects/:projectId", requireClerkAuth, handleGetProject);
+  app.post("/api/projects", requireClerkAuth, handleCreateProject);
+  app.put("/api/projects/:projectId", requireClerkAuth, handleUpdateProject);
+  app.delete("/api/projects/:projectId", requireClerkAuth, handleDeleteProject);
+
   // Script generation proxy route (requires auth)
   app.post("/api/script/generate", requireClerkAuth, handleGenerateScript);
 
