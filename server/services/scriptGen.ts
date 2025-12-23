@@ -144,7 +144,10 @@ Output ONLY the script text, no additional explanation or metadata.`;
           timeoutPromise,
         ]);
       } catch (openaiError) {
-        const msg = openaiError instanceof Error ? openaiError.message : String(openaiError);
+        const msg =
+          openaiError instanceof Error
+            ? openaiError.message
+            : String(openaiError);
         throw new Error(`OpenAI API error: ${msg}`);
       }
 
