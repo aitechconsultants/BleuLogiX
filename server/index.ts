@@ -7,7 +7,7 @@ import { handleDemo } from "./routes/demo";
 import { requireClerkAuth } from "./clerk-auth";
 import { requireAdminAuth } from "./admin-auth";
 import { runRouteSelfTest, wrapRouter } from "./services/routeSelfTest";
-import { handleSync } from "./routes/auth";
+import { handleSync, handleAuthDebug } from "./routes/auth";
 
 import {
   handleCreateCheckoutSession,
