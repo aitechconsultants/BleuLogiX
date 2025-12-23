@@ -15,6 +15,9 @@ interface Voice {
   lang: string;
   gender: string;
   isPremium: boolean;
+  tone: string;
+  style: string;
+  useCase: string;
 }
 
 interface FormState {
