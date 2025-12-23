@@ -16,10 +16,7 @@ export class APIError extends Error {
 export function useApiFetch() {
   const { getToken } = useAuth();
 
-  return async (
-    path: string,
-    options: RequestInit & { body?: any } = {},
-  ) => {
+  return async (path: string, options: RequestInit & { body?: any } = {}) => {
     return apiFetchInternal(path, options, getToken);
   };
 }

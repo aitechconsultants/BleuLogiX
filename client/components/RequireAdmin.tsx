@@ -31,7 +31,9 @@ export default function RequireAdmin({ children }: RequireAdminProps) {
           setError("You do not have permission to access this page.");
         } else {
           setError(
-            err instanceof Error ? err.message : "Failed to verify admin status",
+            err instanceof Error
+              ? err.message
+              : "Failed to verify admin status",
           );
         }
         setIsAdmin(false);
@@ -59,7 +61,9 @@ export default function RequireAdmin({ children }: RequireAdminProps) {
       <Layout>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              Access Denied
+            </h1>
             <p className="text-muted-foreground">
               {error || "You do not have permission to access this page."}
             </p>

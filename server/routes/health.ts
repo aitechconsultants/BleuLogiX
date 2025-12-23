@@ -155,7 +155,8 @@ export const handleHealthIntegrations: RequestHandler = async (req, res) => {
       scriptGenCheck = {
         name: "script_generation",
         ok: false,
-        message: `Missing: ${!process.env.SCRIPT_GEN_URL ? "SCRIPT_GEN_URL " : ""}${!process.env.SCRIPT_GEN_TOKEN ? "SCRIPT_GEN_TOKEN" : ""}`.trim(),
+        message:
+          `Missing: ${!process.env.SCRIPT_GEN_URL ? "SCRIPT_GEN_URL " : ""}${!process.env.SCRIPT_GEN_TOKEN ? "SCRIPT_GEN_TOKEN" : ""}`.trim(),
       };
     }
     checks.push(scriptGenCheck);

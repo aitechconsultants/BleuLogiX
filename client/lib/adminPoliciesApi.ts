@@ -56,13 +56,10 @@ export async function updateWorkspaceOverride(
     Omit<WorkspacePolicyOverride, "workspace_id" | "updated_at">
   >,
 ): Promise<WorkspacePolicyOverride> {
-  const data = await apiFetch(
-    `/api/admin/workspace-overrides/${workspaceId}`,
-    {
-      method: "PUT",
-      body: updates,
-    },
-  );
+  const data = await apiFetch(`/api/admin/workspace-overrides/${workspaceId}`, {
+    method: "PUT",
+    body: updates,
+  });
   return data.override;
 }
 

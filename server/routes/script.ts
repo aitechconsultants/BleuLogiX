@@ -93,7 +93,9 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
     }
 
     if (!payload.videoTopic) {
-      return res.status(400).json({ error: "Missing required field: videoTopic" });
+      return res
+        .status(400)
+        .json({ error: "Missing required field: videoTopic" });
     }
 
     const sub = await getOrCreateSubscription(auth.clerkUserId);

@@ -121,7 +121,8 @@ export default function AdminAudit() {
         preview,
       });
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to test script generation";
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to test script generation";
       const status = err instanceof APIError ? err.status : undefined;
       setTestScriptError(errorMsg);
       setTestScriptResult({

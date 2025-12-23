@@ -27,7 +27,7 @@ export const handleSync: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to sync user",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to sync user",
@@ -76,7 +76,7 @@ export const handleAuthDebug: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Debug endpoint error",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       ok: false,

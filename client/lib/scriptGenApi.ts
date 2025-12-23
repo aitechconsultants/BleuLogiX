@@ -41,7 +41,10 @@ export function useScriptGenApi() {
         return response;
       } catch (error) {
         if (error instanceof APIError) {
-          if (error.status === 403 && error.data?.error === "upgrade_required") {
+          if (
+            error.status === 403 &&
+            error.data?.error === "upgrade_required"
+          ) {
             throw new Error(
               `Insufficient credits. ${error.data.message || "Please upgrade your plan."}`,
             );
