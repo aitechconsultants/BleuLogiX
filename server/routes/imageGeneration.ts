@@ -116,7 +116,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
 
 export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
-  const { script } = req.body;
+  const { script, episodes } = req.body;
 
   if (!script || typeof script !== "string" || script.trim().length === 0) {
     return res.status(400).json({
@@ -127,10 +127,13 @@ export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[imageGen] POST /api/images/extract-prompts - script length: ${script.length}, correlationId: ${correlationId}`,
+      `[imageGen] POST /api/images/extract-prompts - script length: ${script.length}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
     );
 
-    const prompts = await imageGenService.extractImagePromptsFromScript(script);
+    const prompts = await imageGenService.extractImagePromptsFromScript(
+      script,
+      episodes || [],
+    );
 
     console.log(
       `[imageGen] Extracted ${prompts.length} image prompts from script`,
