@@ -38,7 +38,7 @@ export const handleGetVoicePreview: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[voices] GET /api/voices/${voiceId}/preview - correlationId: ${correlationId}`
+      `[voices] GET /api/voices/${voiceId}/preview - correlationId: ${correlationId}`,
     );
 
     if (!voiceId) {
@@ -63,7 +63,7 @@ export const handleGetVoicePreview: RequestHandler = async (req, res) => {
       `Hello! This is a preview of the ${voice.name} voice. You can use this voice for your video narration.`;
 
     console.log(
-      `[voices] Generating preview for voice: ${voiceId} (${voice.name})`
+      `[voices] Generating preview for voice: ${voiceId} (${voice.name})`,
     );
     const audioBuffer = await voiceService.generateVoicePreview(
       voiceId,
@@ -71,7 +71,7 @@ export const handleGetVoicePreview: RequestHandler = async (req, res) => {
     );
 
     console.log(
-      `[voices] Sending audio preview, size: ${audioBuffer.length} bytes`
+      `[voices] Sending audio preview, size: ${audioBuffer.length} bytes`,
     );
     res.setHeader("Content-Type", "audio/mpeg");
     res.setHeader(

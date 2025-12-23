@@ -69,10 +69,7 @@ export default function VideoGeneratorCreate() {
         setVoicesError(null);
       } catch (error) {
         console.error("Error fetching voices:", error);
-        if (
-          error instanceof Error &&
-          error.name === "AbortError"
-        ) {
+        if (error instanceof Error && error.name === "AbortError") {
           setVoicesError("Voice loading timed out. Please try again.");
         } else {
           setVoicesError(
@@ -154,10 +151,10 @@ export default function VideoGeneratorCreate() {
         console.error(
           "Failed to get voice preview:",
           response.statusText,
-          errorData
+          errorData,
         );
         alert(
-          `Failed to play voice: ${errorData.error || response.statusText}`
+          `Failed to play voice: ${errorData.error || response.statusText}`,
         );
         return;
       }
@@ -187,7 +184,7 @@ export default function VideoGeneratorCreate() {
         alert("Voice preview request timed out");
       } else {
         alert(
-          `Error playing voice: ${error instanceof Error ? error.message : "Unknown error"}`
+          `Error playing voice: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }

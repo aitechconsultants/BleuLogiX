@@ -135,7 +135,10 @@ export class VoiceService {
         console.log("[VoiceService] OpenAI client initialized");
       }
     } catch (error) {
-      console.error("[VoiceService] Failed to initialize OpenAI client:", error);
+      console.error(
+        "[VoiceService] Failed to initialize OpenAI client:",
+        error,
+      );
       this.openai = null;
     }
 
@@ -153,7 +156,7 @@ export class VoiceService {
   async generateVoicePreview(voiceId: string, text: string): Promise<Buffer> {
     if (!this.openai) {
       throw new Error(
-        "OpenAI client not available. OPENAI_API_KEY may not be configured."
+        "OpenAI client not available. OPENAI_API_KEY may not be configured.",
       );
     }
 
@@ -166,7 +169,7 @@ export class VoiceService {
 
     try {
       console.log(
-        `[VoiceService] Generating preview for voice ${voiceId} (${voice.name})`
+        `[VoiceService] Generating preview for voice ${voiceId} (${voice.name})`,
       );
 
       const response = await this.openai.audio.speech.create({
@@ -186,7 +189,7 @@ export class VoiceService {
       const buffer = Buffer.from(arrayBuf);
 
       console.log(
-        `[VoiceService] Generated preview for voice ${voiceId}, size: ${buffer.length} bytes`
+        `[VoiceService] Generated preview for voice ${voiceId}, size: ${buffer.length} bytes`,
       );
       return buffer;
     } catch (error) {
@@ -194,7 +197,7 @@ export class VoiceService {
         error instanceof Error ? error.message : String(error);
       console.error(
         `[VoiceService] Failed to generate preview for voice ${voiceId}:`,
-        errorMessage
+        errorMessage,
       );
       throw new Error(`Failed to generate voice preview: ${errorMessage}`);
     }
