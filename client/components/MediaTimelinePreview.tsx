@@ -64,6 +64,53 @@ export default function MediaTimelinePreview({
     0,
   );
 
+  // Generate audio from selected voice and script
+  useEffect(() => {
+    const generateAudio = async () => {
+      if (!script.trim() || !selectedVoiceId) {
+        setAudioUrl(null);
+        return;
+      }
+
+      setIsGeneratingAudio(true);
+      try {
+        const response = await fetch("/api/text-to-speech", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: script,
+            voiceId: selectedVoiceId,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error("Failed to generate audio:", response.status);
+          setAudioUrl(null);
+          return;
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+      } catch (error) {
+        console.error("Error generating audio:", error);
+        setAudioUrl(null);
+      } finally {
+        setIsGeneratingAudio(false);
+      }
+    };
+
+    generateAudio();
+
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [script, selectedVoiceId]);
+
   // Auto-advance through media during playback
   useEffect(() => {
     if (!isPlaying) return;
