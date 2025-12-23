@@ -401,7 +401,10 @@ export default function SeriesEpisodesSelector({
               </div>
               <textarea
                 value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
+                onChange={(e) => {
+                  setAiPrompt(e.target.value);
+                  setHasUserEditedPrompt(true);
+                }}
                 placeholder={
                   defaultPrompt
                     ? "Your video topic will be used as the default. Edit or replace it here if needed."
