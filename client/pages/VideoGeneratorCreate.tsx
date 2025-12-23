@@ -552,30 +552,90 @@ export default function VideoGeneratorCreate() {
       case 5:
         return (
           <div className="space-y-12">
+            {/* AI Image Generation */}
             <div>
               <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-                Upload Media
+                Generate Images with AI
+              </h3>
+              <AIMediaGenerator
+                script={formState.script}
+                onMediaSelected={(media) => {
+                  const newMediaFiles = [
+                    ...formState.mediaFiles,
+                    {
+                      id: media.id,
+                      name: media.name,
+                      url: media.url,
+                    },
+                  ];
+                  setFormState({
+                    ...formState,
+                    mediaFiles: newMediaFiles,
+                  });
+                }}
+              />
+            </div>
+
+            {/* Manual Upload */}
+            <div className="border-t border-border pt-12">
+              <h3 className="font-display text-2xl font-bold text-foreground mb-6">
+                Or Upload Your Own Media
               </h3>
               <MediaUploader
                 onFilesSelected={(files) =>
                   setFormState({
                     ...formState,
-                    mediaFiles: files,
+                    mediaFiles: [
+                      ...formState.mediaFiles,
+                      ...files.map((f) => ({ ...f, url: undefined })),
+                    ],
                   })
                 }
               />
             </div>
 
-            <div className="border-t border-border pt-12">
-              <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-                Or Browse Stock Media
-              </h3>
-              <StockMediaBrowser
-                onMediaSelected={(media) =>
-                  console.log("Selected media:", media)
-                }
-              />
-            </div>
+            {/* Selected Media */}
+            {formState.mediaFiles.length > 0 && (
+              <div className="border-t border-border pt-12">
+                <h3 className="font-display text-2xl font-bold text-foreground mb-6">
+                  Selected Media ({formState.mediaFiles.length})
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {formState.mediaFiles.map((media, idx) => (
+                    <div
+                      key={media.id}
+                      className="relative group rounded-lg overflow-hidden bg-muted border border-border p-3"
+                    >
+                      {media.url && (
+                        <img
+                          src={media.url}
+                          alt={media.name}
+                          className="w-full aspect-square object-cover rounded mb-2"
+                        />
+                      )}
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {media.name}
+                      </p>
+                      <button
+                        onClick={() => {
+                          const filtered = formState.mediaFiles.filter(
+                            (_, i) => i !== idx,
+                          );
+                          setFormState({
+                            ...formState,
+                            mediaFiles: filtered,
+                          });
+                        }}
+                        className="absolute top-2 right-2 p-2 rounded-lg bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove media"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 
