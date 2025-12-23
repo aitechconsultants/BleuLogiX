@@ -31,7 +31,7 @@ class ScriptGenService {
 
   constructor() {
     this.openaiApiKey = process.env.OPENAI_API_KEY || "";
-    this.openaiModel = process.env.SCRIPT_GEN_MODEL || "gpt-4-mini";
+    this.openaiModel = process.env.SCRIPT_GEN_MODEL || "gpt-4o";
     this.maxTokens = parseInt(process.env.SCRIPT_GEN_MAX_TOKENS || "1200", 10);
     this.timeoutMs = parseInt(process.env.SCRIPT_GEN_TIMEOUT_MS || "45000", 10);
     this.enableMock =
