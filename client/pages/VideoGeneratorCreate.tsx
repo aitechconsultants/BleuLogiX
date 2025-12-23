@@ -311,13 +311,59 @@ export default function VideoGeneratorCreate() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setIsExporting(true);
-    setTimeout(() => {
-      setIsExporting(false);
-      alert("Video exported successfully!");
+    try {
+      // Since there's no actual video generation yet, we'll return a sample file
+      // In production, this would use a real generationId from an actual generation
+
+      // For now, create a placeholder response
+      const mockGenerationId = `gen-${Date.now()}`;
+      const mockQuality = "watermarked"; // Free users get watermarked
+
+      // Call the download API
+      const response = await fetch("/api/generator/download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          generationId: mockGenerationId,
+          quality: mockQuality,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to download video");
+      }
+
+      const data = await response.json();
+
+      // Trigger browser download with the URL from the API
+      // Since the backend returns a fake URL, we'll create a blob with sample content
+      const videoBlob = new Blob(["Sample video content"], { type: "video/mp4" });
+      const downloadUrl = URL.createObjectURL(videoBlob);
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `${formState.script.slice(0, 30).replace(/\s+/g, "-") || "video"}-${Date.now()}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+
       setShowExportModal(false);
-    }, 2000);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert(
+        error instanceof Error
+          ? `Export failed: ${error.message}`
+          : "Export failed. Please try again."
+      );
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const renderStep = () => {
