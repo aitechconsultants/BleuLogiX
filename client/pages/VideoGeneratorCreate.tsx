@@ -53,18 +53,32 @@ export default function VideoGeneratorCreate() {
     const fetchVoices = async () => {
       try {
         setVoicesLoading(true);
-        const response = await fetch("/api/voices");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch("/api/voices", {
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
-          throw new Error("Failed to fetch voices");
+          throw new Error(`Failed to fetch voices: ${response.status}`);
         }
         const data = await response.json();
         setVoices(data.voices || []);
         setVoicesError(null);
       } catch (error) {
         console.error("Error fetching voices:", error);
-        setVoicesError(
-          error instanceof Error ? error.message : "Failed to fetch voices",
-        );
+        if (
+          error instanceof Error &&
+          error.name === "AbortError"
+        ) {
+          setVoicesError("Voice loading timed out. Please try again.");
+        } else {
+          setVoicesError(
+            error instanceof Error ? error.message : "Failed to fetch voices",
+          );
+        }
       } finally {
         setVoicesLoading(false);
       }
@@ -126,20 +140,56 @@ export default function VideoGeneratorCreate() {
 
   const playVoicePreview = async (voiceId: string) => {
     try {
-      const response = await fetch(`/api/voices/${voiceId}/preview`);
+      console.log(`Playing voice preview for ${voiceId}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(`/api/voices/${voiceId}/preview`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        console.error("Failed to get voice preview:", response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error(
+          "Failed to get voice preview:",
+          response.statusText,
+          errorData
+        );
+        alert(
+          `Failed to play voice: ${errorData.error || response.statusText}`
+        );
         return;
       }
 
       const audioBlob = await response.blob();
+      console.log(`Voice preview blob size: ${audioBlob.size} bytes`);
+
+      if (audioBlob.size === 0) {
+        alert("Voice preview is empty");
+        return;
+      }
+
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      audio.play().catch((error) => {
-        console.error("Failed to play audio:", error);
-      });
+      audio
+        .play()
+        .then(() => {
+          console.log("Voice preview playing");
+        })
+        .catch((error) => {
+          console.error("Failed to play audio:", error);
+          alert(`Failed to play audio: ${error.message}`);
+        });
     } catch (error) {
       console.error("Error playing voice preview:", error);
+      if (error instanceof Error && error.name === "AbortError") {
+        alert("Voice preview request timed out");
+      } else {
+        alert(
+          `Error playing voice: ${error instanceof Error ? error.message : "Unknown error"}`
+        );
+      }
     }
   };
 
