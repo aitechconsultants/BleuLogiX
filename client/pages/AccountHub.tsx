@@ -105,17 +105,10 @@ export default function AccountHub() {
   const handleAddAccount = async (platform: string, username: string) => {
     setIsAddingAccount(true);
     try {
-      const response = await fetch("/api/social-accounts", {
+      await apiFetch("/api/social-accounts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platform, username }),
+        body: { platform, username },
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to add account");
-      }
-
       toast.success(`@${username} added successfully`);
       await fetchAccounts();
     } catch (err) {
@@ -132,17 +125,9 @@ export default function AccountHub() {
   const handleRefreshAccount = async (accountId: string) => {
     setRefreshingId(accountId);
     try {
-      const response = await fetch(
-        `/api/social-accounts/${accountId}/refresh`,
-        {
-          method: "POST",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to refresh account");
-      }
-
+      await apiFetch(`/api/social-accounts/${accountId}/refresh`, {
+        method: "POST",
+      });
       toast.success("Account refreshed");
       await fetchAccounts();
     } catch (err) {
@@ -156,14 +141,9 @@ export default function AccountHub() {
   // Remove account
   const handleRemoveAccount = async (accountId: string) => {
     try {
-      const response = await fetch(`/api/social-accounts/${accountId}`, {
+      await apiFetch(`/api/social-accounts/${accountId}`, {
         method: "DELETE",
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to remove account");
-      }
-
       toast.success("Account removed");
       await fetchAccounts();
     } catch (err) {
