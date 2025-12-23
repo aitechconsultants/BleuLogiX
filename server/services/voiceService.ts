@@ -152,7 +152,9 @@ export class VoiceService {
 
   async generateVoicePreview(voiceId: string, text: string): Promise<Buffer> {
     if (!this.openai) {
-      throw new Error("OpenAI client not available. OPENAI_API_KEY may not be configured.");
+      throw new Error(
+        "OpenAI client not available. OPENAI_API_KEY may not be configured."
+      );
     }
 
     const voice = this.getVoiceById(voiceId);
@@ -179,20 +181,9 @@ export class VoiceService {
         input: text || `This is a preview of the ${voice.name} voice.`,
       });
 
-      let buffer: Buffer;
-
-      if (Buffer.isBuffer(response)) {
-        buffer = response;
-      } else if (response instanceof ArrayBuffer) {
-        buffer = Buffer.from(response);
-      } else if (typeof response.arrayBuffer === "function") {
-        const arrayBuf = await response.arrayBuffer();
-        buffer = Buffer.from(arrayBuf);
-      } else if (typeof response === "string") {
-        buffer = Buffer.from(response, "utf-8");
-      } else {
-        buffer = Buffer.from(JSON.stringify(response));
-      }
+      // Convert the response to a buffer
+      const arrayBuf = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuf);
 
       console.log(
         `[VoiceService] Generated preview for voice ${voiceId}, size: ${buffer.length} bytes`
@@ -205,9 +196,7 @@ export class VoiceService {
         `[VoiceService] Failed to generate preview for voice ${voiceId}:`,
         errorMessage
       );
-      throw new Error(
-        `Failed to generate voice preview: ${errorMessage}`
-      );
+      throw new Error(`Failed to generate voice preview: ${errorMessage}`);
     }
   }
 }
