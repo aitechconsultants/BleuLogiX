@@ -88,6 +88,9 @@ async function bootstrap() {
     console.log("[DB] DATABASE_URL missing, skipping init");
   }
 
+  // Expose DB readiness to routes via app.locals
+  app.locals.dbReady = dbReady;
+
   // ---------------------------------------------
   // Start server
   // ---------------------------------------------
