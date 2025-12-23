@@ -16,6 +16,7 @@ interface AIMediaGeneratorProps {
 
 export default function AIMediaGenerator({
   script,
+  episodes = [],
   onMediaSelected,
 }: AIMediaGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -41,7 +42,7 @@ export default function AIMediaGenerator({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ script }),
+        body: JSON.stringify({ script, episodes }),
       });
 
       if (!response.ok) {
