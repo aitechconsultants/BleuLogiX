@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ScriptPanel from "@/components/ScriptPanel";
 import StyleCard from "@/components/StyleCard";
 import VoiceCard from "@/components/VoiceCard";
@@ -8,6 +8,14 @@ import StockMediaBrowser from "@/components/StockMediaBrowser";
 import PreviewPlayer from "@/components/PreviewPlayer";
 import ExportConfirmationModal from "@/components/ExportConfirmationModal";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+
+interface Voice {
+  id: string;
+  name: string;
+  lang: string;
+  gender: string;
+  isPremium: boolean;
+}
 
 interface FormState {
   resolution: "vertical" | "square" | "horizontal";
