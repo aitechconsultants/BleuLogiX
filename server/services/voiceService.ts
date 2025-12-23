@@ -179,7 +179,21 @@ export class VoiceService {
         input: text || `This is a preview of the ${voice.name} voice.`,
       });
 
-      const buffer = Buffer.from(await response.arrayBuffer());
+      let buffer: Buffer;
+
+      if (Buffer.isBuffer(response)) {
+        buffer = response;
+      } else if (response instanceof ArrayBuffer) {
+        buffer = Buffer.from(response);
+      } else if (typeof response.arrayBuffer === "function") {
+        const arrayBuf = await response.arrayBuffer();
+        buffer = Buffer.from(arrayBuf);
+      } else if (typeof response === "string") {
+        buffer = Buffer.from(response, "utf-8");
+      } else {
+        buffer = Buffer.from(JSON.stringify(response));
+      }
+
       console.log(
         `[VoiceService] Generated preview for voice ${voiceId}, size: ${buffer.length} bytes`
       );
