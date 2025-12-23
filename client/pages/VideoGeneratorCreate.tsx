@@ -30,7 +30,7 @@ interface FormState {
   captionsEnabled: boolean;
   captionStyle: string;
   captionColor: string;
-  mediaFiles: Array<{ id: string; name: string }>;
+  mediaFiles: Array<{ id: string; name: string; url?: string }>;
 }
 
 interface Project {
