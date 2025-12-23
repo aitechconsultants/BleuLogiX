@@ -140,29 +140,23 @@ export default function AdminAudit() {
       try {
         setLoading(true);
         setError(null);
-        const token = await getToken();
-
-        if (!token) {
-          setError("Not authenticated");
-          return;
-        }
 
         // Fetch integrations
-        const intRes = await fetch("/api/health/integrations", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (intRes.ok) {
-          setIntegrations(await intRes.json());
-        } else {
+        try {
+          const data = await apiFetch("/api/health/integrations");
+          setIntegrations(data);
+        } catch (err) {
           setError(
-            `Failed to fetch integrations: ${intRes.status} ${intRes.statusText}`,
+            err instanceof Error ? err.message : "Failed to fetch integrations",
           );
         }
 
         // Fetch routes
-        const routesRes = await fetch("/api/health/routes");
-        if (routesRes.ok) {
-          setRoutes(await routesRes.json());
+        try {
+          const data = await apiFetch("/api/health/routes");
+          setRoutes(data);
+        } catch {
+          // Routes endpoint is optional
         }
 
         // Audit links from navigation
@@ -176,7 +170,7 @@ export default function AdminAudit() {
 
         const auditedLinks = navLinks.map((link) => ({
           ...link,
-          found: true, // We'll mark as found if the route exists in our routes config
+          found: true,
         }));
         setLinkAudit(auditedLinks);
 
@@ -185,54 +179,56 @@ export default function AdminAudit() {
 
         // Health endpoint
         try {
-          const healthRes = await fetch("/api/health");
+          await apiFetch("/api/health");
           apiEndpoints.push({
             endpoint: "GET /api/health",
-            ok: healthRes.ok,
-            status: healthRes.status,
-            message: healthRes.ok ? "OK" : `HTTP ${healthRes.status}`,
+            ok: true,
+            status: 200,
+            message: "OK",
           });
         } catch (err) {
+          const status = err instanceof APIError ? err.status : undefined;
           apiEndpoints.push({
             endpoint: "GET /api/health",
             ok: false,
+            status,
             message: err instanceof Error ? err.message : "Failed",
           });
         }
 
         // Generator endpoints
         try {
-          const meRes = await fetch("/api/generator/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await apiFetch("/api/generator/me");
           apiEndpoints.push({
             endpoint: "GET /api/generator/me",
-            ok: meRes.ok,
-            status: meRes.status,
-            message: meRes.ok ? "OK" : `HTTP ${meRes.status}`,
+            ok: true,
+            status: 200,
+            message: "OK",
           });
         } catch (err) {
+          const status = err instanceof APIError ? err.status : undefined;
           apiEndpoints.push({
             endpoint: "GET /api/generator/me",
             ok: false,
+            status,
             message: err instanceof Error ? err.message : "Failed",
           });
         }
 
         try {
-          const histRes = await fetch("/api/generator/history", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await apiFetch("/api/generator/history");
           apiEndpoints.push({
             endpoint: "GET /api/generator/history",
-            ok: histRes.ok,
-            status: histRes.status,
-            message: histRes.ok ? "OK" : `HTTP ${histRes.status}`,
+            ok: true,
+            status: 200,
+            message: "OK",
           });
         } catch (err) {
+          const status = err instanceof APIError ? err.status : undefined;
           apiEndpoints.push({
             endpoint: "GET /api/generator/history",
             ok: false,
+            status,
             message: err instanceof Error ? err.message : "Failed",
           });
         }
@@ -248,7 +244,7 @@ export default function AdminAudit() {
     };
 
     loadData();
-  }, [getToken]);
+  }, [apiFetch]);
 
   const copyReport = () => {
     const report = {
