@@ -1,4 +1,4 @@
-import { query, queryOne } from "./db";
+import { query, queryOne, queryAll } from "./db";
 
 export interface User {
   id: string;
