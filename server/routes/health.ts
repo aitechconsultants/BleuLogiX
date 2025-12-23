@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { queryOne } from "../db";
+import { queryOne, parseDatabaseUrl } from "../db";
 import { logError } from "../logging";
 import { getScriptGenService } from "../services/scriptGen";
 
