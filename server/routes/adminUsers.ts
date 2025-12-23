@@ -177,3 +177,69 @@ export const handleClearPlanOverride: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Grant credits to a user (admin only)
+export const handleGrantCredits: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
+  try {
+    const { userId, amount, reason } = req.body;
+
+    if (!userId || !amount) {
+      return res.status(400).json({
+        error: "userId and amount are required",
+        correlationId,
+      });
+    }
+
+    if (typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({
+        error: "amount must be a positive number",
+        correlationId,
+      });
+    }
+
+    // Verify user exists
+    const user = await queryOne<{ id: string; clerk_user_id: string }>(
+      "SELECT id, clerk_user_id FROM users WHERE id = $1",
+      [userId],
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+        correlationId,
+      });
+    }
+
+    // Add credits to ledger
+    await query(
+      `INSERT INTO credit_ledger (user_id, delta, reason)
+       VALUES ($1, $2, $3)`,
+      [userId, amount, reason || "Admin grant"],
+    );
+
+    // Get updated balance
+    const result = await queryOne<{ total: number }>(
+      `SELECT COALESCE(SUM(delta), 0) as total FROM credit_ledger WHERE user_id = $1`,
+      [userId],
+    );
+
+    return res.json({
+      user_id: userId,
+      amount_granted: amount,
+      new_balance: result?.total ?? 0,
+      correlationId,
+    });
+  } catch (error) {
+    logError(
+      { correlationId },
+      "Failed to grant credits",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return res.status(500).json({
+      error: "Failed to grant credits",
+      correlationId,
+    });
+  }
+};
