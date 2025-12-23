@@ -130,10 +130,11 @@ export const handleGetProject: RequestHandler = async (req, res) => {
 
 export const handleCreateProject: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
-  const userId = (req as any).userId;
+  const auth = (req as any).auth;
+  const clerkUserId = auth?.clerkUserId;
   const { name, formState } = req.body;
 
-  if (!userId) {
+  if (!clerkUserId) {
     return res.status(401).json({
       error: "Unauthorized",
       correlationId,
@@ -156,8 +157,11 @@ export const handleCreateProject: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[projects] POST /api/projects - userId: ${userId}, name: ${name}, correlationId: ${correlationId}`,
+      `[projects] POST /api/projects - clerkUserId: ${clerkUserId}, name: ${name}, correlationId: ${correlationId}`,
     );
+
+    const user = await upsertUser(clerkUserId, auth?.email);
+    const userId = user.id;
 
     const result = await queryOne<VideoProject>(
       `INSERT INTO video_projects (user_id, name, form_state, created_at, updated_at)
@@ -166,7 +170,7 @@ export const handleCreateProject: RequestHandler = async (req, res) => {
       [userId, name.trim(), formState],
     );
 
-    console.log(`[projects] Created project ${result?.id} for user ${userId}`);
+    console.log(`[projects] Created project ${result?.id} for user ${clerkUserId}`);
 
     res.status(201).json(result);
   } catch (error) {
