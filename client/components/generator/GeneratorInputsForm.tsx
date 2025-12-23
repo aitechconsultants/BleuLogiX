@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { Wand2 } from "lucide-react";
+import { useApiFetch } from "@/lib/api";
 
 interface GeneratorInputsFormProps {
   scriptText: string;
