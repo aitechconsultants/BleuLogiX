@@ -682,18 +682,17 @@ export default function VideoGeneratorCreate() {
                   script={formState.script}
                   episodes={formState.selectedEpisodes}
                   onMediaSelected={(media) => {
-                    const newMediaFiles = [
-                      ...formState.mediaFiles,
-                      {
-                        id: media.id,
-                        name: media.name,
-                        url: media.url,
-                      },
-                    ];
-                    setFormState({
-                      ...formState,
-                      mediaFiles: newMediaFiles,
-                    });
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      mediaFiles: [
+                        ...prevState.mediaFiles,
+                        {
+                          id: media.id,
+                          name: media.name,
+                          url: media.url,
+                        },
+                      ],
+                    }));
                   }}
                 />
               </div>
