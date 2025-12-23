@@ -225,12 +225,12 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
       });
     }
 
-    // Return more detailed error for debugging
+    // Return detailed error for debugging
     res.status(500).json({
       ok: false,
       success: false,
       error: "Internal server error",
-      details: process.env.NODE_ENV === "production" ? undefined : errorMsg,
+      details: errorMsg,
       correlationId,
     });
   }
