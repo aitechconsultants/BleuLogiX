@@ -370,7 +370,7 @@ export default function VideoGeneratorCreate() {
                 </div>
               )}
               {!voicesLoading && !voicesError && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   {voices.map((voice) => (
                     <VoiceCard
                       key={voice.id}
@@ -379,6 +379,9 @@ export default function VideoGeneratorCreate() {
                       gender={voice.gender}
                       language={voice.lang}
                       tier={voice.isPremium ? "pro" : "free"}
+                      tone={voice.tone}
+                      style={voice.style}
+                      useCase={voice.useCase}
                       isSelected={formState.selectedVoice === voice.id}
                       onSelect={(id) =>
                         setFormState({
