@@ -669,9 +669,11 @@ export default function VideoGeneratorCreate() {
               <div className="p-3 rounded-lg bg-muted/30">
                 <p className="text-muted-foreground text-xs">Format</p>
                 <p className="font-semibold text-foreground">
-                  {formState.resolution === "portrait"
+                  {formState.resolution === "vertical"
                     ? "1080 x 1920"
-                    : "1080 x 1080"}
+                    : formState.resolution === "square"
+                      ? "1080 x 1080"
+                      : "1920 x 1080"}
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-muted/30">
