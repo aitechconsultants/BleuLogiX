@@ -293,26 +293,38 @@ export default function VideoGeneratorCreate() {
               <h3 className="font-display text-2xl font-bold text-foreground mb-6">
                 Select Voice
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {voices.map((voice) => (
-                  <VoiceCard
-                    key={voice.id}
-                    id={voice.id}
-                    name={voice.name}
-                    gender={voice.gender}
-                    language={voice.language}
-                    tier={voice.tier}
-                    isSelected={formState.selectedVoice === voice.id}
-                    onSelect={(id) =>
-                      setFormState({
-                        ...formState,
-                        selectedVoice: id,
-                      })
-                    }
-                    onPlay={(id) => console.log("Play voice:", id)}
-                  />
-                ))}
-              </div>
+              {voicesLoading && (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading voices...</p>
+                </div>
+              )}
+              {voicesError && (
+                <div className="text-center py-8">
+                  <p className="text-red-500">Error: {voicesError}</p>
+                </div>
+              )}
+              {!voicesLoading && !voicesError && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {voices.map((voice) => (
+                    <VoiceCard
+                      key={voice.id}
+                      id={voice.id}
+                      name={voice.name}
+                      gender={voice.gender}
+                      language={voice.lang}
+                      tier={voice.isPremium ? "pro" : "free"}
+                      isSelected={formState.selectedVoice === voice.id}
+                      onSelect={(id) =>
+                        setFormState({
+                          ...formState,
+                          selectedVoice: id,
+                        })
+                      }
+                      onPlay={(id) => playVoicePreview(id)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Caption Settings */}
