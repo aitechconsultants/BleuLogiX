@@ -138,6 +138,9 @@ export function createServer() {
     handleHealthIntegrations,
   );
 
+  // Database health endpoint (protected by requireAdminAuth or ADMIN_TOKEN param)
+  app.get("/api/health/db", requireClerkAuth, handleHealthDB);
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
