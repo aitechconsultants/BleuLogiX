@@ -71,6 +71,17 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
 
   try {
+    // Check DB readiness before any database operations
+    const dbReady = (req.app?.locals?.dbReady ?? false) as boolean;
+    if (!dbReady) {
+      return res.status(503).json({
+        ok: false,
+        success: false,
+        error: "Database unavailable",
+        correlationId,
+      });
+    }
+
     const auth = (req as any).auth;
     if (!auth || !auth.clerkUserId) {
       return res.status(401).json({
@@ -142,23 +153,26 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
 
+    // Log only correlationId and error code, never auth tokens or request body
     logError(
       { correlationId },
-      "Script generation request failed",
-      error instanceof Error ? error : new Error(errorMsg),
+      `Script generation failed: ${errorMsg.substring(0, 100)}`,
     );
 
     if (errorMsg.includes("timeout")) {
       return res.status(504).json({
         ok: false,
+        success: false,
         error: "timeout",
         correlationId,
       });
     }
 
+    // Default to 500 on uncaught errors
     res.status(500).json({
       ok: false,
-      error: "generation_failed",
+      success: false,
+      error: "Internal server error",
       correlationId,
     });
   }
