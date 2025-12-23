@@ -32,10 +32,7 @@ class ScriptGenService {
   constructor() {
     this.openaiApiKey = process.env.OPENAI_API_KEY || "";
     this.openaiModel = process.env.SCRIPT_GEN_MODEL || "gpt-4-mini";
-    this.maxTokens = parseInt(
-      process.env.SCRIPT_GEN_MAX_TOKENS || "1200",
-      10,
-    );
+    this.maxTokens = parseInt(process.env.SCRIPT_GEN_MAX_TOKENS || "1200", 10);
     this.timeoutMs = parseInt(process.env.SCRIPT_GEN_TIMEOUT_MS || "45000", 10);
     this.enableMock =
       (process.env.SCRIPT_GEN_ENABLE_MOCK || "").toLowerCase() === "true";
@@ -145,12 +142,9 @@ Output ONLY the script text, no additional explanation or metadata.`;
         timeoutPromise,
       ]);
 
-      const scriptText =
-        chatCompletion.choices[0]?.message?.content || "";
+      const scriptText = chatCompletion.choices[0]?.message?.content || "";
       if (!scriptText) {
-        throw new Error(
-          "OpenAI returned empty response",
-        );
+        throw new Error("OpenAI returned empty response");
       }
 
       const tokensIn = chatCompletion.usage?.prompt_tokens || 0;
