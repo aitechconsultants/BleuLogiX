@@ -197,6 +197,13 @@ export function createServer() {
     handleDeleteWorkspaceOverride,
   );
 
+  // Bootstrap endpoint - set current user as admin (requires Clerk auth only)
+  app.post(
+    "/api/admin/bootstrap",
+    requireClerkAuth,
+    handleBootstrapAdmin,
+  );
+
   // Admin users routes (admin only)
   app.get(
     "/api/admin/users",
