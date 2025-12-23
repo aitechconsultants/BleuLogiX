@@ -244,6 +244,78 @@ export const handleGrantCredits: RequestHandler = async (req, res) => {
   }
 };
 
+// One-time setup endpoint - promote to admin and grant initial credits (requires Clerk auth only)
+export const handleInitialSetup: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
+  try {
+    const clerkUserId = (req as any).auth?.clerkUserId;
+
+    if (!clerkUserId) {
+      return res.status(401).json({
+        error: "Not authenticated",
+        correlationId,
+      });
+    }
+
+    // Get user
+    let user = await queryOne<{ id: string; role: string }>(
+      "SELECT id, role FROM users WHERE clerk_user_id = $1",
+      [clerkUserId],
+    );
+
+    if (!user) {
+      // Create user as admin
+      const createResult = await query<{ id: string }>(
+        "INSERT INTO users (clerk_user_id, role) VALUES ($1, $2) RETURNING id",
+        [clerkUserId, "admin"],
+      );
+      user = createResult.rows[0]!;
+    } else if (user.role !== "admin" && user.role !== "superadmin") {
+      // Update existing user to admin
+      const updateResult = await query<{ id: string }>(
+        "UPDATE users SET role = $1 WHERE id = $2 RETURNING id",
+        ["admin", user.id],
+      );
+      user = updateResult.rows[0]!;
+    }
+
+    // Grant initial credits
+    const initialCredits = 5000;
+    await query(
+      "INSERT INTO credit_ledger (user_id, delta, reason) VALUES ($1, $2, $3)",
+      [user.id, initialCredits, "Initial setup grant"],
+    );
+
+    // Get updated balance
+    const balanceResult = await queryOne<{ total: number }>(
+      "SELECT COALESCE(SUM(delta), 0) as total FROM credit_ledger WHERE user_id = $1",
+      [user.id],
+    );
+
+    return res.json({
+      success: true,
+      clerk_user_id: clerkUserId,
+      user_id: user.id,
+      new_role: "admin",
+      initial_credits_granted: initialCredits,
+      total_credits: balanceResult?.total ?? 0,
+      correlationId,
+    });
+  } catch (error) {
+    logError(
+      { correlationId },
+      "Failed initial setup",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return res.status(500).json({
+      error: "Failed to complete setup",
+      details: error instanceof Error ? error.message : String(error),
+      correlationId,
+    });
+  }
+};
+
 // Debug endpoint - check current user's state (requires auth)
 export const handleUserDebugInfo: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
