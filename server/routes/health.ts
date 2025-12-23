@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { queryOne } from "../db";
 import { logError } from "../logging";
+import { getScriptGenService } from "../services/scriptGen";
 
 const APP_START_TIME = Date.now();
 
