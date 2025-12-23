@@ -240,3 +240,89 @@ export const handleHealthIntegrations: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * GET /api/health/db
+ * Protected endpoint for database diagnostics.
+ * Gated by ADMIN_TOKEN query param or requireAdminAuth.
+ */
+export const handleHealthDB: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || `health-db-${Date.now()}`;
+  const adminToken = process.env.ADMIN_TOKEN;
+  const adminTokenParam = req.query.adminToken;
+
+  // Check authorization: either valid ADMIN_TOKEN param or admin user (via requireAdminAuth)
+  const hasAdminAuth = (req as any).user && ((req as any).user.role === "admin" || (req as any).user.role === "superadmin");
+  const hasAdminToken = adminToken && adminToken === adminTokenParam;
+
+  if (!hasAdminAuth && !hasAdminToken) {
+    return res.status(403).json({
+      ok: false,
+      error: "Forbidden - admin access required",
+      correlationId,
+    });
+  }
+
+  try {
+    const dbUrl = process.env.DATABASE_URL;
+    const dbInfo = parseDatabaseUrl();
+
+    // If DATABASE_URL is set but parsing failed
+    if (dbUrl && !dbInfo) {
+      return res.status(500).json({
+        ok: false,
+        parseError: true,
+        error: "Failed to parse DATABASE_URL",
+        hasDatabaseUrl: true,
+        correlationId,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // If no DATABASE_URL at all
+    if (!dbUrl) {
+      return res.status(503).json({
+        ok: false,
+        hasDatabaseUrl: false,
+        error: "DATABASE_URL not configured",
+        correlationId,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Try to connect and verify
+    let dbHealthy = false;
+    let connectionError: string | null = null;
+
+    try {
+      await queryOne("SELECT 1");
+      dbHealthy = true;
+    } catch (error) {
+      connectionError =
+        error instanceof Error ? error.message : "Unknown error";
+    }
+
+    res.status(dbHealthy ? 200 : 503).json({
+      ok: dbHealthy,
+      hasDatabaseUrl: true,
+      dbHost: dbInfo?.host || "unknown",
+      dbName: dbInfo?.dbName || "unknown",
+      dbSslMode: dbInfo?.sslMode || "unknown",
+      connectionError: connectionError || undefined,
+      timestamp: new Date().toISOString(),
+      correlationId,
+    });
+  } catch (error) {
+    logError(
+      { correlationId },
+      "DB health check failed",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    res.status(500).json({
+      ok: false,
+      error: "Internal server error",
+      correlationId,
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
