@@ -55,6 +55,7 @@ import {
   handleClearPlanOverride,
   handleGrantCredits,
   handleGrantCreditsToSelf,
+  handleBootstrapAdmin,
 } from "./routes/adminUsers";
 
 import {
