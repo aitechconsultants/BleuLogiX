@@ -170,7 +170,9 @@ export const handleCreateProject: RequestHandler = async (req, res) => {
       [userId, name.trim(), formState],
     );
 
-    console.log(`[projects] Created project ${result?.id} for user ${clerkUserId}`);
+    console.log(
+      `[projects] Created project ${result?.id} for user ${clerkUserId}`,
+    );
 
     res.status(201).json(result);
   } catch (error) {
@@ -253,7 +255,9 @@ export const handleUpdateProject: RequestHandler = async (req, res) => {
       [name.trim(), formState, projectId, userId],
     );
 
-    console.log(`[projects] Updated project ${projectId} for user ${clerkUserId}`);
+    console.log(
+      `[projects] Updated project ${projectId} for user ${clerkUserId}`,
+    );
 
     res.json(result);
   } catch (error) {
@@ -313,12 +317,14 @@ export const handleDeleteProject: RequestHandler = async (req, res) => {
       });
     }
 
-    await query(
-      `DELETE FROM video_projects WHERE id = $1 AND user_id = $2`,
-      [projectId, userId],
-    );
+    await query(`DELETE FROM video_projects WHERE id = $1 AND user_id = $2`, [
+      projectId,
+      userId,
+    ]);
 
-    console.log(`[projects] Deleted project ${projectId} for user ${clerkUserId}`);
+    console.log(
+      `[projects] Deleted project ${projectId} for user ${clerkUserId}`,
+    );
 
     res.status(204).send();
   } catch (error) {

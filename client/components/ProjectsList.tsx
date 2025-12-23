@@ -41,7 +41,9 @@ export default function ProjectsList({
         setProjects(data.projects || []);
       } catch (err) {
         console.error("Error fetching projects:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch projects");
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch projects",
+        );
       } finally {
         setIsLoading(false);
       }

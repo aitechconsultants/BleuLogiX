@@ -141,9 +141,7 @@ export default function VideoGeneratorCreate() {
       );
     } catch (error) {
       console.error("Error saving project:", error);
-      alert(
-        error instanceof Error ? error.message : "Failed to save project",
-      );
+      alert(error instanceof Error ? error.message : "Failed to save project");
     } finally {
       setIsSaving(false);
     }
