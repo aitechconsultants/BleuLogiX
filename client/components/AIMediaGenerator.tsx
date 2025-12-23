@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RefreshCw, Loader, AlertCircle } from "lucide-react";
+import type { Episode } from "./SeriesEpisodesSelector";
 
 interface ImagePrompt {
   description: string;
@@ -9,6 +10,7 @@ interface ImagePrompt {
 
 interface AIMediaGeneratorProps {
   script: string;
+  episodes?: Episode[];
   onMediaSelected: (media: { id: string; name: string; url: string }) => void;
 }
 
