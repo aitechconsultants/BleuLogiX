@@ -111,6 +111,19 @@ export default function MediaTimelinePreview({
     };
   }, [script, selectedVoiceId]);
 
+  // Sync audio playback with video
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    if (isPlaying && audioUrl && !isMuted) {
+      audioRef.current.play().catch((error) => {
+        console.error("Error playing audio:", error);
+      });
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying, audioUrl, isMuted]);
+
   // Auto-advance through media during playback
   useEffect(() => {
     if (!isPlaying) return;
@@ -120,6 +133,10 @@ export default function MediaTimelinePreview({
         const next = prev + 0.1;
         if (next >= totalDuration) {
           setIsPlaying(false);
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
           return 0;
         }
 
