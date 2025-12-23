@@ -220,6 +220,12 @@ export function createServer() {
     requireAdminAuth,
     handleClearPlanOverride,
   );
+  app.post(
+    "/api/admin/users/:userId/grant-credits",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleGrantCredits,
+  );
 
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
