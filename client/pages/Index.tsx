@@ -13,6 +13,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { ROUTES } from "@/config/routes";
+import { useApiFetch } from "@/lib/api";
 
 export default function Index() {
   const { isSignedIn } = useAuth();
