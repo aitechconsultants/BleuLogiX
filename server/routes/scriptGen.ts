@@ -130,7 +130,7 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
     // Convert Clerk user ID to UUID
     const userId = await getOrCreateUser(auth.clerkUserId);
     const sub = await getOrCreateSubscription(userId);
-    const creditsRemaining = await getCreditsRemaining(auth.clerkUserId);
+    const creditsRemaining = await getCreditsRemaining(userId);
     const creditCost = 10;
 
     if (creditsRemaining < creditCost) {
@@ -146,12 +146,12 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
 
     try {
       const script = await service.generateScript(
-        auth.clerkUserId,
+        userId,
         payload as GenerateScriptInput,
         correlationId,
       );
 
-      await deductCredits(auth.clerkUserId, creditCost, "Script generation");
+      await deductCredits(userId, creditCost, "Script generation");
 
       res.json({
         ok: true,
