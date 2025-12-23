@@ -373,7 +373,7 @@ export default function VideoGeneratorCreate() {
                 </div>
               )}
               {!voicesLoading && !voicesError && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="space-y-2 w-full">
                   {voices.map((voice) => (
                     <VoiceCard
                       key={voice.id}
