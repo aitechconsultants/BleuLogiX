@@ -33,6 +33,14 @@ interface FormState {
   mediaFiles: Array<{ id: string; name: string }>;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  form_state: FormState;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function VideoGeneratorCreate() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
