@@ -189,8 +189,14 @@ export default function VideoGeneratorCreate() {
       }
 
       const project: Project = await response.json();
+      const loadedFormState = {
+        ...project.form_state,
+        videoTopic: project.form_state.videoTopic ?? "",
+        niche: project.form_state.niche ?? "",
+        styleTone: project.form_state.styleTone ?? "",
+      };
       setProjectName(project.name);
-      setFormState(project.form_state);
+      setFormState(loadedFormState);
       setCurrentProjectId(project.id);
       setCurrentStep(1);
     } catch (error) {
