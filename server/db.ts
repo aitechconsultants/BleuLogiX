@@ -2,6 +2,32 @@ import { Pool, QueryResult } from "pg";
 
 // Database connection pool for PostgreSQL (Neon)
 let pool: Pool | null = null;
+let databaseInitialized = false;
+
+/**
+ * Safely parse DATABASE_URL to extract host and database name.
+ * Returns null if parsing fails or DATABASE_URL is not set.
+ */
+export function parseDatabaseUrl(): {
+  host: string;
+  dbName: string;
+  sslMode: string;
+} | null {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    return null;
+  }
+
+  try {
+    const url = new URL(dbUrl);
+    const host = url.hostname;
+    const dbName = url.pathname.substring(1); // Remove leading '/'
+    const sslMode = url.searchParams.get("sslmode") || "default";
+    return { host, dbName, sslMode };
+  } catch {
+    return null;
+  }
+}
 
 export function initializeDatabase() {
   if (pool) return;
@@ -13,6 +39,19 @@ export function initializeDatabase() {
   pool.on("error", (err) => {
     console.error("Unexpected error on idle client", err);
   });
+
+  // Log startup info once (sanitized, no secrets)
+  if (!databaseInitialized) {
+    databaseInitialized = true;
+    const dbInfo = parseDatabaseUrl();
+    if (dbInfo) {
+      console.log(
+        `[DB] Initialized: host=${dbInfo.host}, database=${dbInfo.dbName}, ssl=${dbInfo.sslMode}`,
+      );
+    } else {
+      console.warn("[DB] Could not parse DATABASE_URL");
+    }
+  }
 }
 
 export function getPool(): Pool {
