@@ -519,6 +519,16 @@ export default function VideoGeneratorCreate() {
             <ScriptPanel
               value={formState.script}
               onChange={(script) => setFormState({ ...formState, script })}
+              topic={formState.videoTopic}
+              onTopicChange={(videoTopic) =>
+                setFormState({ ...formState, videoTopic })
+              }
+              niche={formState.niche}
+              onNicheChange={(niche) => setFormState({ ...formState, niche })}
+              tone={formState.styleTone}
+              onToneChange={(styleTone) =>
+                setFormState({ ...formState, styleTone })
+              }
               maxLength={2000}
               onImproveScript={() =>
                 alert("Improve script feature - to be implemented")
