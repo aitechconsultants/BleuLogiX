@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -13,11 +13,38 @@ interface CreditInfo {
 }
 
 export default function CreditsBadge() {
-  const [credits] = useState<CreditInfo>({
-    current: 42,
-    max: 100,
-    plan: "pro",
+  const [credits, setCredits] = useState<CreditInfo>({
+    current: 0,
+    max: 999999,
+    plan: "free",
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const response = await fetch("/api/generator/me");
+        if (!response.ok) throw new Error("Failed to fetch credits");
+        const data = await response.json();
+        setCredits({
+          current: data.creditsRemaining || 0,
+          max: 999999,
+          plan: data.plan || "free",
+        });
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+        setCredits({
+          current: 0,
+          max: 999999,
+          plan: "free",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCredits();
+  }, []);
 
   const creditCosts = {
     videoGeneration: 50,
