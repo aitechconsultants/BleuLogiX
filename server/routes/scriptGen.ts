@@ -109,13 +109,38 @@ async function deductCredits(
   );
 }
 
+/**
+ * Check if database is available by attempting a simple query.
+ * Returns true if successful, false otherwise.
+ */
+async function isDatabaseAvailable(): Promise<boolean> {
+  try {
+    // Verify DATABASE_URL is set
+    if (!process.env.DATABASE_URL) {
+      return false;
+    }
+
+    // Verify we can parse it
+    const dbInfo = parseDatabaseUrl();
+    if (!dbInfo) {
+      return false;
+    }
+
+    // Try a simple query
+    await queryOne("SELECT 1");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const handleGenerateScript: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
 
   try {
-    // Check DB readiness before any database operations
-    const dbReady = (req.app?.locals?.dbReady ?? false) as boolean;
-    if (!dbReady) {
+    // Check DB availability before any database operations
+    const dbAvailable = await isDatabaseAvailable();
+    if (!dbAvailable) {
       return res.status(503).json({
         ok: false,
         success: false,
