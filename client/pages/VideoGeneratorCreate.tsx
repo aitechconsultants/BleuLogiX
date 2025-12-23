@@ -78,6 +78,11 @@ export default function VideoGeneratorCreate() {
     selectedEpisodes: [],
   });
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
   // Fetch voices from API
   useEffect(() => {
     const fetchVoices = async () => {
