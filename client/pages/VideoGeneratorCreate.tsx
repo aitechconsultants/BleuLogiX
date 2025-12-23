@@ -30,6 +30,9 @@ interface FormState {
   resolution: "vertical" | "square" | "horizontal";
   duration: number;
   script: string;
+  videoTopic: string;
+  niche: string;
+  styleTone: string;
   selectedStyle: string;
   selectedVoice: string;
   captionsEnabled: boolean;
