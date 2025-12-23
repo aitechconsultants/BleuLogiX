@@ -4,11 +4,11 @@ import StyleCard from "@/components/StyleCard";
 import VoiceCard from "@/components/VoiceCard";
 import CaptionStyleSelector from "@/components/CaptionStyleSelector";
 import MediaUploader from "@/components/MediaUploader";
-import StockMediaBrowser from "@/components/StockMediaBrowser";
+import AIMediaGenerator from "@/components/AIMediaGenerator";
 import PreviewPlayer from "@/components/PreviewPlayer";
 import ExportConfirmationModal from "@/components/ExportConfirmationModal";
 import ProjectsList from "@/components/ProjectsList";
-import { ChevronRight, ChevronLeft, Save } from "lucide-react";
+import { ChevronRight, ChevronLeft, Save, Trash2 } from "lucide-react";
 
 interface Voice {
   id: string;
