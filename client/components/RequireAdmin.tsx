@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import Layout from "./Layout";
+import { useApiFetch } from "@/lib/api";
 
 interface RequireAdminProps {
   children: ReactNode;
