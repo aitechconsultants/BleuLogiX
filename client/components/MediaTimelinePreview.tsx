@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Play, Pause } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Play, Pause, RotateCcw } from "lucide-react";
 
 export interface MediaItem {
   id: string;
@@ -50,6 +50,7 @@ export default function MediaTimelinePreview({
 }: MediaTimelinePreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [previewTime, setPreviewTime] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   const includedItems = items.filter((item) => item.included !== false);
   const totalDuration = includedItems.reduce(
