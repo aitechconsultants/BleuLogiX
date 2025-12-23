@@ -90,10 +90,10 @@ Output ONLY the script text, no additional explanation or metadata.`;
       this.validateConfig();
 
       const jobResult = await query<{ id: string }>(
-        `INSERT INTO script_gen_jobs (user_id, status, input_json, model)
-         VALUES ($1, 'running', $2, $3)
+        `INSERT INTO script_gen_jobs (user_id, status, input_json, model, prompt_version)
+         VALUES ($1, 'running', $2, $3, $4)
          RETURNING id`,
-        [userId, JSON.stringify(input), this.openaiModel],
+        [userId, JSON.stringify(input), this.openaiModel, "v1"],
       );
 
       jobId = jobResult.rows[0]?.id;
