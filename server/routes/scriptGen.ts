@@ -22,6 +22,19 @@ export const handleScriptGenHealth: RequestHandler = (req, res) => {
   res.json({ ok: true, service: "script-gen" });
 };
 
+export const handleScriptGenDebug: RequestHandler = async (req, res) => {
+  const service = getScriptGenService();
+  const openaiHealthy = await service.checkOpenAIHealth();
+
+  res.json({
+    service: "script-gen",
+    openai_healthy: openaiHealthy,
+    openai_key_set: !!process.env.OPENAI_API_KEY,
+    script_gen_model: process.env.SCRIPT_GEN_MODEL || "gpt-4-mini",
+    script_gen_enable_mock: process.env.SCRIPT_GEN_ENABLE_MOCK || "false",
+  });
+};
+
 async function getOrCreateUser(clerkUserId: string): Promise<string> {
   // Get or create user in users table
   const existing = await queryOne<{ id: string }>(
