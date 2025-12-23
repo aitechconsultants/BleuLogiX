@@ -44,6 +44,7 @@ export default function MediaTimelinePreview({
   captionStyle,
   captionColor,
   resolution,
+  selectedVoiceId,
   onCaptionsToggle,
   onCaptionStyleChange,
   onCaptionColorChange,
@@ -52,6 +53,10 @@ export default function MediaTimelinePreview({
   const [isPlaying, setIsPlaying] = useState(false);
   const [previewTime, setPreviewTime] = useState(0);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const includedItems = items.filter((item) => item.included !== false);
   const totalDuration = includedItems.reduce(
