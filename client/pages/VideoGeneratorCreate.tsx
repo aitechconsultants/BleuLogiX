@@ -429,8 +429,8 @@ export default function VideoGeneratorCreate() {
 
       case 2:
         return (
-          <div>
-            <div className="mb-8">
+          <div className="space-y-12">
+            <div>
               <h3 className="font-display text-2xl font-bold text-foreground mb-2">
                 Define Your Video Direction
               </h3>
@@ -439,6 +439,7 @@ export default function VideoGeneratorCreate() {
                 should sound.
               </p>
             </div>
+
             <ScriptPanel
               value={formState.script}
               onChange={(script) => setFormState({ ...formState, script })}
@@ -447,6 +448,21 @@ export default function VideoGeneratorCreate() {
                 alert("Improve script feature - to be implemented")
               }
             />
+
+            <div className="border-t border-border pt-12">
+              <h3 className="font-display text-2xl font-bold text-foreground mb-6">
+                Series & Episodes
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Optionally select or create episodes to customize your script and images.
+              </p>
+              <SeriesEpisodesSelector
+                selectedEpisodes={formState.selectedEpisodes}
+                onEpisodesChange={(episodes) =>
+                  setFormState({ ...formState, selectedEpisodes: episodes })
+                }
+              />
+            </div>
           </div>
         );
 
