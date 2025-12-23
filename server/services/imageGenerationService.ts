@@ -23,12 +23,29 @@ export class ImageGenerationService {
    * Parse script to extract image/photo descriptions
    * Uses AI to intelligently identify what visuals should accompany each section
    */
-  async extractImagePromptsFromScript(script: string): Promise<ImagePrompt[]> {
+  async extractImagePromptsFromScript(
+    script: string,
+    episodes: any[] = [],
+  ): Promise<ImagePrompt[]> {
     this.initializeOpenAI();
 
     if (!script || script.trim().length === 0) {
       return [];
     }
+
+    const episodeContext =
+      episodes.length > 0
+        ? `\n\nContext - Selected Episodes:\n${episodes
+            .map(
+              (ep) =>
+                `- ${ep.seriesName} ${ep.seasonNumber ? `S${ep.seasonNumber}` : ""}${
+                  ep.episodeNumber ? `E${ep.episodeNumber}` : ""
+                } ${ep.episodeName ? `- ${ep.episodeName}` : ""} ${
+                  ep.description ? `(${ep.description})` : ""
+                }`,
+            )
+            .join("\n")}\n\nUse these episodes to inform the visual style and context of the generated images.`
+        : "";
 
     try {
       const response = await this.openai!.chat.completions.create({
@@ -37,7 +54,7 @@ export class ImageGenerationService {
           {
             role: "system",
             content: `You are an expert at analyzing scripts for video production and identifying visual requirements.
-          
+
 Your task is to analyze a video script and identify distinct visual scenes/shots that should be created.
 Return a JSON array of image prompts that would visually represent the key moments in the script.
 
@@ -46,7 +63,11 @@ Guidelines:
 - Each prompt should be descriptive and cinematic
 - Focus on action, emotion, and key narrative elements
 - Create prompts that are distinct and complementary
-- Format each prompt to work well with DALL-E 3
+- Format each prompt to work well with DALL-E 3${
+              episodes.length > 0
+                ? "\n- If episodes are provided, align the visuals with the episode content and themes"
+                : ""
+            }
 
 Return ONLY valid JSON in this exact format:
 [
@@ -59,7 +80,7 @@ Return ONLY valid JSON in this exact format:
           },
           {
             role: "user",
-            content: `Analyze this script and extract visual requirements:\n\n${script}`,
+            content: `Analyze this script and extract visual requirements:\n\n${script}${episodeContext}`,
           },
         ],
         temperature: 0.7,
