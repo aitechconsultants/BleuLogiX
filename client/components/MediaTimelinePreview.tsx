@@ -58,6 +58,36 @@ export default function MediaTimelinePreview({
     0
   );
 
+  // Auto-advance through media during playback
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const timer = setInterval(() => {
+      setPreviewTime((prev) => {
+        const next = prev + 0.1;
+        if (next >= totalDuration) {
+          setIsPlaying(false);
+          return 0;
+        }
+
+        // Calculate which media item should be displayed
+        let accumulated = 0;
+        for (let i = 0; i < includedItems.length; i++) {
+          const itemDuration = includedItems[i].duration || 5;
+          if (next < accumulated + itemDuration) {
+            setCurrentMediaIndex(i);
+            break;
+          }
+          accumulated += itemDuration;
+        }
+
+        return next;
+      });
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, [isPlaying, totalDuration, includedItems]);
+
   const getAspectRatioClass = () => {
     switch (resolution) {
       case "vertical":
