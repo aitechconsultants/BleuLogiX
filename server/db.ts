@@ -1,5 +1,6 @@
 import { Pool, QueryResult } from "pg";
 
+// Database connection pool for PostgreSQL (Neon)
 let pool: Pool | null = null;
 
 export function initializeDatabase() {
