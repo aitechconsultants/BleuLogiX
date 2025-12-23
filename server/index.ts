@@ -227,6 +227,12 @@ export function createServer() {
     requireAdminAuth,
     handleGrantCredits,
   );
+  app.post(
+    "/api/admin/grant-credits-self",
+    requireClerkAuth,
+    requireAdminAuth,
+    handleGrantCreditsToSelf,
+  );
 
   // Module 2B: OAuth routes
   app.get("/api/social-oauth/:platform/config", handleGetOAuthConfig);
