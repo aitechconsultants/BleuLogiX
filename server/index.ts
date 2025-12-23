@@ -198,6 +198,9 @@ export function createServer() {
     handleDeleteWorkspaceOverride,
   );
 
+  // Debug endpoint - check current user state (requires Clerk auth only)
+  app.get("/api/admin/debug/user", requireClerkAuth, handleUserDebugInfo);
+
   // Bootstrap endpoint - set current user as admin (requires Clerk auth only)
   app.post("/api/admin/bootstrap", requireClerkAuth, handleBootstrapAdmin);
 
