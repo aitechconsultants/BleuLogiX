@@ -46,6 +46,8 @@ import {
   handleExtractImagePrompts,
 } from "./routes/imageGeneration";
 
+import { handleGenerateEpisodes } from "./routes/episodeGeneration";
+
 import {
   handleAddAccount,
   handleListAccounts,
