@@ -131,8 +131,7 @@ export class VoiceService {
       throw new Error(`Voice not found: ${voiceId}`);
     }
 
-    const openaiVoice =
-      VOICE_GENDER_TO_OPENAI_VOICE[voice.name] || "alloy";
+    const openaiVoice = VOICE_GENDER_TO_OPENAI_VOICE[voice.name] || "alloy";
 
     try {
       const response = await this.openai.audio.speech.create({
@@ -151,7 +150,7 @@ export class VoiceService {
       return buffer;
     } catch (error) {
       throw new Error(
-        `Failed to generate voice preview: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to generate voice preview: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

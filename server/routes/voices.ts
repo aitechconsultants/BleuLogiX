@@ -17,7 +17,7 @@ export const handleGetVoices: RequestHandler = async (req, res) => {
     logError(
       { correlationId },
       "Failed to fetch voices",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to fetch voices",
@@ -54,20 +54,20 @@ export const handleGetVoicePreview: RequestHandler = async (req, res) => {
 
     const audioBuffer = await voiceService.generateVoicePreview(
       voiceId,
-      previewText
+      previewText,
     );
 
     res.setHeader("Content-Type", "audio/mpeg");
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="voice-preview-${voiceId}.mp3"`
+      `inline; filename="voice-preview-${voiceId}.mp3"`,
     );
     res.send(audioBuffer);
   } catch (error) {
     logError(
       { correlationId },
       "Failed to generate voice preview",
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
     res.status(500).json({
       error: "Failed to generate voice preview",

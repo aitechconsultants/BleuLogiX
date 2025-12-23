@@ -63,7 +63,7 @@ export default function VideoGeneratorCreate() {
       } catch (error) {
         console.error("Error fetching voices:", error);
         setVoicesError(
-          error instanceof Error ? error.message : "Failed to fetch voices"
+          error instanceof Error ? error.message : "Failed to fetch voices",
         );
       } finally {
         setVoicesLoading(false);
