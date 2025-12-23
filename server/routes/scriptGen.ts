@@ -127,7 +127,9 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
       throw validationError;
     }
 
-    const sub = await getOrCreateSubscription(auth.clerkUserId);
+    // Convert Clerk user ID to UUID
+    const userId = await getOrCreateUser(auth.clerkUserId);
+    const sub = await getOrCreateSubscription(userId);
     const creditsRemaining = await getCreditsRemaining(auth.clerkUserId);
     const creditCost = 10;
 
