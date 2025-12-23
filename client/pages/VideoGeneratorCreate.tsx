@@ -548,7 +548,7 @@ export default function VideoGeneratorCreate() {
                 onEpisodesChange={(episodes) =>
                   setFormState({ ...formState, selectedEpisodes: episodes })
                 }
-                defaultPrompt={formState.script}
+                defaultPrompt={formState.videoTopic}
               />
             </div>
           </div>
