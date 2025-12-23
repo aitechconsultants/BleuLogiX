@@ -127,22 +127,28 @@ Output ONLY the script text, no additional explanation or metadata.`;
 
       const prompt = this.buildPrompt(input);
 
-      const chatCompletion: any = await Promise.race([
-        client.chat.completions.create({
-          model: this.openaiModel,
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-          max_tokens: this.maxTokens,
-          temperature: 0.7,
-        }),
-        timeoutPromise,
-      ]);
+      let chatCompletion: any;
+      try {
+        chatCompletion = await Promise.race([
+          client.chat.completions.create({
+            model: this.openaiModel,
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+            max_tokens: this.maxTokens,
+            temperature: 0.7,
+          }),
+          timeoutPromise,
+        ]);
+      } catch (openaiError) {
+        const msg = openaiError instanceof Error ? openaiError.message : String(openaiError);
+        throw new Error(`OpenAI API error: ${msg}`);
+      }
 
-      const scriptText = chatCompletion.choices[0]?.message?.content || "";
+      const scriptText = chatCompletion.choices?.[0]?.message?.content || "";
       if (!scriptText) {
         throw new Error("OpenAI returned empty response");
       }
