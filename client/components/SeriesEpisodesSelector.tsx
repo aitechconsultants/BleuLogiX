@@ -89,15 +89,14 @@ export default function SeriesEpisodesSelector({
   const [customEpisodeName, setCustomEpisodeName] = useState("");
   const [aiPrompt, setAiPrompt] = useState(defaultPrompt);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [hasUserEditedPrompt, setHasUserEditedPrompt] = useState(false);
 
-  // Update aiPrompt when defaultPrompt changes (user updates video topic)
+  // Update aiPrompt when defaultPrompt changes and user hasn't manually edited it
   useEffect(() => {
-    // Only update if aiPrompt is empty or equals the old defaultPrompt
-    // This prevents overwriting user edits
-    if (!aiPrompt || aiPrompt === defaultPrompt) {
+    if (!hasUserEditedPrompt) {
       setAiPrompt(defaultPrompt);
     }
-  }, [defaultPrompt]);
+  }, [defaultPrompt, hasUserEditedPrompt]);
 
   const addPredefinedEpisode = (
     seriesName: string,
