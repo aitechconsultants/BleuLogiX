@@ -95,11 +95,12 @@ export default function AIMediaGenerator({
   };
 
   const addSelectedToMedia = () => {
+    const selectedCount = selectedImages.size;
     selectedImages.forEach((index) => {
       const url = imageUrls[index];
       const prompt = prompts[index];
       onMediaSelected({
-        id: `ai-image-${Date.now()}-${index}`,
+        id: `ai-image-${Date.now()}-${Math.random()}-${index}`,
         name: prompt?.description || `Generated Image ${index + 1}`,
         url,
       });
@@ -107,7 +108,7 @@ export default function AIMediaGenerator({
 
     setSelectedImages(new Set());
     alert(
-      `Added ${selectedImages.size} image${selectedImages.size !== 1 ? "s" : ""} to media`,
+      `Added ${selectedCount} image${selectedCount !== 1 ? "s" : ""} to media`,
     );
   };
 
