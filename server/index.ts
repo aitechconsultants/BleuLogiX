@@ -199,6 +199,9 @@ export function createServer() {
     handleDeleteWorkspaceOverride,
   );
 
+  // One-time setup endpoint - promote to admin and grant initial credits (requires Clerk auth only)
+  app.post("/api/admin/setup", requireClerkAuth, handleInitialSetup);
+
   // Debug endpoint - check current user state (requires Clerk auth only)
   app.get("/api/admin/debug/user", requireClerkAuth, handleUserDebugInfo);
 
