@@ -454,7 +454,8 @@ export default function VideoGeneratorCreate() {
                 Series & Episodes
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Optionally select or create episodes to customize your script and images.
+                Optionally select or create episodes to customize your script
+                and images.
               </p>
               <SeriesEpisodesSelector
                 selectedEpisodes={formState.selectedEpisodes}

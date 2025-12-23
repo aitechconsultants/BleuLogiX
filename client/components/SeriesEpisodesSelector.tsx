@@ -77,9 +77,7 @@ export default function SeriesEpisodesSelector({
   selectedEpisodes,
   onEpisodesChange,
 }: SeriesEpisodesSelectorProps) {
-  const [tab, setTab] = useState<"predefined" | "custom" | "ai">(
-    "predefined",
-  );
+  const [tab, setTab] = useState<"predefined" | "custom" | "ai">("predefined");
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
   const [customSeriesName, setCustomSeriesName] = useState("");
@@ -161,24 +159,24 @@ export default function SeriesEpisodesSelector({
       }
 
       const data = await response.json();
-      const newEpisodes: Episode[] = (data.episodes || []).map(
-        (ep: any) => ({
-          id: `ai-${Date.now()}-${Math.random()}`,
-          seriesName: ep.seriesName,
-          seasonNumber: ep.seasonNumber,
-          episodeNumber: ep.episodeNumber,
-          episodeName: ep.episodeName,
-          description: ep.description,
-          source: "ai-generated" as const,
-        }),
-      );
+      const newEpisodes: Episode[] = (data.episodes || []).map((ep: any) => ({
+        id: `ai-${Date.now()}-${Math.random()}`,
+        seriesName: ep.seriesName,
+        seasonNumber: ep.seasonNumber,
+        episodeNumber: ep.episodeNumber,
+        episodeName: ep.episodeName,
+        description: ep.description,
+        source: "ai-generated" as const,
+      }));
 
       onEpisodesChange([...selectedEpisodes, ...newEpisodes]);
       setAiPrompt("");
       alert(`Generated ${newEpisodes.length} AI episodes`);
     } catch (error) {
       console.error("Error generating episodes:", error);
-      alert(error instanceof Error ? error.message : "Failed to generate episodes");
+      alert(
+        error instanceof Error ? error.message : "Failed to generate episodes",
+      );
     } finally {
       setIsGeneratingAi(false);
     }
@@ -202,9 +200,7 @@ export default function SeriesEpisodesSelector({
     return parts.join(" ");
   };
 
-  const getSourceBadgeColor = (
-    source: Episode["source"],
-  ): string => {
+  const getSourceBadgeColor = (source: Episode["source"]): string => {
     switch (source) {
       case "predefined":
         return "bg-blue-500/20 text-blue-600";
@@ -268,7 +264,10 @@ export default function SeriesEpisodesSelector({
         {tab === "predefined" && (
           <div className="space-y-4">
             {PREDEFINED_SERIES.map((series) => (
-              <div key={series.name} className="border border-border rounded-lg p-4">
+              <div
+                key={series.name}
+                className="border border-border rounded-lg p-4"
+              >
                 <h4 className="font-semibold text-foreground mb-3">
                   {series.name}
                 </h4>

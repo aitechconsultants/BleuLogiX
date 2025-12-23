@@ -111,10 +111,14 @@ Return ONLY valid JSON in this exact format:
         count: episodes.length,
       });
     } catch (parseError) {
-      console.warn("[episodes] Failed to parse episode generation JSON:", parseError);
+      console.warn(
+        "[episodes] Failed to parse episode generation JSON:",
+        parseError,
+      );
       return res.status(500).json({
         error: "Failed to parse generated episodes",
-        message: parseError instanceof Error ? parseError.message : String(parseError),
+        message:
+          parseError instanceof Error ? parseError.message : String(parseError),
         correlationId,
       });
     }

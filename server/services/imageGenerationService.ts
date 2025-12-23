@@ -44,7 +44,9 @@ export class ImageGenerationService {
                   ep.description ? `(${ep.description})` : ""
                 }`,
             )
-            .join("\n")}\n\nUse these episodes to inform the visual style and context of the generated images.`
+            .join(
+              "\n",
+            )}\n\nUse these episodes to inform the visual style and context of the generated images.`
         : "";
 
     try {
