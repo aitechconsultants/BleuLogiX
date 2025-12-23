@@ -460,6 +460,28 @@ export async function runMigrations() {
       ON user_attribution (referral_code);
     `);
 
+    // Video Generator Projects table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS video_projects (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL,
+        name TEXT NOT NULL,
+        form_state JSONB NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_video_projects_user_id
+      ON video_projects (user_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_video_projects_user_created
+      ON video_projects (user_id, created_at DESC);
+    `);
+
     console.log("Migrations completed successfully");
   } catch (error) {
     console.error("Migration error:", error);
