@@ -104,7 +104,7 @@ export default function ScriptPanel({
         <input
           type="text"
           value={topic}
-          onChange={(e) => setTopic(e.target.value)}
+          onChange={(e) => onTopicChange(e.target.value)}
           placeholder="e.g. Why most small businesses fail at TikTok ads"
           className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
         />
