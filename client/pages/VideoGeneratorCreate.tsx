@@ -100,6 +100,74 @@ export default function VideoGeneratorCreate() {
     fetchVoices();
   }, []);
 
+  const saveProject = async () => {
+    if (!projectName.trim()) {
+      alert("Please enter a project name");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const url = currentProjectId
+        ? `/api/projects/${currentProjectId}`
+        : "/api/projects";
+      const method = currentProjectId ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: projectName,
+          formState,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Failed to save project: ${response.status}`,
+        );
+      }
+
+      const savedProject = await response.json();
+      setCurrentProjectId(savedProject.id);
+      setProjectsRefreshTrigger((prev) => prev + 1);
+      alert(
+        currentProjectId
+          ? "Project updated successfully!"
+          : "Project saved successfully!",
+      );
+    } catch (error) {
+      console.error("Error saving project:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to save project",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const loadProject = async (projectId: string) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to load project: ${response.status}`);
+      }
+
+      const project: Project = await response.json();
+      setProjectName(project.name);
+      setFormState(project.form_state);
+      setCurrentProjectId(project.id);
+      setCurrentStep(1);
+    } catch (error) {
+      console.error("Error loading project:", error);
+      alert(error instanceof Error ? error.message : "Failed to load project");
+    }
+  };
+
   const styles = [
     {
       id: "ugc",
