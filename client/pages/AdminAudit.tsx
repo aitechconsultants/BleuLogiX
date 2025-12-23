@@ -43,7 +43,7 @@ interface ScriptGenTestResult {
 }
 
 export default function AdminAudit() {
-  const { getToken } = useAuth();
+  const apiFetch = useApiFetch();
   const [integrations, setIntegrations] = useState<HealthResponse | null>(null);
   const [routes, setRoutes] = useState<RoutesResponse | null>(null);
   const [linkAudit, setLinkAudit] = useState<LinkAuditResult[]>([]);
@@ -89,38 +89,17 @@ export default function AdminAudit() {
       setTestScriptLoading(true);
       const startTime = Date.now();
 
-      const response = await fetch("/api/script/generate", {
+      const data = await apiFetch("/api/script/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           videoTopic: "Test topic",
           niche: "Ecommerce",
           styleTone: "UGC testimonial",
           maxChars: 500,
-        }),
+        },
       });
 
       const responseTime = Date.now() - startTime;
-
-      if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMessage = errorData.error;
-          }
-        } catch {}
-        setTestScriptError(errorMessage);
-        setTestScriptResult({
-          status: response.status,
-          responseTime,
-          scriptLength: 0,
-          preview: "",
-        });
-        return;
-      }
-
-      const data = await response.json();
       const script = data.script || "";
 
       if (!script) {
@@ -142,9 +121,15 @@ export default function AdminAudit() {
         preview,
       });
     } catch (err) {
-      setTestScriptError(
-        err instanceof Error ? err.message : "Failed to test script generation",
-      );
+      const errorMsg = err instanceof Error ? err.message : "Failed to test script generation";
+      const status = err instanceof APIError ? err.status : undefined;
+      setTestScriptError(errorMsg);
+      setTestScriptResult({
+        status,
+        responseTime: 0,
+        scriptLength: 0,
+        preview: "",
+      });
     } finally {
       setTestScriptLoading(false);
     }
