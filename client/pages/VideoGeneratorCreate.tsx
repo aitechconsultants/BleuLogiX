@@ -34,6 +34,7 @@ interface FormState {
   captionStyle: string;
   captionColor: string;
   mediaFiles: Array<{ id: string; name: string; url?: string }>;
+  selectedEpisodes: Episode[];
 }
 
 interface Project {
