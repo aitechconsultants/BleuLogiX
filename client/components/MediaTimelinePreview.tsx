@@ -153,13 +153,13 @@ export default function MediaTimelinePreview({
               </div>
             ) : (
               <>
-                {/* Thumbnails scrolling preview */}
+                {/* Media sequence preview */}
                 <div className="w-full h-full bg-black/60 flex items-center justify-center relative overflow-hidden">
                   {includedItems.map((item, idx) => (
                     <div
                       key={item.id}
                       className={`absolute inset-0 transition-opacity duration-300 ${
-                        idx === 0 ? "opacity-100" : "opacity-0"
+                        idx === currentMediaIndex ? "opacity-100" : "opacity-0"
                       }`}
                     >
                       {item.url && (
