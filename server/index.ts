@@ -148,6 +148,10 @@ export function createServer() {
   app.get("/api/generator/history", handleGetHistory);
   app.post("/api/generator/download", handleDownload);
 
+  // Voice routes (public)
+  app.get("/api/voices", handleGetVoices);
+  app.get("/api/voices/:voiceId/preview", handleGetVoicePreview);
+
   // Script generation proxy route (requires auth)
   app.post("/api/script/generate", requireClerkAuth, handleGenerateScript);
 
