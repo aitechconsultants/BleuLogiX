@@ -22,9 +22,7 @@ export const handleScriptGenHealth: RequestHandler = (req, res) => {
   res.json({ ok: true, service: "script-gen" });
 };
 
-async function getOrCreateUser(
-  clerkUserId: string,
-): Promise<string> {
+async function getOrCreateUser(clerkUserId: string): Promise<string> {
   // Get or create user in users table
   const existing = await queryOne<{ id: string }>(
     "SELECT id FROM users WHERE clerk_user_id = $1",
