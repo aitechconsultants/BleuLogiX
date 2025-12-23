@@ -56,6 +56,7 @@ import {
   handleGrantCredits,
   handleGrantCreditsToSelf,
   handleBootstrapAdmin,
+  handleUserDebugInfo,
 } from "./routes/adminUsers";
 
 import {
