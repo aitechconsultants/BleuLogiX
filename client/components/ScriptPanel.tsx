@@ -37,35 +37,39 @@ export default function ScriptPanel({
 
     try {
       const response = await scriptGenApi.generateScript({
-        platform: "TikTok",
-        video_length_sec: 30,
-        style: "UGC",
-        product_name: topic,
-        key_benefits: niche ? [niche] : ["Quality", "Value"],
-        differentiators: tone ? [tone] : ["Innovation"],
-        audience: {
-          target: niche || "General audience",
-          pain_points: ["Time", "Cost"],
-        },
-        brand_voice: tone || "Professional and engaging",
-        call_to_action: "Learn more today",
+        videoTopic: topic,
+        niche: niche || "General",
+        styleTone: tone || "Professional",
+        maxChars: maxLength,
       });
+
+      if (!response.ok) {
+        setError(response.message || "Failed to generate script.");
+        return;
+      }
 
       if (!response.script) {
         setError("No script returned from generation service.");
         return;
       }
 
-      const scriptText = response.script.scenes
-        ?.map((scene: any) => `Scene ${scene.scene_id}: ${scene.voiceover}`)
-        .join("\n\n");
+      const scriptText =
+        typeof response.script === "string"
+          ? response.script
+          : response.script.script ||
+            response.script.content ||
+            JSON.stringify(response.script);
 
       if (!scriptText) {
         setError("Could not extract script from response.");
         return;
       }
 
-      onChange(scriptText.slice(0, maxLength));
+      onChange(
+        typeof scriptText === "string"
+          ? scriptText.slice(0, maxLength)
+          : String(scriptText).slice(0, maxLength),
+      );
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
