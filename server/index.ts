@@ -26,6 +26,7 @@ import {
   handleHealth,
   handleHealthRoutes,
   handleHealthIntegrations,
+  handleHealthDB,
 } from "./routes/health";
 
 import { handleGenerateScript } from "./routes/script";
