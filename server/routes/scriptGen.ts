@@ -63,7 +63,17 @@ async function getOrCreateSubscription(
     [userId],
   );
 
-  return result.rows[0]!;
+  const subscription = result.rows[0]!;
+
+  // Grant welcome bonus credits to new free users
+  const initialCredits = 50;
+  await query(
+    `INSERT INTO credit_ledger (user_id, delta, reason)
+     VALUES ($1, $2, $3)`,
+    [userId, initialCredits, "Welcome bonus for new users"],
+  );
+
+  return subscription;
 }
 
 async function getCreditsRemaining(userId: string): Promise<number> {
