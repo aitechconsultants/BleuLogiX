@@ -54,6 +54,7 @@ import {
   handleSetPlanOverride,
   handleClearPlanOverride,
   handleGrantCredits,
+  handleGrantCreditsToSelf,
 } from "./routes/adminUsers";
 
 import {
