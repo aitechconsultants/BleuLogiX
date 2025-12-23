@@ -42,6 +42,11 @@ import {
 } from "./routes/projects";
 
 import {
+  handleGenerateImages,
+  handleExtractImagePrompts,
+} from "./routes/imageGeneration";
+
+import {
   handleAddAccount,
   handleListAccounts,
   handleRefreshAccount,
