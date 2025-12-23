@@ -191,11 +191,12 @@ export const handleCreateProject: RequestHandler = async (req, res) => {
 
 export const handleUpdateProject: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
-  const userId = (req as any).userId;
+  const auth = (req as any).auth;
+  const clerkUserId = auth?.clerkUserId;
   const { projectId } = req.params;
   const { name, formState } = req.body;
 
-  if (!userId) {
+  if (!clerkUserId) {
     return res.status(401).json({
       error: "Unauthorized",
       correlationId,
@@ -225,8 +226,11 @@ export const handleUpdateProject: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[projects] PUT /api/projects/${projectId} - userId: ${userId}, name: ${name}, correlationId: ${correlationId}`,
+      `[projects] PUT /api/projects/${projectId} - clerkUserId: ${clerkUserId}, name: ${name}, correlationId: ${correlationId}`,
     );
+
+    const user = await upsertUser(clerkUserId, auth?.email);
+    const userId = user.id;
 
     const project = await queryOne<VideoProject>(
       `SELECT id FROM video_projects WHERE id = $1 AND user_id = $2`,
@@ -249,7 +253,7 @@ export const handleUpdateProject: RequestHandler = async (req, res) => {
       [name.trim(), formState, projectId, userId],
     );
 
-    console.log(`[projects] Updated project ${projectId} for user ${userId}`);
+    console.log(`[projects] Updated project ${projectId} for user ${clerkUserId}`);
 
     res.json(result);
   } catch (error) {
