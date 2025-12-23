@@ -51,8 +51,7 @@ export default function AIMediaGenerator({
           );
         } else {
           setError(
-            errorData.error ||
-              `Failed to generate images: ${response.status}`,
+            errorData.error || `Failed to generate images: ${response.status}`,
           );
         }
         return;
@@ -66,7 +65,9 @@ export default function AIMediaGenerator({
       setSelectedImages(new Set());
     } catch (err) {
       console.error("Error generating images:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate images");
+      setError(
+        err instanceof Error ? err.message : "Failed to generate images",
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -141,7 +142,8 @@ export default function AIMediaGenerator({
 
         {creditsRemaining !== null && (
           <p className="text-sm text-muted-foreground">
-            Credits remaining: <span className="font-semibold">{creditsRemaining}</span>
+            Credits remaining:{" "}
+            <span className="font-semibold">{creditsRemaining}</span>
           </p>
         )}
       </div>

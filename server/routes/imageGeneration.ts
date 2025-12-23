@@ -73,7 +73,11 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
       await query(
         `INSERT INTO credit_ledger (user_id, delta, reason)
          VALUES ($1, $2, $3)`,
-        [userId, -creditCost, `Generated ${imageUrls.length} images with DALL-E`],
+        [
+          userId,
+          -creditCost,
+          `Generated ${imageUrls.length} images with DALL-E`,
+        ],
       );
       console.log(
         `[imageGen] Deducted ${creditCost} credits for user ${clerkUserId}`,

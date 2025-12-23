@@ -82,7 +82,10 @@ Return ONLY valid JSON in this exact format:
         const prompts = JSON.parse(jsonMatch[0]) as ImagePrompt[];
         return prompts.slice(0, 8);
       } catch (parseError) {
-        console.warn("[imageGen] Failed to parse image prompts JSON:", parseError);
+        console.warn(
+          "[imageGen] Failed to parse image prompts JSON:",
+          parseError,
+        );
         return this.generateDefaultPrompts(script);
       }
     } catch (error) {
@@ -128,7 +131,9 @@ Return ONLY valid JSON in this exact format:
 
     for (const prompt of prompts) {
       try {
-        console.log(`[imageGen] Generating image for: ${prompt.description.slice(0, 50)}...`);
+        console.log(
+          `[imageGen] Generating image for: ${prompt.description.slice(0, 50)}...`,
+        );
 
         const response = await this.openai!.images.generate({
           model: "dall-e-3",
@@ -142,7 +147,9 @@ Return ONLY valid JSON in this exact format:
         const imageUrl = response.data[0]?.url;
         if (imageUrl) {
           imageUrls.push(imageUrl);
-          console.log(`[imageGen] Successfully generated image ${imageUrls.length}`);
+          console.log(
+            `[imageGen] Successfully generated image ${imageUrls.length}`,
+          );
         }
       } catch (error) {
         console.error(`[imageGen] Failed to generate image for prompt:`, error);
