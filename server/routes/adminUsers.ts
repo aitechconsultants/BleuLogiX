@@ -244,6 +244,61 @@ export const handleGrantCredits: RequestHandler = async (req, res) => {
   }
 };
 
+// Bootstrap endpoint - set current user as admin (one-time, requires valid JWT)
+export const handleBootstrapAdmin: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
+  try {
+    const clerkUserId = (req as any).auth?.clerkUserId;
+
+    if (!clerkUserId) {
+      return res.status(401).json({
+        error: "Not authenticated",
+        correlationId,
+      });
+    }
+
+    // Get or create user
+    let user = await queryOne<{ id: string; role: string }>(
+      "SELECT id, role FROM users WHERE clerk_user_id = $1",
+      [clerkUserId],
+    );
+
+    if (!user) {
+      const result = await query<{ id: string; role: string }>(
+        "INSERT INTO users (clerk_user_id, role) VALUES ($1, $2) RETURNING id, role",
+        [clerkUserId, "admin"],
+      );
+      user = result.rows[0];
+    } else if (user.role !== "admin" && user.role !== "superadmin") {
+      // Promote existing user to admin
+      const result = await query<{ id: string; role: string }>(
+        "UPDATE users SET role = $1 WHERE id = $2 RETURNING id, role",
+        ["admin", user.id],
+      );
+      user = result.rows[0];
+    }
+
+    return res.json({
+      user_id: user!.id,
+      clerk_user_id: clerkUserId,
+      role: user!.role,
+      message: "User is now an admin",
+      correlationId,
+    });
+  } catch (error) {
+    logError(
+      { correlationId },
+      "Failed to bootstrap admin",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return res.status(500).json({
+      error: "Failed to bootstrap admin",
+      correlationId,
+    });
+  }
+};
+
 // Grant credits to current user (admin only)
 export const handleGrantCreditsToSelf: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
