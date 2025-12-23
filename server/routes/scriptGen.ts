@@ -183,6 +183,12 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
       });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : "";
+
+      logError(
+        { correlationId },
+        `Service error during script generation: ${errorMsg}`,
+      );
 
       if (errorMsg === "server_misconfigured") {
         return res.status(500).json({
@@ -196,11 +202,18 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
     }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
 
-    // Log only correlationId and error code, never auth tokens or request body
+    // Log full error details for debugging
+    console.error(`[ScriptGen] Error Details:`, {
+      correlationId,
+      message: errorMsg,
+      stack: errorStack,
+    });
+
     logError(
       { correlationId },
-      `Script generation failed: ${errorMsg.substring(0, 100)}`,
+      `Script generation failed: ${errorMsg.substring(0, 200)}`,
     );
 
     if (errorMsg.includes("timeout")) {
@@ -212,11 +225,12 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
       });
     }
 
-    // Default to 500 on uncaught errors
+    // Return more detailed error for debugging
     res.status(500).json({
       ok: false,
       success: false,
       error: "Internal server error",
+      details: process.env.NODE_ENV === "production" ? undefined : errorMsg,
       correlationId,
     });
   }
