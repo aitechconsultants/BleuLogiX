@@ -11,8 +11,8 @@ const scriptGenRouter = Router();
 
 const GenerateScriptRequestSchema = z.object({
   videoTopic: z.string().min(1).max(500),
-  niche: z.string().min(1).max(200),
-  styleTone: z.string().min(1).max(200),
+  niche: z.string().min(1).max(200).optional(),
+  styleTone: z.string().min(1).max(200).optional(),
   maxChars: z.number().min(100).max(2000).optional(),
 });
 
