@@ -521,7 +521,7 @@ export default function VideoGeneratorCreate() {
               onChange={(script) => setFormState({ ...formState, script })}
               topic={formState.videoTopic}
               onTopicChange={(videoTopic) =>
-                setFormState({ ...formState, videoTopic })
+                setFormState({ ...formState, videoTopic: videoTopic })
               }
               niche={formState.niche}
               onNicheChange={(niche) => setFormState({ ...formState, niche })}
