@@ -380,13 +380,24 @@ export default function SeriesEpisodesSelector({
         {tab === "ai" && (
           <div className="space-y-4 bg-purple-500/5 p-4 rounded-lg border border-purple-500/20">
             <div>
-              <label className="text-sm font-medium text-foreground block mb-2">
-                Describe the episodes you want to generate
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-foreground block">
+                  Describe the episodes you want to generate
+                </label>
+                {defaultPrompt && (
+                  <span className="text-xs text-muted-foreground">
+                    Using your video topic
+                  </span>
+                )}
+              </div>
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="e.g., A sci-fi series about time travelers. Generate 5 episodes with creative titles and descriptions."
+                placeholder={
+                  defaultPrompt
+                    ? "Your video topic will be used as the default. Edit or replace it here if needed."
+                    : "e.g., A sci-fi series about time travelers. Generate 5 episodes with creative titles and descriptions."
+                }
                 rows={4}
                 className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
               />
