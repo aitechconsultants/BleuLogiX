@@ -5,23 +5,15 @@ export interface RefreshSettings {
   refresh_interval_hours: number;
 }
 
+type ApiFetch = (path: string, options?: any) => Promise<any>;
+
 export async function updateRefreshSettings(
+  apiFetch: ApiFetch,
   accountId: string,
   settings: RefreshSettings,
 ): Promise<{ account: any }> {
-  const response = await fetch(
-    `/api/social-accounts/${accountId}/refresh-settings`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    },
-  );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to update refresh settings");
-  }
-
-  return response.json();
+  return apiFetch(`/api/social-accounts/${accountId}/refresh-settings`, {
+    method: "PUT",
+    body: settings,
+  });
 }
