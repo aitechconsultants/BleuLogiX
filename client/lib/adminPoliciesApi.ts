@@ -15,35 +15,29 @@ export interface WorkspacePolicyOverride {
   updated_at: string;
 }
 
-export async function getPlanPolicies(): Promise<PlanPolicy[]> {
-  const response = await fetch("/api/admin/plan-policies");
-  if (!response.ok) {
-    throw new Error("Failed to fetch plan policies");
-  }
-  const data = await response.json();
+type ApiFetch = (path: string, options?: any) => Promise<any>;
+
+export async function getPlanPolicies(
+  apiFetch: ApiFetch,
+): Promise<PlanPolicy[]> {
+  const data = await apiFetch("/api/admin/plan-policies");
   return data.policies;
 }
 
 export async function updatePlanPolicy(
+  apiFetch: ApiFetch,
   planKey: string,
   updates: Partial<Omit<PlanPolicy, "plan_key" | "updated_at">>,
 ): Promise<PlanPolicy> {
-  const response = await fetch(`/api/admin/plan-policies/${planKey}`, {
+  const data = await apiFetch(`/api/admin/plan-policies/${planKey}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates),
+    body: updates,
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to update plan policy");
-  }
-
-  const data = await response.json();
   return data.policy;
 }
 
 export async function getWorkspaceOverrides(
+  apiFetch: ApiFetch,
   workspaceId?: string,
 ): Promise<WorkspacePolicyOverride[]> {
   const params = new URLSearchParams();
@@ -51,50 +45,32 @@ export async function getWorkspaceOverrides(
     params.append("workspace_id", workspaceId);
   }
 
-  const response = await fetch(`/api/admin/workspace-overrides?${params}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch workspace overrides");
-  }
-
-  const data = await response.json();
+  const data = await apiFetch(`/api/admin/workspace-overrides?${params}`);
   return data.overrides;
 }
 
 export async function updateWorkspaceOverride(
+  apiFetch: ApiFetch,
   workspaceId: string,
   updates: Partial<
     Omit<WorkspacePolicyOverride, "workspace_id" | "updated_at">
   >,
 ): Promise<WorkspacePolicyOverride> {
-  const response = await fetch(
+  const data = await apiFetch(
     `/api/admin/workspace-overrides/${workspaceId}`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updates),
+      body: updates,
     },
   );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to update workspace override");
-  }
-
-  const data = await response.json();
   return data.override;
 }
 
 export async function deleteWorkspaceOverride(
+  apiFetch: ApiFetch,
   workspaceId: string,
 ): Promise<void> {
-  const response = await fetch(
-    `/api/admin/workspace-overrides/${workspaceId}`,
-    {
-      method: "DELETE",
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to delete workspace override");
-  }
+  await apiFetch(`/api/admin/workspace-overrides/${workspaceId}`, {
+    method: "DELETE",
+  });
 }
