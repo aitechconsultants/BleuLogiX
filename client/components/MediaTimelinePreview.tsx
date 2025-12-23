@@ -217,18 +217,35 @@ export default function MediaTimelinePreview({
               min="0"
               max={totalDuration}
               value={previewTime}
-              onChange={(e) => setPreviewTime(Number(e.target.value))}
+              onChange={(e) => {
+                const time = Number(e.target.value);
+                setPreviewTime(time);
+                setIsPlaying(false);
+
+                // Calculate which media item to show
+                let accumulated = 0;
+                for (let i = 0; i < includedItems.length; i++) {
+                  const itemDuration = includedItems[i].duration || 5;
+                  if (time < accumulated + itemDuration) {
+                    setCurrentMediaIndex(i);
+                    break;
+                  }
+                  accumulated += itemDuration;
+                }
+              }}
               className="flex-1 h-2 bg-muted rounded-full cursor-pointer accent-accent-blue"
+              disabled={totalDuration === 0}
             />
             <span className="text-xs text-muted-foreground w-8 text-right">
               {totalDuration}s
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="p-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 transition-colors"
+              disabled={totalDuration === 0}
+              className="p-2 rounded-lg bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPlaying ? (
                 <Pause className="w-5 h-5" />
@@ -236,10 +253,51 @@ export default function MediaTimelinePreview({
                 <Play className="w-5 h-5" />
               )}
             </button>
-            <span className="text-xs text-muted-foreground">
+
+            <button
+              onClick={() => {
+                setPreviewTime(0);
+                setIsPlaying(false);
+                setCurrentMediaIndex(0);
+              }}
+              disabled={totalDuration === 0}
+              className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Reset preview"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
+
+            <span className="text-xs text-muted-foreground ml-auto">
               {getResolutionDimensions()}
             </span>
           </div>
+
+          {includedItems.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {includedItems.map((item, idx) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    let time = 0;
+                    for (let i = 0; i < idx; i++) {
+                      time += includedItems[i].duration || 5;
+                    }
+                    setPreviewTime(time);
+                    setCurrentMediaIndex(idx);
+                    setIsPlaying(false);
+                  }}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    idx === currentMediaIndex
+                      ? "bg-accent-blue text-black"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                  title={item.name}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
