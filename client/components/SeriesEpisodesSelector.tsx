@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X, Sparkles } from "lucide-react";
 
 export interface Episode {
