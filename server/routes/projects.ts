@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { queryAll, queryOne, query } from "../db";
 import { logError } from "../logging";
+import { upsertUser } from "../users";
 
 interface VideoProject {
   id: string;
@@ -13,7 +14,8 @@ interface VideoProject {
 
 export const handleListProjects: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
-  const userId = (req as any).userId;
+  const auth = (req as any).auth;
+  const clerkUserId = auth?.clerkUserId;
 
   if (!userId) {
     return res.status(401).json({
