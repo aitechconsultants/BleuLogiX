@@ -138,7 +138,7 @@ export default function ScriptPanel({
         <input
           type="text"
           value={tone}
-          onChange={(e) => setTone(e.target.value)}
+          onChange={(e) => onToneChange(e.target.value)}
           placeholder="e.g. Educational and calm, High-energy and persuasive, Casual UGC-style, Luxury and premium"
           className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
         />
