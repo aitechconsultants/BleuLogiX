@@ -124,6 +124,25 @@ export default function VideoGeneratorCreate() {
     { number: 5, title: "Media" },
   ];
 
+  const playVoicePreview = async (voiceId: string) => {
+    try {
+      const response = await fetch(`/api/voices/${voiceId}/preview`);
+      if (!response.ok) {
+        console.error("Failed to get voice preview:", response.statusText);
+        return;
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play().catch((error) => {
+        console.error("Failed to play audio:", error);
+      });
+    } catch (error) {
+      console.error("Error playing voice preview:", error);
+    }
+  };
+
   const handleNext = () => {
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
