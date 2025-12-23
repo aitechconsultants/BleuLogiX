@@ -16,7 +16,7 @@ export default function GeneratorInputsForm({
   headlineText,
   onHeadlineChange,
 }: GeneratorInputsFormProps) {
-  const { getToken } = useAuth();
+  const apiFetch = useApiFetch();
   const [videoTopic, setVideoTopic] = useState("");
   const [niche, setNiche] = useState("");
   const [styleTone, setStyleTone] = useState("");
@@ -36,43 +36,16 @@ export default function GeneratorInputsForm({
     setIsGenerating(true);
 
     try {
-      const token = await getToken();
-      if (!token) {
-        setError("Authentication required. Please sign in first.");
-        setIsGenerating(false);
-        return;
-      }
-
-      const response = await fetch("/api/script/generate", {
+      const data = await apiFetch("/api/script/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+        body: {
           videoTopic,
           niche,
           styleTone,
           maxChars: 500,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMessage = errorData.error;
-          }
-        } catch {
-          console.error("Failed to parse error response", response);
-        }
-        console.error("Script generation error:", errorMessage);
-        setError(errorMessage);
-        return;
-      }
-
-      const data = await response.json();
       const script = data.script || "";
 
       if (!script) {
