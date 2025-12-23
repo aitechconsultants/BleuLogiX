@@ -66,6 +66,7 @@ export default function VideoGeneratorCreate() {
     captionStyle: "clean",
     captionColor: "white",
     mediaFiles: [],
+    selectedEpisodes: [],
   });
 
   // Fetch voices from API
