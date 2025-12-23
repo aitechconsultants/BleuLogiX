@@ -243,3 +243,79 @@ export const handleGrantCredits: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Grant credits to current user (admin only)
+export const handleGrantCreditsToSelf: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
+  try {
+    const { amount, reason } = req.body;
+    const clerkUserId = (req as any).auth?.clerkUserId;
+
+    if (!clerkUserId) {
+      return res.status(401).json({
+        error: "Not authenticated",
+        correlationId,
+      });
+    }
+
+    if (!amount) {
+      return res.status(400).json({
+        error: "amount is required",
+        correlationId,
+      });
+    }
+
+    if (typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({
+        error: "amount must be a positive number",
+        correlationId,
+      });
+    }
+
+    // Get or create user
+    let user = await queryOne<{ id: string }>(
+      "SELECT id FROM users WHERE clerk_user_id = $1",
+      [clerkUserId],
+    );
+
+    if (!user) {
+      const result = await query<{ id: string }>(
+        "INSERT INTO users (clerk_user_id) VALUES ($1) RETURNING id",
+        [clerkUserId],
+      );
+      user = result.rows[0];
+    }
+
+    // Add credits to ledger
+    await query(
+      `INSERT INTO credit_ledger (user_id, delta, reason)
+       VALUES ($1, $2, $3)`,
+      [user!.id, amount, reason || "Admin self-grant"],
+    );
+
+    // Get updated balance
+    const result = await queryOne<{ total: number }>(
+      `SELECT COALESCE(SUM(delta), 0) as total FROM credit_ledger WHERE user_id = $1`,
+      [user!.id],
+    );
+
+    return res.json({
+      user_id: user!.id,
+      clerk_user_id: clerkUserId,
+      amount_granted: amount,
+      new_balance: result?.total ?? 0,
+      correlationId,
+    });
+  } catch (error) {
+    logError(
+      { correlationId },
+      "Failed to grant credits to self",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return res.status(500).json({
+      error: "Failed to grant credits",
+      correlationId,
+    });
+  }
+};
