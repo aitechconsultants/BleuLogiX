@@ -7,7 +7,8 @@ import MediaUploader from "@/components/MediaUploader";
 import StockMediaBrowser from "@/components/StockMediaBrowser";
 import PreviewPlayer from "@/components/PreviewPlayer";
 import ExportConfirmationModal from "@/components/ExportConfirmationModal";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import ProjectsList from "@/components/ProjectsList";
+import { ChevronRight, ChevronLeft, Save } from "lucide-react";
 
 interface Voice {
   id: string;
