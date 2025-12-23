@@ -24,7 +24,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
   const auth = (req as any).auth;
   const clerkUserId = auth?.clerkUserId;
-  const { script } = req.body;
+  const { script, episodes } = req.body;
 
   if (!clerkUserId) {
     return res.status(401).json({
@@ -42,7 +42,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[imageGen] POST /api/images/generate - clerkUserId: ${clerkUserId}, script length: ${script.length}, correlationId: ${correlationId}`,
+      `[imageGen] POST /api/images/generate - clerkUserId: ${clerkUserId}, script length: ${script.length}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
     );
 
     const user = await upsertUser(clerkUserId, auth?.email);
@@ -53,7 +53,10 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
       `[imageGen] User ${clerkUserId} has ${creditsRemaining} credits remaining`,
     );
 
-    const result = await imageGenService.generateImagesFromScript(script);
+    const result = await imageGenService.generateImagesFromScript(
+      script,
+      episodes || [],
+    );
     const { prompts, imageUrls, creditCost } = result;
 
     if (creditsRemaining < creditCost) {
