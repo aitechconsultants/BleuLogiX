@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ROUTES } from "@/config/routes";
 import { useApiFetch } from "@/lib/api";
+import DemoVideoModal from "@/components/DemoVideoModal";
 
 export default function Index() {
   const { isSignedIn } = useAuth();
@@ -21,6 +22,7 @@ export default function Index() {
   const location = useLocation();
   const apiFetch = useApiFetch();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   // Scroll to hash section when component mounts or location changes
   useEffect(() => {
