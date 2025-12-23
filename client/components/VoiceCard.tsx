@@ -45,7 +45,9 @@ export default function VoiceCard({
           <h4 className="font-semibold text-foreground text-sm">{name}</h4>
           <p className="text-xs text-muted-foreground">{gender}</p>
         </div>
-        {isSelected && <Check className="w-4 h-4 text-accent-blue flex-shrink-0" />}
+        {isSelected && (
+          <Check className="w-4 h-4 text-accent-blue flex-shrink-0" />
+        )}
       </div>
 
       {/* Voice Summary */}
@@ -58,12 +60,14 @@ export default function VoiceCard({
           )}
           {style && (
             <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Style:</span> {style}
+              <span className="font-medium text-foreground">Style:</span>{" "}
+              {style}
             </p>
           )}
           {useCase && (
             <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Best for:</span> {useCase}
+              <span className="font-medium text-foreground">Best for:</span>{" "}
+              {useCase}
             </p>
           )}
         </div>
