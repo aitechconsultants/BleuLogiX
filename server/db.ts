@@ -27,7 +27,7 @@ export function getPool(): Pool {
 
 export async function query<T = any>(
   text: string,
-  values?: any[]
+  values?: any[],
 ): Promise<QueryResult<T>> {
   const poolInstance = getPool();
   return poolInstance.query<T>(text, values);
@@ -35,7 +35,7 @@ export async function query<T = any>(
 
 export async function queryOne<T = any>(
   text: string,
-  values?: any[]
+  values?: any[],
 ): Promise<T | null> {
   const result = await query<T>(text, values);
   return result.rows[0] || null;
@@ -43,7 +43,7 @@ export async function queryOne<T = any>(
 
 export async function queryAll<T = any>(
   text: string,
-  values?: any[]
+  values?: any[],
 ): Promise<T[]> {
   const result = await query<T>(text, values);
   return result.rows;
