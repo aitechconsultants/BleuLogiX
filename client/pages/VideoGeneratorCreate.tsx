@@ -344,7 +344,9 @@ export default function VideoGeneratorCreate() {
 
       // Trigger browser download with the URL from the API
       // Since the backend returns a fake URL, we'll create a blob with sample content
-      const videoBlob = new Blob(["Sample video content"], { type: "video/mp4" });
+      const videoBlob = new Blob(["Sample video content"], {
+        type: "video/mp4",
+      });
       const downloadUrl = URL.createObjectURL(videoBlob);
 
       const link = document.createElement("a");
@@ -361,7 +363,7 @@ export default function VideoGeneratorCreate() {
       alert(
         error instanceof Error
           ? `Export failed: ${error.message}`
-          : "Export failed. Please try again."
+          : "Export failed. Please try again.",
       );
     } finally {
       setIsExporting(false);
@@ -701,7 +703,7 @@ export default function VideoGeneratorCreate() {
                     }}
                     onItemRemoved={(id) => {
                       const filtered = formState.mediaFiles.filter(
-                        (item) => item.id !== id
+                        (item) => item.id !== id,
                       );
                       setFormState({
                         ...formState,
@@ -710,7 +712,7 @@ export default function VideoGeneratorCreate() {
                     }}
                     onItemToggled={(id, included) => {
                       const updated = formState.mediaFiles.map((item) =>
-                        item.id === id ? { ...item, included } : item
+                        item.id === id ? { ...item, included } : item,
                       );
                       setFormState({
                         ...formState,

@@ -150,7 +150,9 @@ export default function MediaListEditor({
       {items.length > 0 && (
         <div className="p-4 rounded-lg bg-accent-blue/10 border border-accent-blue/50">
           <p className="text-sm text-muted-foreground">Total Video Duration</p>
-          <p className="font-semibold text-foreground text-lg">{totalDuration}s</p>
+          <p className="font-semibold text-foreground text-lg">
+            {totalDuration}s
+          </p>
         </div>
       )}
     </div>

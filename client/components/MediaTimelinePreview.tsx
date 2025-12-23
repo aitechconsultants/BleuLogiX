@@ -55,7 +55,7 @@ export default function MediaTimelinePreview({
   const includedItems = items.filter((item) => item.included !== false);
   const totalDuration = includedItems.reduce(
     (sum, item) => sum + (item.duration || 5),
-    0
+    0,
   );
 
   // Auto-advance through media during playback
@@ -143,7 +143,9 @@ export default function MediaTimelinePreview({
         </h3>
 
         {/* Video Preview Container */}
-        <div className={`relative w-full ${getAspectRatioClass()} rounded-lg overflow-hidden bg-black border-2 border-border group`}>
+        <div
+          className={`relative w-full ${getAspectRatioClass()} rounded-lg overflow-hidden bg-black border-2 border-border group`}
+        >
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-black/20 to-black/40 relative">
             {includedItems.length === 0 ? (
               <div className="text-center">
@@ -179,7 +181,10 @@ export default function MediaTimelinePreview({
                     <p
                       className={getCaptionClasses()}
                       style={{
-                        color: captionStyle === "gradient" ? "transparent" : getCaptionColor(),
+                        color:
+                          captionStyle === "gradient"
+                            ? "transparent"
+                            : getCaptionColor(),
                       }}
                     >
                       {script.split(" ").slice(0, 10).join(" ")}
@@ -311,7 +316,9 @@ export default function MediaTimelinePreview({
               onChange={(e) => onCaptionsToggle(e.target.checked)}
               className="w-4 h-4 rounded border-2 border-border bg-card cursor-pointer accent-accent-blue"
             />
-            <span className="font-semibold text-foreground">Enable Captions</span>
+            <span className="font-semibold text-foreground">
+              Enable Captions
+            </span>
           </label>
         </div>
 
