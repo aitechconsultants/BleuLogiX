@@ -77,6 +77,7 @@ const PREDEFINED_SERIES = [
 export default function SeriesEpisodesSelector({
   selectedEpisodes,
   onEpisodesChange,
+  defaultPrompt = "",
 }: SeriesEpisodesSelectorProps) {
   const [tab, setTab] = useState<"predefined" | "custom" | "ai">("predefined");
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export default function SeriesEpisodesSelector({
   const [customSeasonNumber, setCustomSeasonNumber] = useState("");
   const [customEpisodeNumber, setCustomEpisodeNumber] = useState("");
   const [customEpisodeName, setCustomEpisodeName] = useState("");
-  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiPrompt, setAiPrompt] = useState(defaultPrompt);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
   const addPredefinedEpisode = (
