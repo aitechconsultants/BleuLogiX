@@ -106,6 +106,25 @@ export default function VideoGeneratorCreate() {
     fetchVoices();
   }, []);
 
+  // Fetch user credits
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const response = await fetch("/api/generator/me");
+        if (!response.ok) {
+          throw new Error("Failed to fetch credits");
+        }
+        const data = await response.json();
+        setCreditsRemaining(data.creditsRemaining || 0);
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+        setCreditsRemaining(0);
+      }
+    };
+
+    fetchCredits();
+  }, []);
+
   const saveProject = async () => {
     if (!projectName.trim()) {
       alert("Please enter a project name");
