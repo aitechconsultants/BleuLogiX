@@ -764,6 +764,7 @@ export default function VideoGeneratorCreate() {
                     captionStyle={formState.captionStyle}
                     captionColor={formState.captionColor}
                     resolution={formState.resolution}
+                    selectedVoiceId={formState.selectedVoice}
                     onCaptionsToggle={(enabled) => {
                       setFormState({
                         ...formState,
