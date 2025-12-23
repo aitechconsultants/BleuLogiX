@@ -48,6 +48,10 @@ export default function VideoGeneratorCreate() {
   const [voices, setVoices] = useState<Voice[]>([]);
   const [voicesLoading, setVoicesLoading] = useState(true);
   const [voicesError, setVoicesError] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState("");
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [projectsRefreshTrigger, setProjectsRefreshTrigger] = useState(0);
   const [formState, setFormState] = useState<FormState>({
     resolution: "vertical",
     duration: 15,
