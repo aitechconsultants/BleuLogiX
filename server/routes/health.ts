@@ -252,7 +252,10 @@ export const handleHealthDB: RequestHandler = async (req, res) => {
   const adminTokenParam = req.query.adminToken;
 
   // Check authorization: either valid ADMIN_TOKEN param or admin user (via requireAdminAuth)
-  const hasAdminAuth = (req as any).user && ((req as any).user.role === "admin" || (req as any).user.role === "superadmin");
+  const hasAdminAuth =
+    (req as any).user &&
+    ((req as any).user.role === "admin" ||
+      (req as any).user.role === "superadmin");
   const hasAdminToken = adminToken && adminToken === adminTokenParam;
 
   if (!hasAdminAuth && !hasAdminToken) {
