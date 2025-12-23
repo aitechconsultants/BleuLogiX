@@ -31,6 +31,8 @@ import {
 import { handleGenerateScript } from "./routes/script";
 import { scriptGenRouter } from "./routes/scriptGen";
 
+import { handleGetVoices, handleGetVoicePreview } from "./routes/voices";
+
 import {
   handleAddAccount,
   handleListAccounts,
