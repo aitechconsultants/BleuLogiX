@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { Check, X, Copy, AlertCircle } from "lucide-react";
 import RequireAdmin from "@/components/RequireAdmin";
+import { useApiFetch, APIError } from "@/lib/api";
 
 interface HealthCheck {
   name: string;
