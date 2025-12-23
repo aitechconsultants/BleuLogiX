@@ -90,6 +90,15 @@ export default function SeriesEpisodesSelector({
   const [aiPrompt, setAiPrompt] = useState(defaultPrompt);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
+  // Update aiPrompt when defaultPrompt changes (user updates video topic)
+  useEffect(() => {
+    // Only update if aiPrompt is empty or equals the old defaultPrompt
+    // This prevents overwriting user edits
+    if (!aiPrompt || aiPrompt === defaultPrompt) {
+      setAiPrompt(defaultPrompt);
+    }
+  }, [defaultPrompt]);
+
   const addPredefinedEpisode = (
     seriesName: string,
     seasonNumber: number,
