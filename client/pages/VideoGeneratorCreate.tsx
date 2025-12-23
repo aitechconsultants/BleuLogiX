@@ -580,6 +580,7 @@ export default function VideoGeneratorCreate() {
               </h3>
               <AIMediaGenerator
                 script={formState.script}
+                episodes={formState.selectedEpisodes}
                 onMediaSelected={(media) => {
                   const newMediaFiles = [
                     ...formState.mediaFiles,
