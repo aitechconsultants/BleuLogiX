@@ -1,10 +1,11 @@
+import { OpenAI } from "openai";
 import { query } from "../db";
 import { logError } from "../logging";
 
 export type GenerateScriptInput = {
   videoTopic: string;
-  niche: string;
-  styleTone: string;
+  niche?: string;
+  styleTone?: string;
   maxChars?: number;
 };
 
@@ -22,21 +23,26 @@ export type ScriptGenJob = {
 };
 
 class ScriptGenService {
-  private pipedrreamUrl: string;
-  private pipedrreamToken: string;
+  private openaiApiKey: string;
+  private openaiModel: string;
+  private maxTokens: number;
   private timeoutMs: number;
   private enableMock: boolean;
 
   constructor() {
-    this.pipedrreamUrl = process.env.SCRIPT_GEN_URL || "";
-    this.pipedrreamToken = process.env.SCRIPT_GEN_TOKEN || "";
-    this.timeoutMs = parseInt(process.env.SCRIPT_GEN_TIMEOUT_MS || "30000", 10);
+    this.openaiApiKey = process.env.OPENAI_API_KEY || "";
+    this.openaiModel = process.env.SCRIPT_GEN_MODEL || "gpt-4-mini";
+    this.maxTokens = parseInt(
+      process.env.SCRIPT_GEN_MAX_TOKENS || "1200",
+      10,
+    );
+    this.timeoutMs = parseInt(process.env.SCRIPT_GEN_TIMEOUT_MS || "45000", 10);
     this.enableMock =
       (process.env.SCRIPT_GEN_ENABLE_MOCK || "").toLowerCase() === "true";
   }
 
   private validateConfig(): void {
-    if (!this.pipedrreamUrl || !this.pipedrreamToken) {
+    if (!this.openaiApiKey && !this.enableMock) {
       throw new Error("server_misconfigured");
     }
   }
@@ -44,11 +50,35 @@ class ScriptGenService {
   private generateMockScript(input: GenerateScriptInput) {
     return {
       success: true,
-      script: `Mock script for ${input.videoTopic} in ${input.niche} style: ${input.styleTone}`,
+      script: `Mock script for "${input.videoTopic}". This is a test script for the ${input.niche || "general"} niche with a ${input.styleTone || "neutral"} tone. The script is designed to be engaging and fits within ${input.maxChars || 2000} characters.`,
       topic: input.videoTopic,
-      niche: input.niche,
-      tone: input.styleTone,
+      niche: input.niche || "general",
+      tone: input.styleTone || "neutral",
+      word_count: 42,
+      character_count: 285,
     };
+  }
+
+  private buildPrompt(input: GenerateScriptInput): string {
+    const niche = input.niche ? `Niche: ${input.niche}\n` : "";
+    const tone = input.styleTone ? `Tone: ${input.styleTone}\n` : "";
+    const maxChars = input.maxChars || 2000;
+
+    return `You are an expert video script writer specializing in short-form content (TikTok, Instagram Reels, YouTube Shorts).
+
+Generate a compelling video script for the following topic:
+
+Topic: ${input.videoTopic}
+${niche}${tone}Maximum characters: ${maxChars}
+
+Requirements:
+- Write an engaging script that grabs attention in the first 3 seconds
+- Keep it within ${maxChars} characters
+- Use clear, conversational language
+- Include a strong call-to-action at the end
+- Format with line breaks for easy reading
+
+Output ONLY the script text, no additional explanation or metadata.`;
   }
 
   async generateScript(
@@ -63,10 +93,10 @@ class ScriptGenService {
       this.validateConfig();
 
       const jobResult = await query<{ id: string }>(
-        `INSERT INTO script_gen_jobs (user_id, status, input_json)
-         VALUES ($1, 'running', $2)
+        `INSERT INTO script_gen_jobs (user_id, status, input_json, model)
+         VALUES ($1, 'running', $2, $3)
          RETURNING id`,
-        [userId, JSON.stringify(input)],
+        [userId, JSON.stringify(input), this.openaiModel],
       );
 
       jobId = jobResult.rows[0]?.id;
@@ -77,7 +107,7 @@ class ScriptGenService {
         const mockOutput = this.generateMockScript(input);
         await query(
           `UPDATE script_gen_jobs
-           SET status='succeeded', output_json=$1, updated_at=NOW()
+           SET status='succeeded', output_json=$1, tokens_in=10, tokens_out=42, updated_at=NOW()
            WHERE id=$2`,
           [JSON.stringify(mockOutput), jobId],
         );
@@ -94,38 +124,55 @@ class ScriptGenService {
         ),
       );
 
-      const requestBody = {
-        videoTopic: input.videoTopic,
-        niche: input.niche,
-        styleTone: input.styleTone,
-        maxChars: input.maxChars || 2000,
-      };
+      const client = new OpenAI({
+        apiKey: this.openaiApiKey,
+      });
 
-      const response: any = await Promise.race([
-        fetch(this.pipedrreamUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-script-gen-token": this.pipedrreamToken,
-          },
-          body: JSON.stringify(requestBody),
+      const prompt = this.buildPrompt(input);
+
+      const chatCompletion: any = await Promise.race([
+        client.chat.completions.create({
+          model: this.openaiModel,
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          max_tokens: this.maxTokens,
+          temperature: 0.7,
         }),
         timeoutPromise,
       ]);
 
-      if (!response.ok) {
+      const scriptText =
+        chatCompletion.choices[0]?.message?.content || "";
+      if (!scriptText) {
         throw new Error(
-          `Pipedream returned ${response.status}: ${response.statusText}`,
+          "OpenAI returned empty response",
         );
       }
 
-      const scriptOutput = await response.json();
+      const tokensIn = chatCompletion.usage?.prompt_tokens || 0;
+      const tokensOut = chatCompletion.usage?.completion_tokens || 0;
+
+      const scriptOutput = {
+        success: true,
+        script: scriptText.trim(),
+        topic: input.videoTopic,
+        niche: input.niche || "general",
+        tone: input.styleTone || "neutral",
+        word_count: scriptText.trim().split(/\s+/).length,
+        character_count: scriptText.length,
+        model: this.openaiModel,
+        tokens_used: tokensIn + tokensOut,
+      };
 
       await query(
         `UPDATE script_gen_jobs
-         SET status='succeeded', output_json=$1, updated_at=NOW()
-         WHERE id=$2`,
-        [JSON.stringify(scriptOutput), jobId],
+         SET status='succeeded', output_json=$1, tokens_in=$2, tokens_out=$3, updated_at=NOW()
+         WHERE id=$4`,
+        [JSON.stringify(scriptOutput), tokensIn, tokensOut, jobId],
       );
 
       return scriptOutput;
@@ -155,16 +202,19 @@ class ScriptGenService {
     }
   }
 
-  async checkPipedrreamHealth(): Promise<boolean> {
+  async checkOpenAIHealth(): Promise<boolean> {
     try {
-      this.validateConfig();
-      const response = await fetch(this.pipedrreamUrl, {
-        method: "HEAD",
-        headers: {
-          "x-script-gen-token": this.pipedrreamToken,
-        },
+      if (!this.openaiApiKey && !this.enableMock) {
+        return false;
+      }
+      if (this.enableMock) {
+        return true;
+      }
+      const client = new OpenAI({
+        apiKey: this.openaiApiKey,
       });
-      return response.ok;
+      await client.models.list();
+      return true;
     } catch {
       return false;
     }
