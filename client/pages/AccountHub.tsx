@@ -5,6 +5,7 @@ import AddSocialAccountModal from "@/components/accounts/AddSocialAccountModal";
 import SocialAccountCard from "@/components/accounts/SocialAccountCard";
 import { toast } from "sonner";
 import { getAffiliateProfile, AffiliateProfile } from "@/lib/affiliateApi";
+import { useApiFetch, APIError } from "@/lib/api";
 
 interface SocialAccount {
   id: string;
