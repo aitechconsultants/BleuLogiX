@@ -16,6 +16,7 @@ interface MediaTimelinePreviewProps {
   captionStyle: string;
   captionColor: string;
   resolution: "vertical" | "square" | "horizontal";
+  selectedVoiceId?: string;
   onCaptionsToggle: (enabled: boolean) => void;
   onCaptionStyleChange: (style: string) => void;
   onCaptionColorChange: (color: string) => void;
