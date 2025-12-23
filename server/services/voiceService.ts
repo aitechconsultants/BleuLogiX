@@ -109,12 +109,37 @@ const VOICE_GENDER_TO_OPENAI_VOICE: Record<string, string> = {
 };
 
 export class VoiceService {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
+  private openaiInitialized = false;
 
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    this.initializeOpenAI();
+  }
+
+  private initializeOpenAI(): void {
+    if (this.openaiInitialized) {
+      return;
+    }
+
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        console.warn("[VoiceService] OPENAI_API_KEY not set");
+        this.openai = null;
+      } else {
+        this.openai = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+          timeout: 30000,
+          httpAgent: undefined,
+          maxRetries: 1,
+        });
+        console.log("[VoiceService] OpenAI client initialized");
+      }
+    } catch (error) {
+      console.error("[VoiceService] Failed to initialize OpenAI client:", error);
+      this.openai = null;
+    }
+
+    this.openaiInitialized = true;
   }
 
   getAvailableVoices(): Voice[] {
@@ -126,6 +151,10 @@ export class VoiceService {
   }
 
   async generateVoicePreview(voiceId: string, text: string): Promise<Buffer> {
+    if (!this.openai) {
+      throw new Error("OpenAI client not available. OPENAI_API_KEY may not be configured.");
+    }
+
     const voice = this.getVoiceById(voiceId);
     if (!voice) {
       throw new Error(`Voice not found: ${voiceId}`);
@@ -134,6 +163,10 @@ export class VoiceService {
     const openaiVoice = VOICE_GENDER_TO_OPENAI_VOICE[voice.name] || "alloy";
 
     try {
+      console.log(
+        `[VoiceService] Generating preview for voice ${voiceId} (${voice.name})`
+      );
+
       const response = await this.openai.audio.speech.create({
         model: "tts-1",
         voice: openaiVoice as
@@ -147,10 +180,19 @@ export class VoiceService {
       });
 
       const buffer = Buffer.from(await response.arrayBuffer());
+      console.log(
+        `[VoiceService] Generated preview for voice ${voiceId}, size: ${buffer.length} bytes`
+      );
       return buffer;
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error(
+        `[VoiceService] Failed to generate preview for voice ${voiceId}:`,
+        errorMessage
+      );
       throw new Error(
-        `Failed to generate voice preview: ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to generate voice preview: ${errorMessage}`
       );
     }
   }
