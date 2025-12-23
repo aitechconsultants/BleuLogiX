@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
 export interface MediaItem {
   id: string;
