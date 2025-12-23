@@ -806,7 +806,7 @@ export default function VideoGeneratorCreate() {
         onConfirm={handleExport}
         onCancel={() => setShowExportModal(false)}
         creditsRequired={50}
-        creditsAvailable={42}
+        creditsAvailable={creditsRemaining}
         videoTitle={formState.script.slice(0, 50) || "Untitled Video"}
       />
     </div>
