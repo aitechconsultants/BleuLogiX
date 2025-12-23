@@ -334,12 +334,32 @@ export default function MediaTimelinePreview({
                 setPreviewTime(0);
                 setIsPlaying(false);
                 setCurrentMediaIndex(0);
+                if (audioRef.current) {
+                  audioRef.current.currentTime = 0;
+                }
               }}
               disabled={totalDuration === 0}
               className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="Reset preview"
             >
               <RotateCcw className="w-5 h-5" />
+            </button>
+
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              disabled={!audioUrl || isGeneratingAudio}
+              className={`p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                isMuted
+                  ? "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  : "bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30"
+              }`}
+              title={isMuted ? "Unmute voiceover" : "Mute voiceover"}
+            >
+              {isMuted ? (
+                <VolumeX className="w-5 h-5" />
+              ) : (
+                <Volume2 className="w-5 h-5" />
+              )}
             </button>
 
             <span className="text-xs text-muted-foreground ml-auto">
