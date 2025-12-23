@@ -80,9 +80,7 @@ export default function VoiceCard({
             )}
             {useCase && (
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">
-                  Best for:
-                </span>{" "}
+                <span className="font-medium text-foreground">Best for:</span>{" "}
                 {useCase}
               </p>
             )}
