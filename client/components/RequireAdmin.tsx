@@ -9,8 +9,9 @@ interface RequireAdminProps {
 }
 
 export default function RequireAdmin({ children }: RequireAdminProps) {
-  const { getToken, userId } = useAuth();
+  const { userId } = useAuth();
   const navigate = useNavigate();
+  const apiFetch = useApiFetch();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,37 +24,22 @@ export default function RequireAdmin({ children }: RequireAdminProps) {
         }
 
         // Verify admin status by calling a protected endpoint
-        const token = await getToken();
-        if (!token) {
-          setIsAdmin(false);
-          return;
-        }
-
-        const response = await fetch("/api/health/integrations", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 403) {
-          setError("You do not have permission to access this page.");
-          setIsAdmin(false);
-        } else if (response.ok) {
-          setIsAdmin(true);
-        } else {
-          setError("Failed to verify admin status.");
-          setIsAdmin(false);
-        }
+        await apiFetch("/api/health/integrations");
+        setIsAdmin(true);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to verify admin status"
-        );
+        if (err instanceof Error && err.message.includes("403")) {
+          setError("You do not have permission to access this page.");
+        } else {
+          setError(
+            err instanceof Error ? err.message : "Failed to verify admin status",
+          );
+        }
         setIsAdmin(false);
       }
     };
 
     checkAdmin();
-  }, [userId, getToken]);
+  }, [userId, apiFetch]);
 
   if (isAdmin === null) {
     return (
