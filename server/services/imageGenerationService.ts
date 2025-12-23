@@ -192,14 +192,17 @@ Return ONLY valid JSON in this exact format:
   /**
    * Full pipeline: extract prompts from script and generate images
    */
-  async generateImagesFromScript(script: string): Promise<{
+  async generateImagesFromScript(
+    script: string,
+    episodes: any[] = [],
+  ): Promise<{
     prompts: ImagePrompt[];
     imageUrls: string[];
     creditCost: number;
   }> {
     console.log("[imageGen] Starting image generation pipeline");
 
-    const prompts = await this.extractImagePromptsFromScript(script);
+    const prompts = await this.extractImagePromptsFromScript(script, episodes);
     console.log(`[imageGen] Extracted ${prompts.length} image prompts`);
 
     const imageUrls = await this.generateImages(prompts);
