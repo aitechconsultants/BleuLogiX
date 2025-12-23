@@ -244,6 +244,65 @@ export const handleGrantCredits: RequestHandler = async (req, res) => {
   }
 };
 
+// Debug endpoint - check current user's state (requires auth)
+export const handleUserDebugInfo: RequestHandler = async (req, res) => {
+  const correlationId = (req as any).correlationId || "unknown";
+
+  try {
+    const clerkUserId = (req as any).auth?.clerkUserId;
+
+    if (!clerkUserId) {
+      return res.status(401).json({
+        error: "Not authenticated",
+        correlationId,
+      });
+    }
+
+    // Get user info
+    const user = await queryOne<{
+      id: string;
+      clerk_user_id: string;
+      role: string;
+    }>("SELECT id, clerk_user_id, role FROM users WHERE clerk_user_id = $1", [
+      clerkUserId,
+    ]);
+
+    if (!user) {
+      return res.json({
+        clerk_user_id: clerkUserId,
+        user_found: false,
+        message: "User not found in database",
+        correlationId,
+      });
+    }
+
+    // Get credits
+    const creditsResult = await queryOne<{ total: number }>(
+      `SELECT COALESCE(SUM(delta), 0) as total FROM credit_ledger WHERE user_id = $1`,
+      [user.id],
+    );
+
+    return res.json({
+      clerk_user_id: clerkUserId,
+      user_id: user.id,
+      role: user.role,
+      is_admin: user.role === "admin" || user.role === "superadmin",
+      total_credits: creditsResult?.total ?? 0,
+      correlationId,
+    });
+  } catch (error) {
+    logError(
+      { correlationId },
+      "Failed to get user debug info",
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return res.status(500).json({
+      error: "Failed to get user info",
+      correlationId,
+    });
+  }
+};
+
 // Bootstrap endpoint - set current user as admin (one-time, requires valid JWT)
 export const handleBootstrapAdmin: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
