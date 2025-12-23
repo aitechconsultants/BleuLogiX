@@ -8,6 +8,7 @@ import {
   User,
 } from "../users";
 import { logError } from "../logging";
+import { query, queryOne } from "../db";
 
 // Get all users (admin only)
 export const handleGetAllUsers: RequestHandler = async (req, res) => {
