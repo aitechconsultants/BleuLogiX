@@ -34,6 +34,14 @@ import { scriptGenRouter } from "./routes/scriptGen";
 import { handleGetVoices, handleGetVoicePreview } from "./routes/voices";
 
 import {
+  handleListProjects,
+  handleGetProject,
+  handleCreateProject,
+  handleUpdateProject,
+  handleDeleteProject,
+} from "./routes/projects";
+
+import {
   handleAddAccount,
   handleListAccounts,
   handleRefreshAccount,
