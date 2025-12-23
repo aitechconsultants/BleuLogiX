@@ -5,6 +5,9 @@ import VoiceCard from "@/components/VoiceCard";
 import CaptionStyleSelector from "@/components/CaptionStyleSelector";
 import MediaUploader from "@/components/MediaUploader";
 import AIMediaGenerator from "@/components/AIMediaGenerator";
+import SeriesEpisodesSelector, {
+  Episode,
+} from "@/components/SeriesEpisodesSelector";
 import PreviewPlayer from "@/components/PreviewPlayer";
 import ExportConfirmationModal from "@/components/ExportConfirmationModal";
 import ProjectsList from "@/components/ProjectsList";
