@@ -33,6 +33,9 @@ export default function VideoGeneratorCreate() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [voices, setVoices] = useState<Voice[]>([]);
+  const [voicesLoading, setVoicesLoading] = useState(true);
+  const [voicesError, setVoicesError] = useState<string | null>(null);
   const [formState, setFormState] = useState<FormState>({
     resolution: "vertical",
     duration: 15,
@@ -44,6 +47,31 @@ export default function VideoGeneratorCreate() {
     captionColor: "white",
     mediaFiles: [],
   });
+
+  // Fetch voices from API
+  useEffect(() => {
+    const fetchVoices = async () => {
+      try {
+        setVoicesLoading(true);
+        const response = await fetch("/api/voices");
+        if (!response.ok) {
+          throw new Error("Failed to fetch voices");
+        }
+        const data = await response.json();
+        setVoices(data.voices || []);
+        setVoicesError(null);
+      } catch (error) {
+        console.error("Error fetching voices:", error);
+        setVoicesError(
+          error instanceof Error ? error.message : "Failed to fetch voices"
+        );
+      } finally {
+        setVoicesLoading(false);
+      }
+    };
+
+    fetchVoices();
+  }, []);
 
   const styles = [
     {
