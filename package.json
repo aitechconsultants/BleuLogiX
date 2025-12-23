@@ -7,7 +7,7 @@
     "scripts": ["dist/server/**/*.js"]
   },
   "scripts": {
-    "dev": "concurrently --kill-others \"PORT=3000 node dist/server/production.mjs\" \"vite\"",
+    "dev": "concurrently --kill-others \"PORT=3000 node dist/server/node-build.mjs\" \"vite\"",
     "dev:vite": "vite",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
