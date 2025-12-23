@@ -182,6 +182,7 @@ export default function SeriesEpisodesSelector({
 
       onEpisodesChange([...selectedEpisodes, ...newEpisodes]);
       setAiPrompt("");
+      setHasUserEditedPrompt(false);
       alert(`Generated ${newEpisodes.length} AI episodes`);
     } catch (error) {
       console.error("Error generating episodes:", error);
