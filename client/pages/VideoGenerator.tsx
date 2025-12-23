@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TemplateCard from "@/components/TemplateCard";
 import { Play, Download, Zap, ArrowRight } from "lucide-react";
@@ -15,7 +15,25 @@ interface RecentVideo {
 
 export default function VideoGenerator() {
   const navigate = useNavigate();
-  const [creditsRemaining] = useState(42);
+  const [creditsRemaining, setCreditsRemaining] = useState(0);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const response = await fetch("/api/generator/me");
+        if (!response.ok) {
+          throw new Error("Failed to fetch credits");
+        }
+        const data = await response.json();
+        setCreditsRemaining(data.creditsRemaining || 0);
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+        setCreditsRemaining(0);
+      }
+    };
+
+    fetchCredits();
+  }, []);
 
   const templates = [
     {
