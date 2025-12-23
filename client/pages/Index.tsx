@@ -764,6 +764,8 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      <DemoVideoModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
     </>
   );
 }
