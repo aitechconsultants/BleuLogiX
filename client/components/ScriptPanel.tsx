@@ -5,6 +5,12 @@ import { useScriptGenApi } from "../lib/scriptGenApi";
 interface ScriptPanelProps {
   value: string;
   onChange: (value: string) => void;
+  topic: string;
+  onTopicChange: (value: string) => void;
+  niche: string;
+  onNicheChange: (value: string) => void;
+  tone: string;
+  onToneChange: (value: string) => void;
   maxLength?: number;
   onImproveScript?: () => void;
 }
@@ -12,12 +18,15 @@ interface ScriptPanelProps {
 export default function ScriptPanel({
   value,
   onChange,
+  topic,
+  onTopicChange,
+  niche,
+  onNicheChange,
+  tone,
+  onToneChange,
   maxLength = 2000,
   onImproveScript,
 }: ScriptPanelProps) {
-  const [topic, setTopic] = useState("");
-  const [niche, setNiche] = useState("");
-  const [tone, setTone] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
