@@ -121,7 +121,7 @@ export default function ScriptPanel({
         <input
           type="text"
           value={niche}
-          onChange={(e) => setNiche(e.target.value)}
+          onChange={(e) => onNicheChange(e.target.value)}
           placeholder="e.g. Real estate agents, SaaS founders, fitness coaches, dropshippers"
           className="w-full px-4 py-2 rounded-lg bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent-blue"
         />
