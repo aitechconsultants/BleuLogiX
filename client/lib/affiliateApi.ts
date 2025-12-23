@@ -11,28 +11,20 @@ export interface AffiliateProfile {
   created_at: string;
 }
 
-export async function getAffiliateProfile(): Promise<AffiliateProfile> {
-  const response = await fetch("/api/affiliate/profile");
+type ApiFetch = (path: string, options?: any) => Promise<any>;
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch affiliate profile");
-  }
-
-  const data = await response.json();
+export async function getAffiliateProfile(
+  apiFetch: ApiFetch,
+): Promise<AffiliateProfile> {
+  const data = await apiFetch("/api/affiliate/profile");
   return data.profile;
 }
 
-export async function createAffiliateProfile(): Promise<AffiliateProfile> {
-  const response = await fetch("/api/affiliate/create", {
+export async function createAffiliateProfile(
+  apiFetch: ApiFetch,
+): Promise<AffiliateProfile> {
+  const data = await apiFetch("/api/affiliate/create", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to create affiliate profile");
-  }
-
-  const data = await response.json();
   return data.profile;
 }
