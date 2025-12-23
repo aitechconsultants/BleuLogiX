@@ -74,16 +74,12 @@ export default function MediaTimelinePreview({
 
       setIsGeneratingAudio(true);
       try {
-        const response = await fetch("/api/text-to-speech", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: script,
-            voiceId: selectedVoiceId,
-          }),
+        const params = new URLSearchParams({
+          text: script,
         });
+        const response = await fetch(
+          `/api/voices/${selectedVoiceId}/preview?${params}`,
+        );
 
         if (!response.ok) {
           console.error("Failed to generate audio:", response.status);
