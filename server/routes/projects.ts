@@ -17,7 +17,7 @@ export const handleListProjects: RequestHandler = async (req, res) => {
   const auth = (req as any).auth;
   const clerkUserId = auth?.clerkUserId;
 
-  if (!userId) {
+  if (!clerkUserId) {
     return res.status(401).json({
       error: "Unauthorized",
       correlationId,
@@ -26,8 +26,11 @@ export const handleListProjects: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[projects] GET /api/projects - userId: ${userId}, correlationId: ${correlationId}`,
+      `[projects] GET /api/projects - clerkUserId: ${clerkUserId}, correlationId: ${correlationId}`,
     );
+
+    const user = await upsertUser(clerkUserId, auth?.email);
+    const userId = user.id;
 
     const projects = await queryAll<VideoProject>(
       `SELECT id, user_id, name, form_state, created_at, updated_at
@@ -38,7 +41,7 @@ export const handleListProjects: RequestHandler = async (req, res) => {
     );
 
     console.log(
-      `[projects] Found ${projects.length} projects for user ${userId}`,
+      `[projects] Found ${projects.length} projects for user ${clerkUserId}`,
     );
 
     res.json({
