@@ -182,6 +182,9 @@ export function createServer() {
     handleExtractImagePrompts,
   );
 
+  // Episode generation routes (protected)
+  app.post("/api/episodes/generate", requireClerkAuth, handleGenerateEpisodes);
+
   // Script generation proxy route (requires auth)
   app.post("/api/script/generate", requireClerkAuth, handleGenerateScript);
 
