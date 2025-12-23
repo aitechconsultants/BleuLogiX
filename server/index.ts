@@ -125,6 +125,7 @@ export function createServer() {
 
   // Auth routes
   app.post("/api/auth/sync", requireClerkAuth, handleSync);
+  app.get("/api/auth/debug", requireClerkAuth, handleAuthDebug);
 
   // Protected routes
   app.use("/api/billing", requireClerkAuth);
