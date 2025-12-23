@@ -19,6 +19,7 @@ export default function Index() {
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const apiFetch = useApiFetch();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // Scroll to hash section when component mounts or location changes
@@ -50,21 +51,13 @@ export default function Index() {
 
     try {
       setCheckoutLoading(true);
-      const response = await fetch("/api/billing/create-checkout-session", {
+      const data = await apiFetch("/api/billing/create-checkout-session", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: { plan },
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        alert(error.error || "Failed to create checkout session");
-        return;
-      }
-
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
+      if (data.url) {
+        window.location.href = data.url;
       }
     } catch (error) {
       alert("An error occurred. Please try again.");
