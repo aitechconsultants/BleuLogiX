@@ -77,7 +77,9 @@ export default function CreditsBadge() {
             </div>
             <div className="flex justify-between gap-4">
               <span>Script Generation:</span>
-              <span className="font-medium">{creditCosts.scriptGeneration}</span>
+              <span className="font-medium">
+                {creditCosts.scriptGeneration}
+              </span>
             </div>
             <div className="flex justify-between gap-4">
               <span>Style Selection:</span>
