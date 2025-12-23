@@ -6,6 +6,9 @@ export interface Voice {
   lang: string;
   gender: string;
   isPremium: boolean;
+  tone: string;
+  style: string;
+  useCase: string;
 }
 
 const VOICES: Voice[] = [
@@ -15,6 +18,9 @@ const VOICES: Voice[] = [
     gender: "Male",
     lang: "English",
     isPremium: false,
+    tone: "Friendly & Approachable",
+    style: "Conversational",
+    useCase: "Tutorials, casual explainers, friendly advice",
   },
   {
     id: "voice2",
@@ -22,6 +28,9 @@ const VOICES: Voice[] = [
     gender: "Female",
     lang: "English",
     isPremium: false,
+    tone: "Professional & Clear",
+    style: "Informative",
+    useCase: "News, reports, educational content",
   },
   {
     id: "voice3",
@@ -29,6 +38,9 @@ const VOICES: Voice[] = [
     gender: "Non-binary",
     lang: "English",
     isPremium: false,
+    tone: "Energetic & Engaging",
+    style: "Upbeat",
+    useCase: "Social media, promotional, lifestyle content",
   },
   {
     id: "voice4",
@@ -36,6 +48,9 @@ const VOICES: Voice[] = [
     gender: "Female",
     lang: "English",
     isPremium: false,
+    tone: "Warm & Confident",
+    style: "Narrator",
+    useCase: "Stories, documentaries, corporate videos",
   },
   {
     id: "voice5",
@@ -43,6 +58,9 @@ const VOICES: Voice[] = [
     gender: "Male",
     lang: "English",
     isPremium: true,
+    tone: "Dynamic & Commanding",
+    style: "Authoritative",
+    useCase: "Trailers, dramatic scenes, powerful messages",
   },
   {
     id: "voice6",
@@ -50,6 +68,9 @@ const VOICES: Voice[] = [
     gender: "Female",
     lang: "English",
     isPremium: true,
+    tone: "Sophisticated & Polished",
+    style: "Premium",
+    useCase: "Luxury products, high-end commercials",
   },
   {
     id: "voice7",
@@ -57,6 +78,9 @@ const VOICES: Voice[] = [
     gender: "Male",
     lang: "English",
     isPremium: true,
+    tone: "Calm & Soothing",
+    style: "Meditative",
+    useCase: "Wellness, meditation, relaxation content",
   },
   {
     id: "voice8",
@@ -64,6 +88,9 @@ const VOICES: Voice[] = [
     gender: "Female",
     lang: "English",
     isPremium: true,
+    tone: "Energetic & Fun",
+    style: "Playful",
+    useCase: "Comedy, gaming, entertainment content",
   },
   {
     id: "voice9",
@@ -71,6 +98,9 @@ const VOICES: Voice[] = [
     gender: "Male",
     lang: "English",
     isPremium: true,
+    tone: "Bold & Passionate",
+    style: "Motivational",
+    useCase: "Inspirational, fitness, self-help videos",
   },
   {
     id: "voice10",
@@ -78,6 +108,9 @@ const VOICES: Voice[] = [
     gender: "Female",
     lang: "English",
     isPremium: true,
+    tone: "Elegant & Articulate",
+    style: "Premium Narrator",
+    useCase: "Documentaries, prestige brands, podcasts",
   },
   {
     id: "voice11",
@@ -85,6 +118,9 @@ const VOICES: Voice[] = [
     gender: "Male",
     lang: "English",
     isPremium: true,
+    tone: "Deep & Resonant",
+    style: "Dramatic",
+    useCase: "Movie trailers, epic content, announcements",
   },
   {
     id: "voice12",
@@ -92,6 +128,9 @@ const VOICES: Voice[] = [
     gender: "Female",
     lang: "English",
     isPremium: true,
+    tone: "Crisp & Professional",
+    style: "Business",
+    useCase: "Corporate presentations, training, B2B",
   },
 ];
 
