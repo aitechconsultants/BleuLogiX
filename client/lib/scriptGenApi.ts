@@ -1,4 +1,5 @@
 import { useAuth } from "@clerk/clerk-react";
+import { useApiFetch, APIError } from "./api";
 
 export interface GenerateScriptInput {
   videoTopic: string;
@@ -17,49 +18,37 @@ export interface GenerateScriptResponse {
   message?: string;
 }
 
-export async function generateScript(
-  payload: GenerateScriptInput,
-  token: string,
-): Promise<GenerateScriptResponse> {
-  const response = await fetch("/api/script-gen/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-    try {
-      const errorData = await response.json();
-      if (errorData.error === "upgrade_required") {
-        errorMessage = `Insufficient credits. ${errorData.message || "Please upgrade your plan."}`;
-      } else if (errorData.error) {
-        errorMessage = errorData.error;
-      }
-    } catch {
-      // Ignore parsing errors
-    }
-    throw new Error(errorMessage);
-  }
-
-  return response.json();
-}
-
-// Hook for script generation
+// Hook for script generation using canonical apiFetch
 export function useScriptGenApi() {
   const auth = useAuth();
+  const apiFetch = useApiFetch();
 
   return {
     generateScript: async (payload: GenerateScriptInput) => {
       if (!auth.isSignedIn) {
         throw new Error("Please sign in to generate scripts");
       }
-      const token = await auth.getToken();
-      if (!token) throw new Error("Failed to get authentication token");
-      return generateScript(payload, token);
+
+      try {
+        const response: GenerateScriptResponse = await apiFetch(
+          "/api/script-gen/generate",
+          {
+            method: "POST",
+            body: payload,
+          },
+        );
+
+        return response;
+      } catch (error) {
+        if (error instanceof APIError) {
+          if (error.status === 403 && error.data?.error === "upgrade_required") {
+            throw new Error(
+              `Insufficient credits. ${error.data.message || "Please upgrade your plan."}`,
+            );
+          }
+        }
+        throw error;
+      }
     },
   };
 }
