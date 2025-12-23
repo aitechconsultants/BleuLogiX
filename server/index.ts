@@ -53,6 +53,7 @@ import {
   handleUpdateUserRole,
   handleSetPlanOverride,
   handleClearPlanOverride,
+  handleGrantCredits,
 } from "./routes/adminUsers";
 
 import {
