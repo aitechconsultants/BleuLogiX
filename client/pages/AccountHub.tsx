@@ -32,6 +32,7 @@ interface ListResponse {
 
 export default function AccountHub() {
   const { isSignedIn } = useAuth();
+  const apiFetch = useApiFetch();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,13 +52,7 @@ export default function AccountHub() {
 
     try {
       setError(null);
-      const response = await fetch("/api/social-accounts");
-
-      if (!response.ok) {
-        throw new Error("Failed to load accounts");
-      }
-
-      const data: ListResponse = await response.json();
+      const data: ListResponse = await apiFetch("/api/social-accounts");
       setAccounts(data.accounts);
       setPlan(data.plan);
       setAccountLimit(data.accountLimit);
