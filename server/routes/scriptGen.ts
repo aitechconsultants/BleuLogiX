@@ -223,6 +223,7 @@ export const handleGenerateScript: RequestHandler = async (req, res) => {
 };
 
 scriptGenRouter.get("/health", handleScriptGenHealth);
+scriptGenRouter.get("/debug", handleScriptGenDebug);
 scriptGenRouter.post("/generate", handleGenerateScript);
 
 export { scriptGenRouter };
