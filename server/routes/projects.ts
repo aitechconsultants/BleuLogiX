@@ -274,10 +274,11 @@ export const handleUpdateProject: RequestHandler = async (req, res) => {
 
 export const handleDeleteProject: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
-  const userId = (req as any).userId;
+  const auth = (req as any).auth;
+  const clerkUserId = auth?.clerkUserId;
   const { projectId } = req.params;
 
-  if (!userId) {
+  if (!clerkUserId) {
     return res.status(401).json({
       error: "Unauthorized",
       correlationId,
@@ -293,8 +294,11 @@ export const handleDeleteProject: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[projects] DELETE /api/projects/${projectId} - userId: ${userId}, correlationId: ${correlationId}`,
+      `[projects] DELETE /api/projects/${projectId} - clerkUserId: ${clerkUserId}, correlationId: ${correlationId}`,
     );
+
+    const user = await upsertUser(clerkUserId, auth?.email);
+    const userId = user.id;
 
     const project = await queryOne<VideoProject>(
       `SELECT id FROM video_projects WHERE id = $1 AND user_id = $2`,
@@ -314,7 +318,7 @@ export const handleDeleteProject: RequestHandler = async (req, res) => {
       [projectId, userId],
     );
 
-    console.log(`[projects] Deleted project ${projectId} for user ${userId}`);
+    console.log(`[projects] Deleted project ${projectId} for user ${clerkUserId}`);
 
     res.status(204).send();
   } catch (error) {
