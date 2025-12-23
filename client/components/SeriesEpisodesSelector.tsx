@@ -14,6 +14,7 @@ export interface Episode {
 interface SeriesEpisodesSelectorProps {
   selectedEpisodes: Episode[];
   onEpisodesChange: (episodes: Episode[]) => void;
+  defaultPrompt?: string;
 }
 
 const PREDEFINED_SERIES = [
