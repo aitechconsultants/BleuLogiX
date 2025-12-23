@@ -642,91 +642,131 @@ export default function VideoGeneratorCreate() {
       case 5:
         return (
           <div className="space-y-12">
-            {/* AI Image Generation */}
-            <div>
-              <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-                Generate Images with AI
-              </h3>
-              <AIMediaGenerator
-                script={formState.script}
-                episodes={formState.selectedEpisodes}
-                onMediaSelected={(media) => {
-                  const newMediaFiles = [
-                    ...formState.mediaFiles,
-                    {
-                      id: media.id,
-                      name: media.name,
-                      url: media.url,
-                    },
-                  ];
-                  setFormState({
-                    ...formState,
-                    mediaFiles: newMediaFiles,
-                  });
-                }}
-              />
-            </div>
-
-            {/* Manual Upload */}
-            <div className="border-t border-border pt-12">
-              <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-                Or Upload Your Own Media
-              </h3>
-              <MediaUploader
-                onFilesSelected={(files) =>
-                  setFormState({
-                    ...formState,
-                    mediaFiles: [
-                      ...formState.mediaFiles,
-                      ...files.map((f) => ({ ...f, url: undefined })),
-                    ],
-                  })
-                }
-              />
-            </div>
-
-            {/* Selected Media */}
-            {formState.mediaFiles.length > 0 && (
-              <div className="border-t border-border pt-12">
+            {/* Media Selection Area */}
+            <div className="space-y-6">
+              <div>
                 <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-                  Selected Media ({formState.mediaFiles.length})
+                  Generate Images with AI
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {formState.mediaFiles.map((media, idx) => (
-                    <div
-                      key={media.id}
-                      className="relative group rounded-lg overflow-hidden bg-muted border border-border p-3"
-                    >
-                      {media.url && (
-                        <img
-                          src={media.url}
-                          alt={media.name}
-                          className="w-full aspect-square object-cover rounded mb-2"
-                        />
-                      )}
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {media.name}
-                      </p>
-                      <button
-                        onClick={() => {
-                          const filtered = formState.mediaFiles.filter(
-                            (_, i) => i !== idx,
-                          );
-                          setFormState({
-                            ...formState,
-                            mediaFiles: filtered,
-                          });
-                        }}
-                        className="absolute top-2 right-2 p-2 rounded-lg bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Remove media"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-                  ))}
+                <AIMediaGenerator
+                  script={formState.script}
+                  episodes={formState.selectedEpisodes}
+                  onMediaSelected={(media) => {
+                    const newMediaFiles = [
+                      ...formState.mediaFiles,
+                      {
+                        id: media.id,
+                        name: media.name,
+                        url: media.url,
+                      },
+                    ];
+                    setFormState({
+                      ...formState,
+                      mediaFiles: newMediaFiles,
+                    });
+                  }}
+                />
+              </div>
+
+              <div className="border-t border-border pt-6">
+                <h3 className="font-display text-2xl font-bold text-foreground mb-6">
+                  Or Upload Your Own Media
+                </h3>
+                <MediaUploader
+                  onFilesSelected={(files) =>
+                    setFormState({
+                      ...formState,
+                      mediaFiles: [
+                        ...formState.mediaFiles,
+                        ...files.map((f) => ({ ...f, url: undefined })),
+                      ],
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Two-Column Layout: Media Editor + Preview */}
+            <div className="border-t border-border pt-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* Left Column: Media Editor */}
+                <div>
+                  <MediaListEditor
+                    items={formState.mediaFiles}
+                    onItemsReordered={(reorderedItems) => {
+                      setFormState({
+                        ...formState,
+                        mediaFiles: reorderedItems,
+                      });
+                    }}
+                    onItemRemoved={(id) => {
+                      const filtered = formState.mediaFiles.filter(
+                        (item) => item.id !== id
+                      );
+                      setFormState({
+                        ...formState,
+                        mediaFiles: filtered,
+                      });
+                    }}
+                    onItemToggled={(id, included) => {
+                      const updated = formState.mediaFiles.map((item) =>
+                        item.id === id ? { ...item, included } : item
+                      );
+                      setFormState({
+                        ...formState,
+                        mediaFiles: updated,
+                      });
+                    }}
+                    onReset={() => {
+                      // Reset to original order
+                      setFormState({
+                        ...formState,
+                        mediaFiles: formState.mediaFiles.map((item) => ({
+                          ...item,
+                          included: true,
+                        })),
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Right Column: Preview */}
+                <div>
+                  <MediaTimelinePreview
+                    items={formState.mediaFiles}
+                    script={formState.script}
+                    captionsEnabled={formState.captionsEnabled}
+                    captionStyle={formState.captionStyle}
+                    captionColor={formState.captionColor}
+                    resolution={formState.resolution}
+                    onCaptionsToggle={(enabled) => {
+                      setFormState({
+                        ...formState,
+                        captionsEnabled: enabled,
+                      });
+                    }}
+                    onCaptionStyleChange={(style) => {
+                      setFormState({
+                        ...formState,
+                        captionStyle: style,
+                      });
+                    }}
+                    onCaptionColorChange={(color) => {
+                      setFormState({
+                        ...formState,
+                        captionColor: color,
+                      });
+                    }}
+                    onScriptChange={(script) => {
+                      setFormState({
+                        ...formState,
+                        script,
+                      });
+                    }}
+                  />
                 </div>
               </div>
-            )}
+            </div>
           </div>
         );
 
