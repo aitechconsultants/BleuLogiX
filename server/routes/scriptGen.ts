@@ -5,7 +5,7 @@ import {
   type GenerateScriptInput,
 } from "../services/scriptGen";
 import { logError } from "../logging";
-import { queryOne, query } from "../db";
+import { queryOne, query, parseDatabaseUrl } from "../db";
 
 const scriptGenRouter = Router();
 
