@@ -301,7 +301,10 @@ export default function Index() {
                 <Zap className="w-6 h-6" />
                 Try Free
               </button>
-              <button className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg border-2 border-accent-blue/50 text-accent-blue font-semibold hover:bg-accent-blue/10 transition-colors text-base">
+              <button
+                onClick={() => setShowDemoModal(true)}
+                className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg border-2 border-accent-blue/50 text-accent-blue font-semibold hover:bg-accent-blue/10 transition-colors text-base"
+              >
                 <Play className="w-5 h-5" />
                 Watch Demo
               </button>
