@@ -548,8 +548,14 @@ export default function VideoGeneratorCreate() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 md:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen bg-background py-8 px-4 md:px-8">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Projects List */}
+        <ProjectsList
+          onProjectSelect={loadProject}
+          refreshTrigger={projectsRefreshTrigger}
+        />
+
         {/* Stepper */}
         <div className="space-y-6">
           <h1 className="font-display text-4xl font-bold text-foreground">
