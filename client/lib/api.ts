@@ -1,93 +1,104 @@
 import { useAuth } from "@clerk/clerk-react";
-import { hasClerkKey } from "./clerk-config";
 
 export class APIError extends Error {
   constructor(
     public status: number,
-    message: string,
+    public responseText: string,
   ) {
-    super(message);
+    super(`API error: ${status} - ${responseText}`);
   }
 }
 
 /**
- * API client hook that automatically includes Clerk authentication token
- * This hook must be called at the component level, not inside async functions
+ * Hook to get the apiFetch function with Clerk authentication
+ * Must be called at the component level (inside ClerkProvider context)
  */
-export function useApiClient() {
-  const clerkKeyPresent = hasClerkKey();
+export function useApiFetch() {
+  const { getToken } = useAuth();
 
-  // Call useAuth hook at the top level to properly manage token state
-  let auth = null;
-  if (clerkKeyPresent) {
-    try {
-      auth = useAuth();
-    } catch (e) {
-      // Clerk not available or not within ClerkProvider
-    }
-  }
-
-  // Return async function that uses the auth object captured above
-  return async (url: string, options: RequestInit = {}) => {
-    const headers = new Headers(options.headers || {});
-
-    // Add Clerk token if available
-    if (auth && auth.getToken) {
-      try {
-        const token = await auth.getToken();
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        } else {
-          console.warn("No token available for authenticated request to", url);
-        }
-      } catch (e) {
-        console.error("Failed to get Clerk token:", e);
-        // Continue without auth and let backend return 401
-      }
-    }
-
-    headers.set("Content-Type", "application/json");
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new APIError(
-        response.status,
-        data.error || `API error: ${response.statusText}`,
-      );
-    }
-
-    return data;
+  return async (
+    path: string,
+    options: RequestInit & { body?: any } = {},
+  ) => {
+    return apiFetchInternal(path, options, getToken);
   };
 }
 
 /**
- * Non-hook API helper for use in top-level client functions
- * This is a simpler version that requires token to be passed in
+ * Internal implementation of apiFetch that accepts a getToken function
  */
-export async function apiCall(
-  url: string,
-  token: string,
-  options: RequestInit = {},
+async function apiFetchInternal(
+  path: string,
+  options: RequestInit & { body?: any } = {},
+  getToken?: () => Promise<string | null>,
 ) {
   const headers = new Headers(options.headers || {});
-  headers.set("Authorization", `Bearer ${token}`);
-  headers.set("Content-Type", "application/json");
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || `API error: ${response.statusText}`);
+  // Add Clerk authentication token if available
+  if (getToken) {
+    try {
+      const token = await getToken();
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+    } catch (error) {
+      console.error("Failed to get Clerk token:", error);
+      // Continue without token and let backend return 401
+    }
   }
 
-  return response.json();
+  // Set Content-Type for requests with body
+  if (options.body) {
+    if (typeof options.body === "object") {
+      headers.set("Content-Type", "application/json");
+      options.body = JSON.stringify(options.body);
+    } else {
+      headers.set("Content-Type", "application/json");
+    }
+  } else {
+    headers.set("Content-Type", "application/json");
+  }
+
+  try {
+    const response = await fetch(path, {
+      ...options,
+      headers,
+    });
+
+    // Try to parse response as JSON
+    let data: any;
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
+
+    if (!response.ok) {
+      const errorMsg =
+        typeof data === "object" ? data.error || data.message : data;
+      throw new APIError(response.status, errorMsg || response.statusText);
+    }
+
+    return data;
+  } catch (error) {
+    if (error instanceof APIError) {
+      throw error;
+    }
+    throw new Error(
+      `Network error: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
+
+/**
+ * Standalone apiFetch for use outside of React components (requires token)
+ * Pass auth.getToken from outside a component
+ */
+export async function apiFetchWithToken(
+  path: string,
+  token: string,
+  options: RequestInit & { body?: any } = {},
+) {
+  return apiFetchInternal(path, options, async () => token);
 }
