@@ -11,6 +11,8 @@ import SeriesEpisodesSelector, {
 import PreviewPlayer from "@/components/PreviewPlayer";
 import ExportConfirmationModal from "@/components/ExportConfirmationModal";
 import ProjectsList from "@/components/ProjectsList";
+import MediaListEditor from "@/components/MediaListEditor";
+import MediaTimelinePreview from "@/components/MediaTimelinePreview";
 import { ChevronRight, ChevronLeft, Save, Trash2 } from "lucide-react";
 
 interface Voice {
