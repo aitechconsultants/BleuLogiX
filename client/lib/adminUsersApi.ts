@@ -22,83 +22,57 @@ export interface GetUsersResponse {
   offset: number;
 }
 
+type ApiFetch = (path: string, options?: any) => Promise<any>;
+
 export async function getAllUsers(
+  apiFetch: ApiFetch,
   limit: number = 100,
   offset: number = 0,
 ): Promise<User[]> {
-  const response = await fetch(
+  const data: GetUsersResponse = await apiFetch(
     `/api/admin/users?limit=${limit}&offset=${offset}`,
-    {
-      headers: { "Content-Type": "application/json" },
-    },
   );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to fetch users");
-  }
-
-  const data: GetUsersResponse = await response.json();
   return data.users;
 }
 
 export async function updateUserRole(
+  apiFetch: ApiFetch,
   userId: string,
   role: "user" | "admin" | "superadmin",
 ): Promise<User> {
-  const response = await fetch(`/api/admin/users/${userId}/role`, {
+  const data = await apiFetch(`/api/admin/users/${userId}/role`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, role }),
+    body: { userId, role },
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to update user role");
-  }
-
-  const data = await response.json();
   return data.user;
 }
 
 export async function setPlanOverride(
+  apiFetch: ApiFetch,
   userId: string,
   plan: string,
   expiresAt?: string,
   reason?: string,
 ): Promise<User> {
-  const response = await fetch(`/api/admin/users/${userId}/plan-override`, {
+  const data = await apiFetch(`/api/admin/users/${userId}/plan-override`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+    body: {
       userId,
       plan,
       expiresAt: expiresAt || null,
       reason: reason || null,
-    }),
+    },
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to set plan override");
-  }
-
-  const data = await response.json();
   return data.user;
 }
 
-export async function clearPlanOverride(userId: string): Promise<User> {
-  const response = await fetch(`/api/admin/users/${userId}/plan-override`, {
+export async function clearPlanOverride(
+  apiFetch: ApiFetch,
+  userId: string,
+): Promise<User> {
+  const data = await apiFetch(`/api/admin/users/${userId}/plan-override`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId }),
+    body: { userId },
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to clear plan override");
-  }
-
-  const data = await response.json();
   return data.user;
 }
