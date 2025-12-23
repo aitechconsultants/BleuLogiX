@@ -172,6 +172,14 @@ export function createServer() {
   app.put("/api/projects/:projectId", requireClerkAuth, handleUpdateProject);
   app.delete("/api/projects/:projectId", requireClerkAuth, handleDeleteProject);
 
+  // Image generation routes (protected)
+  app.post("/api/images/generate", requireClerkAuth, handleGenerateImages);
+  app.post(
+    "/api/images/extract-prompts",
+    requireClerkAuth,
+    handleExtractImagePrompts,
+  );
+
   // Script generation proxy route (requires auth)
   app.post("/api/script/generate", requireClerkAuth, handleGenerateScript);
 
