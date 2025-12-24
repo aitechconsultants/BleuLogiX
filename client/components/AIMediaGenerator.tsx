@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { RefreshCw, Loader, AlertCircle, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { RefreshCw, Loader, AlertCircle, X, ChevronRight } from "lucide-react";
 import type { Episode } from "./SeriesEpisodesSelector";
 
 interface ImagePrompt {
