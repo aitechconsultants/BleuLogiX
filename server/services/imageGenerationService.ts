@@ -124,21 +124,28 @@ Return ONLY valid JSON in this exact format:
 
       const content = response.choices[0]?.message?.content;
       if (!content) {
-        console.warn("[imageGen] No content in GPT response, using default prompts");
+        console.warn(
+          "[imageGen] No content in GPT response, using default prompts",
+        );
         return this.generateDefaultPrompts(script);
       }
 
       try {
         const jsonMatch = content.match(/\[[\s\S]*\]/);
         if (!jsonMatch) {
-          console.warn("[imageGen] No JSON array found in response, using default prompts");
-          console.log("[imageGen] GPT response preview:", content.substring(0, 200));
+          console.warn(
+            "[imageGen] No JSON array found in response, using default prompts",
+          );
+          console.log(
+            "[imageGen] GPT response preview:",
+            content.substring(0, 200),
+          );
           return this.generateDefaultPrompts(script);
         }
 
         const prompts = JSON.parse(jsonMatch[0]) as ImagePrompt[];
         console.log(
-          `[imageGen] Successfully extracted ${prompts.length} prompts from GPT`
+          `[imageGen] Successfully extracted ${prompts.length} prompts from GPT`,
         );
         return prompts.slice(0, 8);
       } catch (parseError) {
