@@ -105,13 +105,19 @@ export default function MediaTimelinePreview({
     const generateAudio = async () => {
       console.log("[MediaTimelinePreview] Audio generation triggered:", {
         scriptLength: script?.length,
+        effectiveScriptLength: effectiveScript?.length,
         selectedVoiceId,
         script: script?.substring(0, 100),
+        effectiveScript: effectiveScript?.substring(0, 100),
       });
 
-      if (!script.trim() || !selectedVoiceId) {
+      if (!effectiveScript.trim() || !selectedVoiceId) {
         console.log(
-          "[MediaTimelinePreview] Skipping audio generation - missing script or voice"
+          "[MediaTimelinePreview] Skipping audio generation - missing script or voice",
+          {
+            hasEffectiveScript: !!effectiveScript?.trim(),
+            hasVoice: !!selectedVoiceId,
+          }
         );
         setAudioUrl(null);
         return;
@@ -119,9 +125,9 @@ export default function MediaTimelinePreview({
 
       setIsGeneratingAudio(true);
       try {
-        const cleanedScript = cleanScriptForVoiceover(script);
+        const cleanedScript = cleanScriptForVoiceover(effectiveScript);
         console.log("[MediaTimelinePreview] Cleaned script:", {
-          originalLength: script.length,
+          originalLength: effectiveScript.length,
           cleanedLength: cleanedScript.length,
           cleaned: cleanedScript.substring(0, 100),
         });
