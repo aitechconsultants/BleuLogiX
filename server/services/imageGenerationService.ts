@@ -30,7 +30,7 @@ export class ImageGenerationService {
   ): Promise<ImagePrompt[]> {
     this.initializeOpenAI();
 
-    if (!script || script.trim().length === 0) {
+    if ((!script || script.trim().length === 0) && episodes.length === 0) {
       return [];
     }
 
