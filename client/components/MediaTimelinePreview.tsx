@@ -210,17 +210,30 @@ export default function MediaTimelinePreview({
   useEffect(() => {
     if (!audioRef.current || !audioUrl) return;
 
+    let updateCount = 0;
     const handleTimeUpdate = () => {
-      // This forces React to re-render the captions by updating a dummy state
-      // The caption display will use audioRef.current.currentTime directly
-      setPreviewTime(audioRef.current?.currentTime || 0);
+      const currentTime = audioRef.current?.currentTime || 0;
+      setPreviewTime(currentTime);
+
+      // Log every 100 updates (~5 seconds at 20 updates/sec)
+      updateCount++;
+      if (updateCount % 100 === 0) {
+        console.log("[TimeUpdate Event]", {
+          currentTime: currentTime.toFixed(2),
+          duration: audioRef.current?.duration.toFixed(2) || "?",
+          updateCount,
+        });
+      }
     };
 
     const audioElement = audioRef.current;
     audioElement.addEventListener("timeupdate", handleTimeUpdate);
 
+    console.log("[TimeUpdate Handler] Attached");
+
     return () => {
       audioElement.removeEventListener("timeupdate", handleTimeUpdate);
+      console.log("[TimeUpdate Handler] Removed");
     };
   }, [audioUrl]);
 
