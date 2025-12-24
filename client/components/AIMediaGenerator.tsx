@@ -149,6 +149,28 @@ export default function AIMediaGenerator({
           </p>
         </div>
 
+        {/* Image Style Selector */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">
+            Image Style
+          </label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {imageStyles.map((style) => (
+              <button
+                key={style}
+                onClick={() => onImageStyleChange?.(style)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  imageStyle === style
+                    ? "bg-accent-blue text-black"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {style.charAt(0).toUpperCase() + style.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           onClick={generateImages}
           disabled={isGenerating || !script.trim()}
