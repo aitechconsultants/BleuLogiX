@@ -401,13 +401,20 @@ export default function AIMediaGenerator({
 
         <button
           onClick={generateImages}
-          disabled={isGenerating || (!script.trim() && episodes.length === 0)}
+          disabled={
+            isGenerating ||
+            (!script.trim() && episodesSelectedForGeneration.size === 0)
+          }
           title={
             isGenerating
               ? "Generating images..."
-              : !script.trim() && episodes.length === 0
+              : !script.trim() && episodesSelectedForGeneration.size === 0
                 ? "Please enter a script or select episodes first"
-                : "Generate AI images from your script or episodes"
+                : `Generate AI images for ${
+                    episodesSelectedForGeneration.size > 0
+                      ? `${episodesSelectedForGeneration.size} episode${episodesSelectedForGeneration.size !== 1 ? "s" : ""}`
+                      : "script"
+                  }`
           }
           className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium glow-blue"
         >
@@ -419,7 +426,9 @@ export default function AIMediaGenerator({
           ) : (
             <>
               <RefreshCw className="w-5 h-5" />
-              Generate Images from Script
+              {episodesSelectedForGeneration.size > 0
+                ? `Generate Images for ${episodesSelectedForGeneration.size} Episode${episodesSelectedForGeneration.size !== 1 ? "s" : ""}`
+                : "Generate Images from Script"}
             </>
           )}
         </button>
