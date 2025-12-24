@@ -363,8 +363,18 @@ export default function MediaTimelinePreview({
             {script && script.length > 0 ? `${script.length} chars` : "EMPTY"}
           </div>
           <div>Voice: {selectedVoiceId ? selectedVoiceId : "NOT SELECTED"}</div>
-          <div>Audio URL: {audioUrl ? "Generated" : "Not generated"}</div>
-          <div>Generating Audio: {isGeneratingAudio ? "Yes" : "No"}</div>
+          <div>
+            Audio Duration: {audioDuration > 0 ? `${audioDuration.toFixed(1)}s` : "Not loaded"}
+          </div>
+          <div>
+            Audio Current Time:{" "}
+            {audioRef.current
+              ? `${audioRef.current.currentTime.toFixed(2)}s`
+              : "N/A"}
+          </div>
+          <div>
+            Playing: {isPlaying ? "Yes" : "No"} | Muted: {isMuted ? "Yes" : "No"}
+          </div>
         </div>
 
         {/* Video Preview Container */}
