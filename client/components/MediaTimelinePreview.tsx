@@ -271,11 +271,28 @@ export default function MediaTimelinePreview({
                     >
                       {(() => {
                         const cleanedScript = cleanScriptForVoiceover(script);
-                        const words = cleanedScript.split(" ");
+                        const words = cleanedScript.split(/\s+/).filter((w) => w.length > 0);
+
+                        if (words.length === 0) return "";
+
+                        // Calculate progress through the timeline (0 to 1)
+                        const progress = totalDuration > 0 ? previewTime / totalDuration : 0;
+
+                        // Estimate which word we're at based on progress
+                        const currentWordIndex = Math.floor(progress * words.length);
+
+                        // Show a window of 10 words centered around current position
+                        const windowSize = 10;
+                        const startIndex = Math.max(0, currentWordIndex - Math.floor(windowSize / 2));
+                        const endIndex = Math.min(words.length, startIndex + windowSize);
+
+                        const adjustedStartIndex = Math.max(0, endIndex - windowSize);
+                        const displayedWords = words.slice(adjustedStartIndex, endIndex);
+
                         return (
                           <>
-                            {words.slice(0, 10).join(" ")}
-                            {words.length > 10 ? "..." : ""}
+                            {displayedWords.join(" ")}
+                            {endIndex < words.length ? "..." : ""}
                           </>
                         );
                       })()}
