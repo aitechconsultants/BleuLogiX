@@ -293,8 +293,15 @@ export default function MediaTimelinePreview({
                             : getCaptionColor(),
                       }}
                     >
-                      {script.split(" ").slice(0, 10).join(" ")}
-                      {script.split(" ").length > 10 ? "..." : ""}
+                      {(() => {
+                        const cleanedScript = cleanScriptForVoiceover(script);
+                        return (
+                          <>
+                            {cleanedScript.split(" ").slice(0, 10).join(" ")}
+                            {cleanedScript.split(" ").length > 10 ? "..." : ""}
+                          </>
+                        );
+                      })()}
                     </p>
                   </div>
                 )}
