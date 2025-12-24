@@ -24,7 +24,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
   const auth = (req as any).auth;
   const clerkUserId = auth?.clerkUserId;
-  const { script, episodes } = req.body;
+  const { script, episodes, imageStyle } = req.body;
 
   if (!clerkUserId) {
     return res.status(401).json({
