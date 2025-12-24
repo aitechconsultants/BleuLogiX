@@ -101,16 +101,21 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
     console.error(`[imageGen] Error generating images:`, error);
+    console.error(`[imageGen] Error stack:`, errorStack);
     logError(
       { correlationId },
       "Failed to generate images",
       error instanceof Error ? error : new Error(String(error)),
     );
+
+    // Return 500 with more details for debugging
     res.status(500).json({
       error: "Failed to generate images",
       message: errorMsg,
       correlationId,
+      details: process.env.NODE_ENV === "development" ? errorStack : undefined,
     });
   }
 };
