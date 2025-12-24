@@ -523,19 +523,31 @@ export default function AIMediaGenerator({
       {/* Image Prompts Display */}
       {prompts.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-semibold text-foreground">Image Descriptions</h4>
-          <div className="space-y-2">
+          <h4 className="font-semibold text-foreground">Image Descriptions & Voiceover</h4>
+          <div className="space-y-3">
             {prompts.map((prompt, idx) => (
               <div
                 key={idx}
-                className="p-3 rounded-lg bg-muted/50 border border-border text-sm"
+                className="p-3 rounded-lg bg-muted/50 border border-border space-y-2"
               >
-                <p className="font-medium text-foreground mb-1">
-                  Image {prompt.index + 1}: {prompt.context}
-                </p>
-                <p className="text-xs text-muted-foreground italic">
-                  "{prompt.description}"
-                </p>
+                <div>
+                  <p className="font-medium text-foreground mb-1 text-sm">
+                    Image {prompt.index + 1}: {prompt.context}
+                  </p>
+                  <p className="text-xs text-muted-foreground italic">
+                    "{prompt.description}"
+                  </p>
+                </div>
+                {prompt.voiceoverScript && (
+                  <div className="pt-2 border-t border-border/30">
+                    <p className="text-xs font-medium text-accent-blue mb-1">
+                      Voiceover:
+                    </p>
+                    <p className="text-xs text-foreground leading-relaxed">
+                      {prompt.voiceoverScript}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
