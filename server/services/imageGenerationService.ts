@@ -633,6 +633,11 @@ Return ONLY valid JSON in this exact format:
           );
 
           if (generation.status === "COMPLETE") {
+            console.log(
+              "[imageGen] Generation complete. Response structure:",
+              JSON.stringify(generation).substring(0, 200),
+            );
+
             if (
               generation.generated_images &&
               generation.generated_images.length > 0
@@ -644,6 +649,12 @@ Return ONLY valid JSON in this exact format:
             } else {
               console.warn(
                 "[imageGen] Generation complete but no images in response",
+                "generated_images exists:",
+                !!generation.generated_images,
+                "generated_images length:",
+                generation.generated_images?.length,
+                "Available keys in generation:",
+                Object.keys(generation),
               );
             }
             break;
