@@ -443,8 +443,14 @@ Return ONLY valid JSON in this exact format:
 
         if (!createResponse.ok) {
           let errorData: any = {};
+          let errorText = "";
           try {
-            errorData = await createResponse.json();
+            errorText = await createResponse.text();
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              errorData = { rawText: errorText };
+            }
           } catch (e) {
             errorData = { parseError: String(e) };
           }
