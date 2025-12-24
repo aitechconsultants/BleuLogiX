@@ -42,7 +42,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[imageGen] POST /api/images/generate - clerkUserId: ${clerkUserId}, script length: ${script.length}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
+      `[imageGen] POST /api/images/generate - clerkUserId: ${clerkUserId}, script length: ${script?.length || 0}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
     );
 
     const user = await upsertUser(clerkUserId, auth?.email);
