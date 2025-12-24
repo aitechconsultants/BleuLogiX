@@ -94,7 +94,7 @@ export default function VideoGeneratorCreate() {
     selectedEpisodes: [],
   });
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
-    "idle"
+    "idle",
   );
 
   // Scroll to top when step changes
@@ -190,7 +190,9 @@ export default function VideoGeneratorCreate() {
       console.error("Error auto-saving project:", error);
       setSaveStatus("idle");
       if (!silent) {
-        alert(error instanceof Error ? error.message : "Failed to save project");
+        alert(
+          error instanceof Error ? error.message : "Failed to save project",
+        );
       }
     }
   };
@@ -281,7 +283,7 @@ export default function VideoGeneratorCreate() {
           source: file.source || "uploaded",
           imageStyle: file.imageStyle,
           generatedAt: file.generatedAt,
-        })
+        }),
       );
 
       const loadedFormState: FormState = {

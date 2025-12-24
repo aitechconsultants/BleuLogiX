@@ -355,7 +355,13 @@ export default function MediaTimelinePreview({
                   ? "bg-muted/50 text-muted-foreground hover:bg-muted"
                   : "bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30"
               }`}
-              title={isGeneratingAudio ? "Generating audio..." : isMuted ? "Unmute voiceover" : "Mute voiceover"}
+              title={
+                isGeneratingAudio
+                  ? "Generating audio..."
+                  : isMuted
+                    ? "Unmute voiceover"
+                    : "Mute voiceover"
+              }
             >
               {isMuted ? (
                 <VolumeX className="w-5 h-5" />
