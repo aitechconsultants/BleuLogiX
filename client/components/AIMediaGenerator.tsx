@@ -236,7 +236,7 @@ export default function AIMediaGenerator({
             <div className="flex min-h-96">
               {/* Left Panel: Episode List */}
               <div className="w-1/3 border-r border-border bg-muted/20 flex flex-col">
-                <div className="p-4 border-b border-border space-y-2">
+                <div className="p-4 border-b border-border space-y-2 flex-shrink-0">
                   <p className="text-sm font-semibold text-foreground">
                     Episodes ({episodes.length})
                   </p>
@@ -250,7 +250,7 @@ export default function AIMediaGenerator({
                       : "Select All"}
                   </button>
                 </div>
-                <div className="overflow-y-auto max-h-96">
+                <div className="overflow-y-auto flex-1">
                   {episodes.map((ep) => (
                     <div
                       key={ep.id}
