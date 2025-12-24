@@ -140,6 +140,16 @@ export default function MediaTimelinePreview({
     }
   }, [isPlaying, audioUrl, isMuted]);
 
+  // Sync audio timeline position with preview timeline
+  useEffect(() => {
+    if (!audioRef.current || !audioUrl) return;
+
+    // Only update audio time when paused or when timeline is manually adjusted
+    if (!isPlaying) {
+      audioRef.current.currentTime = previewTime;
+    }
+  }, [previewTime, audioUrl, isPlaying]);
+
   // Auto-advance through media during playback
   useEffect(() => {
     if (!isPlaying) return;
