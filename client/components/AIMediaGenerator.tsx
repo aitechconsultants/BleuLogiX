@@ -13,6 +13,7 @@ interface AIMediaGeneratorProps {
   episodes?: Episode[];
   imageStyle?: string;
   onImageStyleChange?: (style: string) => void;
+  onEpisodesChange?: (episodes: Episode[]) => void;
   onMediaSelected: (media: {
     id: string;
     name: string;
@@ -28,6 +29,7 @@ export default function AIMediaGenerator({
   episodes = [],
   imageStyle = "realistic",
   onImageStyleChange,
+  onEpisodesChange,
   onMediaSelected,
 }: AIMediaGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
