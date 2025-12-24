@@ -717,26 +717,26 @@ Return ONLY valid JSON in this exact format:
         if (imageUrl) {
           imageUrls.push(imageUrl);
           console.log(
-            `[imageGen] Successfully added image ${imageUrls.length}/${prompts.length}`,
+            `[imageGen] ✓ Successfully added image ${imageUrls.length}/${prompts.length}`,
           );
         } else {
           console.warn(
-            `[imageGen] Timeout waiting for generation ${generationId} or no image URL returned`,
+            `[imageGen] ⚠️ Timeout waiting for generation ${generationId} or no image URL returned after polling`,
           );
         }
       } catch (error) {
         console.error(
-          `[imageGen] Error generating image with Leonardo:`,
-          error,
+          `[imageGen] ❌ Exception during image generation for prompt ${promptIdx + 1}:`,
+          error instanceof Error ? error.message : String(error),
         );
         if (error instanceof Error) {
-          console.error("[imageGen] Error stack:", error.stack);
+          console.error("[imageGen] Stack trace:", error.stack?.substring(0, 300));
         }
       }
     }
 
     console.log(
-      `[imageGen] Image generation complete. Generated ${imageUrls.length} images out of ${prompts.length} prompts`,
+      `[imageGen] ===== FINAL RESULT: Generated ${imageUrls.length} images out of ${prompts.length} prompts =====`,
     );
     return imageUrls;
   }
