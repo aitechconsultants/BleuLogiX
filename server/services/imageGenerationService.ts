@@ -176,40 +176,46 @@ export class ImageGenerationService {
         messages: [
           {
             role: "system",
-            content: `You are an expert at analyzing scripts for video production and identifying visual requirements for DALL-E 3.
+            content: `You are an expert at analyzing scripts for video production and identifying visual requirements for Leonardo.AI image generation.
 
 Your task is to analyze a video script and identify distinct visual scenes/shots that should be created.
-Return a JSON array of highly detailed image prompts that would visually represent the key moments in the script.
+Return a JSON array of highly detailed image prompts optimized for Leonardo.AI that would visually represent the key moments in the script.
 
 CRITICAL STYLE REQUIREMENTS: All images MUST be in this exact style: ${styleGuide}
+
+Leonardo.AI Optimization Tips:
+- Be very specific and descriptive with composition and lighting details
+- Use action-oriented language that Leonardo understands well
+- Include art medium/style references (e.g., "cinematic 4K", "digital painting", "professional photography")
+- Mention color palette and atmosphere explicitly
+- Leonardo performs better with rich detail - use 200-300 character descriptions
 
 Detailed Guidelines for ${imageStyle} style:
 ${
   imageStyle.toLowerCase() === "realistic"
-    ? "- Use professional photography language: 'professional photograph', '4K, high-resolution', 'sharp focus', 'RAW quality'\n- Include specific camera techniques: 'shot on professional DSLR', 'natural daylight', 'studio lighting'\n- Add material/texture descriptions: 'detailed textures', 'authentic surfaces', 'realistic proportions'\n- Specify atmosphere: 'documentary style', 'journalistic photography', 'candid moment'"
+    ? "- Use Leonardo's photography presets: 'professional photograph', 'shot on Sony A7R', '4K resolution', 'RAW quality'\n- Include lighting: 'studio lighting', 'natural daylight', 'golden hour', 'soft diffused light'\n- Add material details: 'crisp details', 'sharp focus', 'bokeh background', 'textured surfaces'\n- Specify mood: 'documentary style', 'authentic', 'candid moment'"
     : imageStyle.toLowerCase() === "cinematic"
-      ? "- Use film language: 'cinematic', '35mm film', 'theatrical lighting', 'movie scene'\n- Include specific cinematography: 'golden hour', 'dramatic shadows', 'dynamic composition', 'film noir elements'\n- Add production quality: 'blockbuster quality', 'professional cinematography', 'high-end production'\n- Specify mood: 'epic', 'dramatic tension', 'visual storytelling', 'cinematic depth'"
-      : "- Be specific about the style's visual qualities\n- Include relevant technical/artistic descriptors\n- Emphasize the unique aesthetic characteristics"
+      ? "- Use cinematic language: 'cinematic 4K', '35mm film', 'theatrical color grading'\n- Include cinematography: 'golden hour', 'dramatic shadows', 'dynamic depth', 'color grading'\n- Add production quality: 'blockbuster cinematography', 'professional lighting setup', 'cinema color palette'\n- Specify mood: 'epic', 'dramatic tension', 'cinematic depth of field'"
+      : "- Be specific about the style's visual qualities\n- Include relevant artistic descriptors that Leonardo responds well to\n- Emphasize texture, lighting, and color in the style"
 }
 
 General Requirements:
 - Generate 3-8 key visual moments based on script length and content
-- Each prompt should be EXTREMELY DETAILED (200+ characters) and highly specific
-- Always begin with style specification: e.g., "Professional photograph" or "Cinematic shot"
-- Include specific visual elements, composition, lighting, color palette, materials
-- Never use generic descriptions - be precise and visual
+- Each prompt should be EXTREMELY DETAILED (250+ characters) and highly specific
+- Include specific visual elements, composition, lighting, color palette, and atmosphere
+- Never use generic descriptions - be precise and vivid
 - Create prompts that are distinct and complementary
 - Ensure all prompts emphasize the ${imageStyle} style throughout${
               episodes.length > 0
                 ? "\n- If episodes are provided, align the visuals with the episode content and themes"
                 : ""
             }
-- Format for DALL-E 3 optimization: clear, detailed, style-specific language
+- Use rich, evocative language that inspires high-quality AI generation
 
 Return ONLY valid JSON in this exact format:
 [
   {
-    "description": "extremely detailed visual description incorporating ${imageStyle} style, specific details, composition, and lighting",
+    "description": "extremely detailed visual description for Leonardo.AI incorporating ${imageStyle} style, specific details, composition, lighting, and atmosphere",
     "context": "brief explanation of why this visual is needed",
     "index": 0,
     "voiceoverScript": "the specific voiceover text that should be spoken for this visual moment"
