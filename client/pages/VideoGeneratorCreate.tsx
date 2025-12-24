@@ -294,6 +294,7 @@ export default function VideoGeneratorCreate() {
         imageStyle: project.form_state.imageStyle ?? "realistic",
         voiceoverUrl: project.form_state.voiceoverUrl,
         voiceoverGeneratedAt: project.form_state.voiceoverGeneratedAt,
+        selectedEpisodes: project.form_state.selectedEpisodes ?? [],
         mediaFiles: normalizedMediaFiles,
       };
       setProjectName(project.name);
