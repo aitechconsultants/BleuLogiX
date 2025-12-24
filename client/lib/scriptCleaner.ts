@@ -3,6 +3,10 @@
  * Used for voiceover generation to ensure only spoken dialogue is read
  */
 export const cleanScriptForVoiceover = (rawScript: string): string => {
+  if (!rawScript || typeof rawScript !== "string") {
+    return "";
+  }
+
   let cleaned = rawScript;
 
   // Remove bracketed content including multi-line: [OPENING SCENE: ... ], [SCENE: ... ], [Wide shot], etc.
