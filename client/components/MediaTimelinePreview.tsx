@@ -423,7 +423,7 @@ export default function MediaTimelinePreview({
                 )}
                 {captionsEnabled && effectiveScript && (
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                    <p
+                    <div
                       className={getCaptionClasses()}
                       style={{
                         color:
@@ -462,52 +462,118 @@ export default function MediaTimelinePreview({
                         const progress = Math.min(1, currentTime / duration);
 
                         // Calculate which word index we're at
-                        // This uses a simple linear mapping: if 50% through audio, show ~50% through words
                         const currentWordIndex = Math.floor(
                           progress * (words.length - 1),
                         );
 
-                        // Show a sliding window of words around current position
-                        const windowSize = 10;
-                        const halfWindow = Math.floor(windowSize / 2);
+                        // Split into sentences (period, exclamation, question mark)
+                        let currentSentenceIndex = 0;
+                        let wordIndexInSentence = 0;
+                        const sentences: string[][] = [];
+                        let currentSentence: string[] = [];
 
-                        let startIndex = currentWordIndex - halfWindow;
-                        let endIndex = currentWordIndex + halfWindow + 1;
+                        for (let i = 0; i < words.length; i++) {
+                          const word = words[i];
+                          currentSentence.push(word);
 
-                        // Clamp to word array bounds
-                        if (startIndex < 0) {
-                          startIndex = 0;
-                          endIndex = Math.min(windowSize, words.length);
-                        } else if (endIndex > words.length) {
-                          endIndex = words.length;
-                          startIndex = Math.max(0, endIndex - windowSize);
+                          if (
+                            word.endsWith(".") ||
+                            word.endsWith("!") ||
+                            word.endsWith("?")
+                          ) {
+                            sentences.push(currentSentence);
+                            currentSentence = [];
+                          }
                         }
 
-                        const displayedWords = words.slice(
-                          startIndex,
-                          endIndex,
+                        // Add remaining words as final sentence
+                        if (currentSentence.length > 0) {
+                          sentences.push(currentSentence);
+                        }
+
+                        // Find which sentence contains the current word
+                        let wordCount = 0;
+                        let sentenceWithCurrentWord = 0;
+                        let wordIndexInCurrentSentence = 0;
+
+                        for (let i = 0; i < sentences.length; i++) {
+                          if (
+                            currentWordIndex >= wordCount &&
+                            currentWordIndex < wordCount + sentences[i].length
+                          ) {
+                            sentenceWithCurrentWord = i;
+                            wordIndexInCurrentSentence =
+                              currentWordIndex - wordCount;
+                            break;
+                          }
+                          wordCount += sentences[i].length;
+                        }
+
+                        // Show 2-3 sentences around current position (stable display)
+                        const sentencesToShow = 3;
+                        let startSentence = Math.max(
+                          0,
+                          sentenceWithCurrentWord -
+                            Math.floor(sentencesToShow / 2),
                         );
+                        let endSentence = Math.min(
+                          sentences.length - 1,
+                          startSentence + sentencesToShow - 1,
+                        );
+
+                        // Adjust start if we're near the end
+                        if (endSentence - startSentence < sentencesToShow - 1) {
+                          startSentence = Math.max(0, endSentence - sentencesToShow + 1);
+                        }
 
                         // Debug logging (every ~1 second)
                         if (Math.round(currentTime * 10) % 10 === 0) {
-                          console.log("[Caption Sync]", {
+                          console.log("[Caption Sync - Hybrid]", {
                             currentTime: currentTime.toFixed(2),
                             duration: duration.toFixed(2),
                             progress: (progress * 100).toFixed(1) + "%",
                             currentWordIndex,
                             totalWords: words.length,
-                            displayedWords: displayedWords.join(" "),
+                            sentenceWithCurrentWord,
+                            wordIndexInCurrentSentence,
+                            totalSentences: sentences.length,
                           });
                         }
 
                         return (
-                          <>
-                            {displayedWords.join(" ")}
-                            {endIndex < words.length ? "..." : ""}
-                          </>
+                          <div className="leading-relaxed">
+                            {sentences.slice(startSentence, endSentence + 1).map((sentence, sentenceIdx) => {
+                              const absoluteSentenceIndex = startSentence + sentenceIdx;
+                              const isCurrentSentence =
+                                absoluteSentenceIndex === sentenceWithCurrentWord;
+
+                              return (
+                                <div key={sentenceIdx}>
+                                  {sentence.map((word, wordIdx) => {
+                                    const isCurrentWord =
+                                      isCurrentSentence &&
+                                      wordIdx === wordIndexInCurrentSentence;
+
+                                    return (
+                                      <span
+                                        key={wordIdx}
+                                        className={
+                                          isCurrentWord
+                                            ? "bg-accent-blue text-black font-bold px-1 rounded mx-0.5"
+                                            : "mx-0.5"
+                                        }
+                                      >
+                                        {word}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })}
+                          </div>
                         );
                       })()}
-                    </p>
+                    </div>
                   </div>
                 )}
 
