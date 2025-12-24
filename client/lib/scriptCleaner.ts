@@ -5,8 +5,9 @@
 export const cleanScriptForVoiceover = (rawScript: string): string => {
   let cleaned = rawScript;
 
-  // Remove bracketed content [Wide shot], [Zoom in], etc.
-  cleaned = cleaned.replace(/\[.*?\]/g, "");
+  // Remove bracketed content including multi-line: [OPENING SCENE: ... ], [SCENE: ... ], [Wide shot], etc.
+  // Using [\s\S]*? to match any character including newlines
+  cleaned = cleaned.replace(/\[[\s\S]*?\]/g, "");
 
   // Remove parenthetical directions (Wide shot), (Camera pulls back), etc.
   cleaned = cleaned.replace(
