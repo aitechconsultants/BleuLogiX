@@ -475,14 +475,19 @@ Return ONLY valid JSON in this exact format:
 
         console.log(
           "[imageGen] Creation response data:",
-          JSON.stringify(createData).substring(0, 300),
+          JSON.stringify(createData).substring(0, 500),
         );
 
-        const generationId = createData.sdGenerationJob?.generationId;
+        const generationId = createData?.sdGenerationJob?.generationId;
 
         if (!generationId) {
           console.error(
-            "[imageGen] No generation ID returned from Leonardo. Full response:",
+            "[imageGen] No generation ID returned from Leonardo",
+            "Response keys:",
+            createData ? Object.keys(createData) : "null",
+            "sdGenerationJob keys:",
+            createData?.sdGenerationJob ? Object.keys(createData.sdGenerationJob) : "undefined",
+            "Full response:",
             JSON.stringify(createData),
           );
           continue;
