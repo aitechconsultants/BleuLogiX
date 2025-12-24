@@ -314,12 +314,23 @@ export default function MediaTimelinePreview({
           src={audioUrl}
           onLoadedMetadata={() => {
             if (audioRef.current) {
-              setAudioDuration(audioRef.current.duration);
-              console.log(
-                "[MediaTimelinePreview] Audio loaded, duration:",
-                audioRef.current.duration,
-              );
+              const duration = audioRef.current.duration;
+              setAudioDuration(duration);
+              console.log("[AudioElement] Loaded metadata:", {
+                duration,
+                isFinite: isFinite(duration),
+              });
             }
+          }}
+          onDurationChange={() => {
+            if (audioRef.current) {
+              const duration = audioRef.current.duration;
+              setAudioDuration(duration);
+              console.log("[AudioElement] Duration changed:", duration);
+            }
+          }}
+          onCanPlay={() => {
+            console.log("[AudioElement] Can play, duration:", audioDuration);
           }}
         />
       )}
