@@ -160,7 +160,10 @@ Return ONLY valid JSON in this exact format:
   /**
    * Generate images using DALL-E 3 based on prompts
    */
-  async generateImages(prompts: ImagePrompt[]): Promise<string[]> {
+  async generateImages(
+    prompts: ImagePrompt[],
+    imageStyle: string = "realistic",
+  ): Promise<string[]> {
     this.initializeOpenAI();
 
     if (!prompts || prompts.length === 0) {
