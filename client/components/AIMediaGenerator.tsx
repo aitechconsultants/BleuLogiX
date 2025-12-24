@@ -167,6 +167,12 @@ export default function AIMediaGenerator({
 
   const generateImages = async () => {
     const selectedCount = episodesSelectedForGeneration.size;
+    console.log("[AIMediaGenerator] Generate button clicked", {
+      selectedCount,
+      scriptLength: script.trim().length,
+      episodesCount: episodes.length,
+    });
+
     if (selectedCount === 0 && !script.trim()) {
       setError("Please select episodes or enter a script first");
       return;
@@ -182,6 +188,12 @@ export default function AIMediaGenerator({
           ? episodes.filter((ep) => episodesSelectedForGeneration.has(ep.id))
           : episodes;
 
+      console.log("[AIMediaGenerator] Calling /api/images/generate with:", {
+        scriptLength: script.length,
+        episodesToGenerateCount: episodesToGenerate.length,
+        imageStyle,
+      });
+
       const response = await fetch("/api/images/generate", {
         method: "POST",
         headers: {
@@ -194,8 +206,12 @@ export default function AIMediaGenerator({
         }),
       });
 
+      console.log("[AIMediaGenerator] API response status:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+
+        console.error("[AIMediaGenerator] API error response:", errorData);
 
         if (response.status === 402) {
           setError(
@@ -210,6 +226,12 @@ export default function AIMediaGenerator({
       }
 
       const data = await response.json();
+      console.log("[AIMediaGenerator] Successfully generated images:", {
+        promptsCount: data.prompts?.length || 0,
+        imageUrlsCount: data.imageUrls?.length || 0,
+        creditCost: data.creditCost,
+      });
+
       setPrompts(data.prompts || []);
       setImageUrls(data.imageUrls || []);
       setCreditCost(data.creditCost || 0);
