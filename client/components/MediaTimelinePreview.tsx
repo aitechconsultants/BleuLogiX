@@ -364,7 +364,8 @@ export default function MediaTimelinePreview({
           </div>
           <div>Voice: {selectedVoiceId ? selectedVoiceId : "NOT SELECTED"}</div>
           <div>
-            Audio Duration: {audioDuration > 0 ? `${audioDuration.toFixed(1)}s` : "Not loaded"}
+            Audio Duration:{" "}
+            {audioDuration > 0 ? `${audioDuration.toFixed(1)}s` : "Not loaded"}
           </div>
           <div>
             Audio Current Time:{" "}
@@ -373,7 +374,8 @@ export default function MediaTimelinePreview({
               : "N/A"}
           </div>
           <div>
-            Playing: {isPlaying ? "Yes" : "No"} | Muted: {isMuted ? "Yes" : "No"}
+            Playing: {isPlaying ? "Yes" : "No"} | Muted:{" "}
+            {isMuted ? "Yes" : "No"}
           </div>
         </div>
 
