@@ -410,8 +410,11 @@ export default function VideoGeneratorCreate() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 5) {
+      if (currentProjectId) {
+        await autoSaveProject(true);
+      }
       setCurrentStep(currentStep + 1);
     } else {
       setShowExportModal(true);
