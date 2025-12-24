@@ -51,6 +51,19 @@ export class ImageGenerationService {
         : "";
 
     try {
+      const styleGuideMap: Record<string, string> = {
+        realistic:
+          "photorealistic, documentary style, natural lighting, authentic details",
+        "fine art": "oil painting style, artistic composition, museum quality",
+        cinematic:
+          "cinematic composition, dramatic lighting, film noir or golden hour cinematography",
+        fantasy: "fantasy world, magical elements, mystical atmosphere, vibrant colors",
+        drama: "dramatic lighting, emotional intensity, theatrical composition, high contrast",
+        dark: "dark moody atmosphere, low key lighting, noir style, mysterious tone",
+      };
+
+      const styleGuide = styleGuideMap[imageStyle.toLowerCase()] || styleGuideMap.realistic;
+
       const response = await this.openai!.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -61,9 +74,12 @@ export class ImageGenerationService {
 Your task is to analyze a video script and identify distinct visual scenes/shots that should be created.
 Return a JSON array of image prompts that would visually represent the key moments in the script.
 
+IMPORTANT: All images must be created in the following style: ${styleGuide}
+
 Guidelines:
 - Identify 3-8 key visual moments based on the script length and content
-- Each prompt should be descriptive and cinematic
+- Each prompt should be descriptive and incorporate the specified style
+- Include the visual style (${imageStyle}) consistently in all prompts
 - Focus on action, emotion, and key narrative elements
 - Create prompts that are distinct and complementary
 - Format each prompt to work well with DALL-E 3${
@@ -75,7 +91,7 @@ Guidelines:
 Return ONLY valid JSON in this exact format:
 [
   {
-    "description": "detailed visual description for DALL-E",
+    "description": "detailed visual description for DALL-E in the ${imageStyle} style",
     "context": "brief explanation of why this visual is needed",
     "index": 0
   }
