@@ -423,18 +423,40 @@ Return ONLY valid JSON in this exact format:
           JSON.stringify(generationRequest).substring(0, 200),
         );
 
-        // Submit generation job
-        const createResponse = await fetch(
-          `${this.leonardoBaseUrl}/generations`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${this.leonardoApiKey!}`,
+        // Submit generation job with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+        let createResponse;
+        try {
+          createResponse = await fetch(
+            `${this.leonardoBaseUrl}/generations`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.leonardoApiKey!}`,
+              },
+              body: JSON.stringify(generationRequest),
+              signal: controller.signal,
             },
-            body: JSON.stringify(generationRequest),
-          },
-        );
+          );
+        } catch (fetchErr) {
+          clearTimeout(timeoutId);
+          if (fetchErr instanceof Error && fetchErr.name === "AbortError") {
+            console.error(
+              `[imageGen] Leonardo API request timeout (15s) for prompt:`,
+              prompt.description.substring(0, 50),
+            );
+          } else {
+            console.error(
+              `[imageGen] Leonardo API fetch error:`,
+              fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
+            );
+          }
+          continue;
+        }
+        clearTimeout(timeoutId);
 
         console.log(
           "[imageGen] Creation response status:",
