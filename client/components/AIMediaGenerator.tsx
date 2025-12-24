@@ -123,12 +123,24 @@ export default function AIMediaGenerator({
       setIsGenerating(true);
       setError(null);
 
+      // Filter episodes to only those selected for generation
+      const episodesToGenerate =
+        selectedCount > 0
+          ? episodes.filter((ep) =>
+              episodesSelectedForGeneration.has(ep.id)
+            )
+          : episodes;
+
       const response = await fetch("/api/images/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ script, episodes, imageStyle }),
+        body: JSON.stringify({
+          script,
+          episodes: episodesToGenerate,
+          imageStyle,
+        }),
       });
 
       if (!response.ok) {
