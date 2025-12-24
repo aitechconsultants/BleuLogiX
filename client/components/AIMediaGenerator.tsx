@@ -384,7 +384,7 @@ export default function AIMediaGenerator({
 
                             <div>
                               <h5 className="font-medium text-foreground mb-2">
-                                Image Prompts ({prompts.length})
+                                Image Prompts & Voiceover ({prompts.length})
                               </h5>
                               {loadingPrompts.has(selectedEpisodeId) ? (
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -392,22 +392,34 @@ export default function AIMediaGenerator({
                                   Loading image prompts...
                                 </div>
                               ) : prompts.length > 0 ? (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                   {prompts.map((prompt, idx) => (
                                     <div
                                       key={idx}
-                                      className="p-2 rounded-lg bg-muted/50 border border-border/50"
+                                      className="p-3 rounded-lg bg-muted/50 border border-border/50 space-y-2"
                                     >
-                                      <p className="text-xs font-medium text-foreground mb-1">
-                                        Image {prompt.index + 1}
-                                      </p>
-                                      <p className="text-xs text-muted-foreground">
-                                        {prompt.context}
-                                      </p>
-                                      <p className="text-xs text-muted-foreground italic mt-1">
-                                        "{prompt.description.substring(0, 100)}
-                                        ..."
-                                      </p>
+                                      <div>
+                                        <p className="text-xs font-medium text-foreground mb-1">
+                                          Image {prompt.index + 1}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {prompt.context}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground italic mt-1">
+                                          "{prompt.description.substring(0, 100)}
+                                          ..."
+                                        </p>
+                                      </div>
+                                      {prompt.voiceoverScript && (
+                                        <div className="pt-2 border-t border-border/30">
+                                          <p className="text-xs font-medium text-accent-blue mb-1">
+                                            Voiceover:
+                                          </p>
+                                          <p className="text-xs text-foreground leading-relaxed">
+                                            {prompt.voiceoverScript}
+                                          </p>
+                                        </div>
+                                      )}
                                     </div>
                                   ))}
                                 </div>
