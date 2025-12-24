@@ -544,16 +544,27 @@ Return ONLY valid JSON in this exact format:
 
         if (!generationId) {
           console.error(
-            "[imageGen] No generation ID returned from Leonardo",
-            "Response keys:",
+            "[imageGen] ❌ No generation ID returned from Leonardo!",
+          );
+          console.error(
+            "[imageGen] Response keys:",
             createData ? Object.keys(createData) : "null",
-            "Full response:",
+          );
+          console.error(
+            "[imageGen] Full response:",
             JSON.stringify(createData).substring(0, 500),
+          );
+          console.error(
+            "[imageGen] sdGenerationJob structure:",
+            JSON.stringify(createData?.sdGenerationJob),
           );
           continue;
         }
 
-        console.log("[imageGen] Generation job created with ID:", generationId);
+        console.log(
+          "[imageGen] ✓ Generation job created with ID:",
+          generationId,
+        );
 
         // Poll for completion (with timeout)
         const maxWaitTime = 60000; // 60 seconds
