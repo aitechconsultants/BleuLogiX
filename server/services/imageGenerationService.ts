@@ -156,16 +156,16 @@ Return ONLY valid JSON in this exact format:
     const numImages = Math.min(Math.ceil(words / 100), 6);
 
     const themes = [
-      "professional business environment",
-      "modern technology workspace",
-      "creative collaboration",
-      "product showcase",
-      "success and growth",
-      "team working together",
+      "professional business environment, sharp focus, natural lighting, 4K resolution, detailed textures",
+      "modern technology workspace, professional photograph, studio lighting, high-end production quality",
+      "creative collaboration, natural daylight, journalistic photography, authentic moment, documentary style",
+      "product showcase, product photography, professional lighting, RAW quality, studio setup, sharp details",
+      "success and growth, cinematic composition, golden hour lighting, dynamic angles, professional quality",
+      "team working together, professional environment, natural interaction, high-resolution, authentic setting",
     ];
 
     return Array.from({ length: numImages }, (_, i) => ({
-      description: `${themes[i % themes.length]}, professional lighting, high quality, cinematic`,
+      description: `Professional photograph: ${themes[i % themes.length]}, professional DSLR quality`,
       context: `Visual segment ${i + 1} for the video narrative`,
       index: i,
     }));
