@@ -40,7 +40,7 @@ interface LeonardoImageResponse {
 export class ImageGenerationService {
   private openai: OpenAI | null = null;
   private leonardoApiKey: string | null = null;
-  private leonardoBaseUrl: string = "https://api.leonardo.ai/rest/v1";
+  private leonardoBaseUrl: string = "https://cloud.leonardo.ai/api/rest/v1";
 
   constructor() {
     this.leonardoApiKey = process.env.LEONARDO_API_KEY || null;
