@@ -397,7 +397,7 @@ Return ONLY valid JSON in this exact format:
     for (const prompt of prompts) {
       try {
         console.log(
-          `[imageGen] Generating image with Leonardo (${imageStyle}) for: ${prompt.description.slice(0, 50)}...`,
+          `[imageGen] Starting image generation for prompt: ${prompt.description.substring(0, 50)}...`,
         );
 
         // Create generation request
