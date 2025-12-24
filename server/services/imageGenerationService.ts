@@ -113,7 +113,9 @@ Return ONLY valid JSON in this exact format:
           },
           {
             role: "user",
-            content: `Analyze this script and extract highly detailed visual requirements in ${imageStyle} style:\n\n${script}${episodeContext}`,
+            content: script?.trim()
+              ? `Analyze this script and extract highly detailed visual requirements in ${imageStyle} style:\n\n${script}${episodeContext}`
+              : `Based on the selected episodes${episodeContext}\n\nGenerate visual descriptions for images that would represent key scenes and moments from these episodes in ${imageStyle} style.`,
           },
         ],
         temperature: 0.8,
