@@ -430,14 +430,37 @@ export default function MediaTimelinePreview({
                           captionStyle === "gradient"
                             ? "transparent"
                             : getCaptionColor(),
+                        whiteSpace: "pre-wrap",
+                        wordWrap: "break-word",
+                        overflowWrap: "break-word",
                       }}
                     >
                       {(() => {
                         const cleanedScript =
                           cleanScriptForVoiceover(effectiveScript);
-                        const words = cleanedScript
+
+                        // Split into words, handling punctuation separately
+                        const rawWords = cleanedScript
                           .split(/\s+/)
                           .filter((w) => w.length > 0);
+
+                        // Normalize words: separate punctuation from actual word text
+                        interface Word {
+                          text: string;
+                          punctuation: string;
+                        }
+
+                        const words: Word[] = rawWords.map((word) => {
+                          // Extract trailing punctuation
+                          const match = word.match(/^(.+?)([.!?,;:\-]*)$/);
+                          if (match) {
+                            return {
+                              text: match[1],
+                              punctuation: match[2],
+                            };
+                          }
+                          return { text: word, punctuation: "" };
+                        });
 
                         if (words.length === 0) {
                           return "";
@@ -466,20 +489,19 @@ export default function MediaTimelinePreview({
                           progress * (words.length - 1),
                         );
 
-                        // Split into sentences (period, exclamation, question mark)
-                        let currentSentenceIndex = 0;
-                        let wordIndexInSentence = 0;
-                        const sentences: string[][] = [];
-                        let currentSentence: string[] = [];
+                        // Split into sentences based on punctuation
+                        const sentences: Word[][] = [];
+                        let currentSentence: Word[] = [];
 
                         for (let i = 0; i < words.length; i++) {
                           const word = words[i];
                           currentSentence.push(word);
 
+                          // Check if word ends with sentence-ending punctuation
                           if (
-                            word.endsWith(".") ||
-                            word.endsWith("!") ||
-                            word.endsWith("?")
+                            word.punctuation.includes(".") ||
+                            word.punctuation.includes("!") ||
+                            word.punctuation.includes("?")
                           ) {
                             sentences.push(currentSentence);
                             currentSentence = [];
@@ -544,7 +566,7 @@ export default function MediaTimelinePreview({
                         }
 
                         return (
-                          <div className="leading-relaxed">
+                          <div className="leading-relaxed break-words">
                             {sentences
                               .slice(startSentence, endSentence + 1)
                               .map((sentence, sentenceIdx) => {
@@ -555,7 +577,10 @@ export default function MediaTimelinePreview({
                                   sentenceWithCurrentWord;
 
                                 return (
-                                  <div key={sentenceIdx}>
+                                  <div
+                                    key={sentenceIdx}
+                                    className="break-words"
+                                  >
                                     {sentence.map((word, wordIdx) => {
                                       const isCurrentWord =
                                         isCurrentSentence &&
@@ -566,11 +591,17 @@ export default function MediaTimelinePreview({
                                           key={wordIdx}
                                           className={
                                             isCurrentWord
-                                              ? "bg-accent-blue text-black font-bold px-1 rounded mx-0.5"
-                                              : "mx-0.5"
+                                              ? "bg-accent-blue text-black font-bold px-1 rounded"
+                                              : ""
                                           }
+                                          style={{
+                                            display: "inline-block",
+                                            marginRight: "0.25em",
+                                            wordBreak: "keep-all",
+                                          }}
                                         >
-                                          {word}
+                                          {word.text}
+                                          {word.punctuation}
                                         </span>
                                       );
                                     })}
