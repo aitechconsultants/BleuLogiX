@@ -155,7 +155,8 @@ Return ONLY valid JSON in this exact format:
    */
   private generateDefaultPrompts(script: string): ImagePrompt[] {
     const words = script?.trim() ? script.split(/\s+/).length : 0;
-    const numImages = Math.min(Math.ceil(words / 100) || 6, 6);
+    // If no script, generate 6 images; otherwise base on script length
+    const numImages = words > 0 ? Math.min(Math.ceil(words / 100), 6) : 6;
 
     const themes = [
       "professional business environment, sharp focus, natural lighting, 4K resolution, detailed textures",
