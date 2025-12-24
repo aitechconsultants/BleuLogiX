@@ -446,7 +446,7 @@ Return ONLY valid JSON in this exact format:
             {
               method: "GET",
               headers: {
-                Authorization: `Bearer ${this.leonardoApiKey}`,
+                Authorization: `Bearer ${this.leonardoApiKey!}`,
               },
             },
           );
