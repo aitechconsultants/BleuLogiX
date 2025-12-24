@@ -10,13 +10,13 @@ interface ImagePrompt {
 
 interface LeonardoGenerationRequest {
   prompt: string;
-  imageCount?: number;
-  modelId?: string;
+  num_images?: number;
+  model_id?: string;
   width?: number;
   height?: number;
-  presetStyle?: string;
   guidance_scale?: number;
   seed?: number;
+  public?: boolean;
 }
 
 interface LeonardoGenerationResponse {
