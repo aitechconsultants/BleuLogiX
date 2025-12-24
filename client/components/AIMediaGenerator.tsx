@@ -123,6 +123,9 @@ export default function AIMediaGenerator({
         id: `ai-image-${Date.now()}-${Math.random()}-${index}`,
         name: prompt?.description || `Generated Image ${index + 1}`,
         url,
+        source: "ai-generated",
+        imageStyle: imageStyle,
+        generatedAt: new Date().toISOString(),
       });
     });
 
