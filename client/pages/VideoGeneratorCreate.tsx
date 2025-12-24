@@ -778,6 +778,10 @@ export default function VideoGeneratorCreate() {
                 <AIMediaGenerator
                   script={formState.script}
                   episodes={formState.selectedEpisodes}
+                  imageStyle={formState.imageStyle}
+                  onImageStyleChange={(style) =>
+                    setFormState({ ...formState, imageStyle: style })
+                  }
                   onMediaSelected={(media) => {
                     setFormState((prevState) => ({
                       ...prevState,
@@ -787,6 +791,9 @@ export default function VideoGeneratorCreate() {
                           id: media.id,
                           name: media.name,
                           url: media.url,
+                          source: media.source,
+                          imageStyle: media.imageStyle,
+                          generatedAt: media.generatedAt,
                         },
                       ],
                     }));
