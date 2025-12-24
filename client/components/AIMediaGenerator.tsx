@@ -366,7 +366,12 @@ export default function AIMediaGenerator({
                               <h5 className="font-medium text-foreground mb-2">
                                 Image Prompts ({prompts.length})
                               </h5>
-                              {prompts.length > 0 ? (
+                              {loadingPrompts.has(selectedEpisodeId) ? (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Loader className="w-4 h-4 animate-spin" />
+                                  Loading image prompts...
+                                </div>
+                              ) : prompts.length > 0 ? (
                                 <div className="space-y-2">
                                   {prompts.map((prompt, idx) => (
                                     <div
@@ -388,7 +393,7 @@ export default function AIMediaGenerator({
                                 </div>
                               ) : (
                                 <p className="text-sm text-muted-foreground">
-                                  Loading image prompts...
+                                  No image prompts available for this episode
                                 </p>
                               )}
                             </div>
