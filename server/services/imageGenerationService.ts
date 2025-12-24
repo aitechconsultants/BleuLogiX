@@ -217,17 +217,24 @@ Return ONLY valid JSON in this exact format:
   async generateImagesFromScript(
     script: string,
     episodes: any[] = [],
+    imageStyle: string = "realistic",
   ): Promise<{
     prompts: ImagePrompt[];
     imageUrls: string[];
     creditCost: number;
   }> {
-    console.log("[imageGen] Starting image generation pipeline");
+    console.log(
+      `[imageGen] Starting image generation pipeline with style: ${imageStyle}`,
+    );
 
-    const prompts = await this.extractImagePromptsFromScript(script, episodes);
+    const prompts = await this.extractImagePromptsFromScript(
+      script,
+      episodes,
+      imageStyle,
+    );
     console.log(`[imageGen] Extracted ${prompts.length} image prompts`);
 
-    const imageUrls = await this.generateImages(prompts);
+    const imageUrls = await this.generateImages(prompts, imageStyle);
     console.log(`[imageGen] Generated ${imageUrls.length} images`);
 
     const creditCost = this.calculateImageGenerationCost(imageUrls.length);
