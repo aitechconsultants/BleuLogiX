@@ -182,11 +182,19 @@ export default function AIMediaGenerator({
       setIsGenerating(true);
       setError(null);
 
-      // Filter episodes to only those selected for generation
-      const episodesToGenerate =
-        selectedCount > 0
-          ? episodes.filter((ep) => episodesSelectedForGeneration.has(ep.id))
-          : episodes;
+      // Determine which episodes to use for generation
+      let episodesToGenerate = episodes;
+
+      // If specific episodes are selected, use only those
+      if (selectedCount > 0) {
+        episodesToGenerate = episodes.filter((ep) =>
+          episodesSelectedForGeneration.has(ep.id),
+        );
+      } else if (episodes.length > 0 && !script.trim()) {
+        // If no episodes selected but episodes exist and no script, auto-select all
+        episodesToGenerate = episodes;
+      }
+      // Otherwise use empty array (script-only mode)
 
       console.log("[AIMediaGenerator] Calling /api/images/generate with:", {
         scriptLength: script.length,
