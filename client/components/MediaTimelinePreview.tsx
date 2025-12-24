@@ -10,9 +10,20 @@ export interface MediaItem {
   included?: boolean;
 }
 
+interface Episode {
+  id: string;
+  seriesName: string;
+  seasonNumber?: number;
+  episodeNumber?: number;
+  episodeName?: string;
+  description?: string;
+  source: "user-defined" | "predefined" | "ai-generated";
+}
+
 interface MediaTimelinePreviewProps {
   items: MediaItem[];
   script: string;
+  episodes?: Episode[];
   captionsEnabled: boolean;
   captionStyle: string;
   captionColor: string;
