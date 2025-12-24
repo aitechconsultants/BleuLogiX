@@ -39,6 +39,9 @@ export default function AIMediaGenerator({
   const [creditCost, setCreditCost] = useState(0);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState<string | null>(null);
+  const [episodesSelectedForGeneration, setEpisodesSelectedForGeneration] = useState<Set<string>>(new Set());
+  const [episodePrompts, setEpisodePrompts] = useState<Record<string, ImagePrompt[]>>({});
 
   const imageStyles = [
     "realistic",
