@@ -26,6 +26,7 @@ export class ImageGenerationService {
   async extractImagePromptsFromScript(
     script: string,
     episodes: any[] = [],
+    imageStyle: string = "realistic",
   ): Promise<ImagePrompt[]> {
     this.initializeOpenAI();
 
