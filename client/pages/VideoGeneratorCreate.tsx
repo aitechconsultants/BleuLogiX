@@ -26,6 +26,17 @@ interface Voice {
   useCase: string;
 }
 
+interface MediaFile {
+  id: string;
+  name: string;
+  url?: string;
+  duration?: number;
+  included?: boolean;
+  source: "uploaded" | "ai-generated";
+  imageStyle?: string;
+  generatedAt?: string;
+}
+
 interface FormState {
   resolution: "vertical" | "square" | "horizontal";
   duration: number;
@@ -35,10 +46,13 @@ interface FormState {
   styleTone: string;
   selectedStyle: string;
   selectedVoice: string;
+  voiceoverUrl?: string;
+  voiceoverGeneratedAt?: string;
+  imageStyle: string;
   captionsEnabled: boolean;
   captionStyle: string;
   captionColor: string;
-  mediaFiles: Array<{ id: string; name: string; url?: string }>;
+  mediaFiles: MediaFile[];
   selectedEpisodes: Episode[];
 }
 
