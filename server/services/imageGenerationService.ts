@@ -672,27 +672,20 @@ Return ONLY valid JSON in this exact format:
 
           if (generation.status === "COMPLETE") {
             console.log(
-              "[imageGen] Generation complete. Response structure:",
-              JSON.stringify(generation).substring(0, 200),
+              "[imageGen] Generation complete. Checking for images...",
             );
 
-            if (
-              generation.generated_images &&
-              generation.generated_images.length > 0
-            ) {
-              imageUrl = generation.generated_images[0].url;
+            const images = generation.generated_images || [];
+            if (images.length > 0) {
+              imageUrl = images[0].url;
               console.log(
-                `[imageGen] Successfully generated image: ${imageUrl.substring(0, 50)}...`,
+                `[imageGen] ✓ Image URL retrieved: ${imageUrl.substring(0, 60)}...`,
               );
             } else {
               console.warn(
-                "[imageGen] Generation complete but no images in response",
-                "generated_images exists:",
-                !!generation.generated_images,
-                "generated_images length:",
-                generation.generated_images?.length,
-                "Available keys in generation:",
-                Object.keys(generation),
+                "[imageGen] ⚠️ Generation complete but generated_images is empty",
+                "Images array:",
+                JSON.stringify(images),
               );
             }
             break;
