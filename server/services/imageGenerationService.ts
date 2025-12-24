@@ -19,22 +19,21 @@ interface LeonardoGenerationRequest {
   public?: boolean;
 }
 
-interface LeonardoGenerationResponse {
-  sdGenerationJob: {
-    generationId: string;
-    apiCreditCost: number;
-  };
+interface LeonardoSDJob {
+  generationId: string;
 }
 
-interface LeonardoImageResponse {
-  generations_by_pk: {
+interface LeonardoCreateResponse {
+  sdGenerationJob: LeonardoSDJob;
+}
+
+interface LeonardoGeneration {
+  id: string;
+  status: string;
+  generated_images?: Array<{
     id: string;
-    status: string;
-    generated_images: Array<{
-      id: string;
-      url: string;
-    }>;
-  };
+    url: string;
+  }>;
 }
 
 export class ImageGenerationService {
