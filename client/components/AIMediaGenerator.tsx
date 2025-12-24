@@ -52,9 +52,70 @@ export default function AIMediaGenerator({
     "dark",
   ];
 
+  // Extract prompts for a specific episode
+  const extractPromptsForEpisode = async (episode: Episode) => {
+    try {
+      const response = await fetch("/api/images/extract-prompts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          script: "",
+          episodes: [episode],
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to extract prompts for episode");
+        return [];
+      }
+
+      const data = await response.json();
+      return data.prompts || [];
+    } catch (err) {
+      console.error("Error extracting prompts:", err);
+      return [];
+    }
+  };
+
+  // Load prompts when an episode is selected
+  useEffect(() => {
+    if (selectedEpisodeId) {
+      const episode = episodes.find((ep) => ep.id === selectedEpisodeId);
+      if (episode && !episodePrompts[selectedEpisodeId]) {
+        extractPromptsForEpisode(episode).then((prompts) => {
+          setEpisodePrompts((prev) => ({
+            ...prev,
+            [selectedEpisodeId]: prompts,
+          }));
+        });
+      }
+    }
+  }, [selectedEpisodeId, episodes]);
+
+  const toggleEpisodeSelection = (episodeId: string) => {
+    const newSelected = new Set(episodesSelectedForGeneration);
+    if (newSelected.has(episodeId)) {
+      newSelected.delete(episodeId);
+    } else {
+      newSelected.add(episodeId);
+    }
+    setEpisodesSelectedForGeneration(newSelected);
+  };
+
+  const selectAllEpisodes = () => {
+    if (episodesSelectedForGeneration.size === episodes.length) {
+      setEpisodesSelectedForGeneration(new Set());
+    } else {
+      setEpisodesSelectedForGeneration(new Set(episodes.map((ep) => ep.id)));
+    }
+  };
+
   const generateImages = async () => {
-    if (!script.trim() && episodes.length === 0) {
-      setError("Please enter a script or select episodes first");
+    const selectedCount = episodesSelectedForGeneration.size;
+    if (selectedCount === 0 && !script.trim()) {
+      setError("Please select episodes or enter a script first");
       return;
     }
 
