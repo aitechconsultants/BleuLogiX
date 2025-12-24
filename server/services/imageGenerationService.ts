@@ -425,19 +425,16 @@ Return ONLY valid JSON in this exact format:
           `[imageGen] ===== Starting image generation ${promptIdx + 1}/${prompts.length} for prompt: ${prompt.description.substring(0, 50)}...`,
         );
 
-        // Create generation request
+        // Create generation request with Leonardo API correct field names
         const generationRequest: LeonardoGenerationRequest = {
           prompt: prompt.description,
-          imageCount: 1,
-          modelId: modelId,
+          num_images: 1,
+          model_id: modelId,
           width: 1024,
           height: 1024,
           guidance_scale: 7,
+          public: false,
         };
-
-        if (presetStyle) {
-          generationRequest.presetStyle = presetStyle;
-        }
 
         console.log(
           "[imageGen] Submitting generation request to:",
