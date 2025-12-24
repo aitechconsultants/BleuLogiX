@@ -486,7 +486,9 @@ Return ONLY valid JSON in this exact format:
             "Response keys:",
             createData ? Object.keys(createData) : "null",
             "sdGenerationJob keys:",
-            createData?.sdGenerationJob ? Object.keys(createData.sdGenerationJob) : "undefined",
+            createData?.sdGenerationJob
+              ? Object.keys(createData.sdGenerationJob)
+              : "undefined",
             "Full response:",
             JSON.stringify(createData),
           );
