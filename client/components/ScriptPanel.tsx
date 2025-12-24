@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Wand2, Volume2 } from "lucide-react";
 import { useScriptGenApi } from "../lib/scriptGenApi";
-import { cleanScriptForVoiceover } from "../lib/scriptCleaner";
+import { cleanScriptForVoiceover } from "../../shared/api";
 
 interface ScriptPanelProps {
   value: string;
