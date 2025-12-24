@@ -271,9 +271,17 @@ export default function MediaTimelinePreview({
                     >
                       {(() => {
                         const cleanedScript = cleanScriptForVoiceover(script);
+                        const captionText = cleanedScript
+                          .split(" ")
+                          .slice(0, 10)
+                          .join(" ");
                         return (
                           <>
-                            {cleanedScript.split(" ").slice(0, 10).join(" ")}
+                            {captionText || (
+                              <span className="text-xs italic text-muted-foreground">
+                                [Scene directions only]
+                              </span>
+                            )}
                             {cleanedScript.split(" ").length > 10 ? "..." : ""}
                           </>
                         );
