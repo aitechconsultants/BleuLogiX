@@ -67,7 +67,6 @@ export default function MediaTimelinePreview({
     0,
   );
 
-
   // Generate audio from selected voice and script
   useEffect(() => {
     const generateAudio = async () => {
