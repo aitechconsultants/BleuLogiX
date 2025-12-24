@@ -70,7 +70,16 @@ export default function MediaTimelinePreview({
   // Generate audio from selected voice and script
   useEffect(() => {
     const generateAudio = async () => {
+      console.log("[MediaTimelinePreview] Audio generation triggered:", {
+        scriptLength: script?.length,
+        selectedVoiceId,
+        script: script?.substring(0, 100),
+      });
+
       if (!script.trim() || !selectedVoiceId) {
+        console.log(
+          "[MediaTimelinePreview] Skipping audio generation - missing script or voice"
+        );
         setAudioUrl(null);
         return;
       }
@@ -78,6 +87,11 @@ export default function MediaTimelinePreview({
       setIsGeneratingAudio(true);
       try {
         const cleanedScript = cleanScriptForVoiceover(script);
+        console.log("[MediaTimelinePreview] Cleaned script:", {
+          originalLength: script.length,
+          cleanedLength: cleanedScript.length,
+          cleaned: cleanedScript.substring(0, 100),
+        });
 
         // If the script is empty after cleaning, don't generate audio
         if (!cleanedScript.trim()) {
