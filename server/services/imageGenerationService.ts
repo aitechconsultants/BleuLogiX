@@ -45,9 +45,15 @@ export class ImageGenerationService {
   constructor() {
     this.leonardoApiKey = process.env.LEONARDO_API_KEY || null;
     if (this.leonardoApiKey) {
-      console.log("[imageGen] Leonardo API key configured (length:", this.leonardoApiKey.length, ")");
+      console.log(
+        "[imageGen] Leonardo API key configured (length:",
+        this.leonardoApiKey.length,
+        ")",
+      );
     } else {
-      console.warn("[imageGen] Leonardo API key NOT configured - process.env.LEONARDO_API_KEY is missing or empty");
+      console.warn(
+        "[imageGen] Leonardo API key NOT configured - process.env.LEONARDO_API_KEY is missing or empty",
+      );
     }
   }
 
@@ -412,7 +418,10 @@ Return ONLY valid JSON in this exact format:
           "[imageGen] Submitting generation request to:",
           `${this.leonardoBaseUrl}/generations`,
         );
-        console.log("[imageGen] Request body:", JSON.stringify(generationRequest).substring(0, 200));
+        console.log(
+          "[imageGen] Request body:",
+          JSON.stringify(generationRequest).substring(0, 200),
+        );
 
         // Submit generation job
         const createResponse = await fetch(
@@ -427,7 +436,10 @@ Return ONLY valid JSON in this exact format:
           },
         );
 
-        console.log("[imageGen] Creation response status:", createResponse.status);
+        console.log(
+          "[imageGen] Creation response status:",
+          createResponse.status,
+        );
 
         if (!createResponse.ok) {
           let errorData: any = {};
@@ -448,16 +460,25 @@ Return ONLY valid JSON in this exact format:
           createData =
             (await createResponse.json()) as LeonardoGenerationResponse;
         } catch (parseErr) {
-          console.error("[imageGen] Failed to parse creation response:", parseErr);
+          console.error(
+            "[imageGen] Failed to parse creation response:",
+            parseErr,
+          );
           continue;
         }
 
-        console.log("[imageGen] Creation response data:", JSON.stringify(createData).substring(0, 300));
+        console.log(
+          "[imageGen] Creation response data:",
+          JSON.stringify(createData).substring(0, 300),
+        );
 
         const generationId = createData.sdGenerationJob?.generationId;
 
         if (!generationId) {
-          console.error("[imageGen] No generation ID returned from Leonardo. Full response:", JSON.stringify(createData));
+          console.error(
+            "[imageGen] No generation ID returned from Leonardo. Full response:",
+            JSON.stringify(createData),
+          );
           continue;
         }
 
@@ -482,7 +503,9 @@ Return ONLY valid JSON in this exact format:
             },
           );
 
-          console.log(`[imageGen] Poll #${pollCount} status response: ${statusResponse.status}`);
+          console.log(
+            `[imageGen] Poll #${pollCount} status response: ${statusResponse.status}`,
+          );
 
           if (!statusResponse.ok) {
             console.error(
@@ -503,12 +526,18 @@ Return ONLY valid JSON in this exact format:
           try {
             statusData = (await statusResponse.json()) as LeonardoImageResponse;
           } catch (parseErr) {
-            console.error("[imageGen] Failed to parse status response:", parseErr);
+            console.error(
+              "[imageGen] Failed to parse status response:",
+              parseErr,
+            );
             console.log("[imageGen] Status response text available above");
             break;
           }
 
-          console.log("[imageGen] Status response data:", JSON.stringify(statusData).substring(0, 300));
+          console.log(
+            "[imageGen] Status response data:",
+            JSON.stringify(statusData).substring(0, 300),
+          );
 
           const generation = statusData.generations_by_pk;
 
@@ -534,7 +563,9 @@ Return ONLY valid JSON in this exact format:
                 `[imageGen] Successfully generated image: ${imageUrl.substring(0, 50)}...`,
               );
             } else {
-              console.warn("[imageGen] Generation complete but no images in response");
+              console.warn(
+                "[imageGen] Generation complete but no images in response",
+              );
             }
             break;
           } else if (
@@ -572,7 +603,9 @@ Return ONLY valid JSON in this exact format:
       }
     }
 
-    console.log(`[imageGen] Image generation complete. Generated ${imageUrls.length} images out of ${prompts.length} prompts`);
+    console.log(
+      `[imageGen] Image generation complete. Generated ${imageUrls.length} images out of ${prompts.length} prompts`,
+    );
     return imageUrls;
   }
 
