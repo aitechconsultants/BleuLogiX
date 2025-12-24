@@ -74,29 +74,33 @@ export default function MediaTimelinePreview({
     cleaned = cleaned.replace(/\[.*?\]/g, "");
 
     // Remove parenthetical directions (Wide shot), (Camera pulls back), etc.
-    cleaned = cleaned.replace(/\(.*?(?:shot|pan|zoom|fade|cut|dissolve|transition|camera|pull|push|dolly|track|reveal).*?\)/gi, "");
+    cleaned = cleaned.replace(/\(.*?(?:shot|pan|zoom|fade|cut|dissolve|transition|camera|pull|push|dolly|track|reveal|crane|handheld).*?\)/gi, "");
 
     // Remove lines starting with shot/visual/camera numbers: "Shot 1:", "Visual 2:", etc.
     cleaned = cleaned.replace(
-      /^[\s]*(Shot|Visual|Camera|Scene|Action|Music|Sound)[\s\d]*:.*$/gm,
+      /^[\s]*(Shot|Visual|Camera|Scene|Action|Music|Sound|Voice|Narration)[\s\d]*:.*$/gm,
       "",
     );
 
     // Remove common scene directions in all caps
     cleaned = cleaned.replace(
-      /^[\s]*(FADE IN|FADE OUT|CUT TO|DISSOLVE TO|TRANSITION|INT\.|EXT\.|OPEN|CLOSE)[\s:]*.*$/gm,
+      /^[\s]*(FADE IN|FADE OUT|CUT TO|DISSOLVE TO|TRANSITION|INT\.|EXT\.|OPEN|CLOSE|BEGIN|END|OPEN ON|CLOSE ON)[\s:]*.*$/gm,
       "",
     );
 
-    // Remove inline camera directions like "Shot 1: Wide shot -" at start of lines
-    cleaned = cleaned.replace(/^[\s]*Shot[\s\d]+:[\s]*(.*?)[\s]*-/gm, "$1 -");
+    // Remove any line that starts with common camera shot names
+    cleaned = cleaned.replace(/^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder|Long[\s-]*shot|Establishing[\s-]*shot|Aerial[\s-]*shot|Bird's?[\s-]*eye[\s-]*view|POV|Point[\s-]*of[\s-]*view|Tracking[\s-]*shot|Pan|Tilt|Zoom)[\s:]*(.*)$/gmi, "$2");
 
-    // Remove "Wide shot", "Close-up", etc. when they appear at start of sentence
-    cleaned = cleaned.replace(/^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder)[:\s]*(.*)$/gm, "$2");
+    // Remove "Shot X:" patterns anywhere in the text (not just at line start)
+    cleaned = cleaned.replace(/\bShot\s+\d+[\s:]*(?=\S)/gi, "");
+
+    // Remove inline parenthetical camera directions mixed with dialogue
+    cleaned = cleaned.replace(/[\s]*\([A-Z][^)]*(?:shot|camera|pan|zoom|fade|cut|dissolve|transition)[^)]*\)[\s]*/gi, " ");
 
     // Clean up extra whitespace and newlines
     cleaned = cleaned.replace(/\n\s*\n/g, "\n").trim();
     cleaned = cleaned.replace(/^\s*-\s*/gm, "");
+    cleaned = cleaned.replace(/\s+/g, " ");
 
     return cleaned;
   };
