@@ -341,12 +341,11 @@ export default function MediaTimelinePreview({
                 </div>
 
                 {/* Caption Preview Overlay */}
-                {captionsEnabled && !script && (
+                {captionsEnabled && !effectiveScript && (
                   <div className="absolute bottom-0 left-0 right-0 bg-red-500/20 border-t-2 border-red-500 p-4">
                     <p className="text-sm text-red-600 font-semibold text-center">
-                      ⚠️ No script provided. Please add a script in Step 2 to
-                      enable captions and voiceover. (Episodes are for image
-                      selection only)
+                      ⚠️ No script or episode descriptions found. Add a script
+                      in Step 2 or create episodes with descriptions.
                     </p>
                   </div>
                 )}
