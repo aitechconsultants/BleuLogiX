@@ -61,7 +61,10 @@ export default function AIMediaGenerator({
   // Extract prompts for a specific episode
   const extractPromptsForEpisode = async (episode: Episode) => {
     try {
-      console.log("[AIMediaGenerator] Extracting prompts for episode:", episode.id);
+      console.log(
+        "[AIMediaGenerator] Extracting prompts for episode:",
+        episode.id,
+      );
       const response = await fetch("/api/images/extract-prompts", {
         method: "POST",
         headers: {
@@ -78,13 +81,16 @@ export default function AIMediaGenerator({
         console.error(
           "[AIMediaGenerator] Failed to extract prompts:",
           response.status,
-          errorData
+          errorData,
         );
         return [];
       }
 
       const data = await response.json();
-      console.log("[AIMediaGenerator] Extracted prompts:", data.prompts?.length);
+      console.log(
+        "[AIMediaGenerator] Extracted prompts:",
+        data.prompts?.length,
+      );
       return data.prompts || [];
     } catch (err) {
       console.error("[AIMediaGenerator] Error extracting prompts:", err);
@@ -101,7 +107,10 @@ export default function AIMediaGenerator({
 
     // Check if we already have prompts for this episode
     if (episodePrompts[selectedEpisodeId]) {
-      console.log("[AIMediaGenerator] Using cached prompts for episode:", selectedEpisodeId);
+      console.log(
+        "[AIMediaGenerator] Using cached prompts for episode:",
+        selectedEpisodeId,
+      );
       setLoadingPrompts((prev) => {
         const updated = new Set(prev);
         updated.delete(selectedEpisodeId);
@@ -113,7 +122,10 @@ export default function AIMediaGenerator({
     // Mark this episode as loading
     setLoadingPrompts((prev) => new Set(prev).add(selectedEpisodeId));
 
-    console.log("[AIMediaGenerator] Loading prompts for episode:", selectedEpisodeId);
+    console.log(
+      "[AIMediaGenerator] Loading prompts for episode:",
+      selectedEpisodeId,
+    );
     extractPromptsForEpisode(episode).then((prompts) => {
       setEpisodePrompts((prev) => ({
         ...prev,
