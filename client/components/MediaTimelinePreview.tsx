@@ -239,9 +239,10 @@ export default function MediaTimelinePreview({
     };
   }, [audioUrl]);
 
-  // Auto-advance through media during playback
+  // Auto-advance through media during playback (only if no audio)
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || audioUrl) return; // Skip if audio is available
+    if (!audioRef.current) return;
 
     const timer = setInterval(() => {
       setPreviewTime((prev) => {
@@ -271,7 +272,7 @@ export default function MediaTimelinePreview({
     }, 100);
 
     return () => clearInterval(timer);
-  }, [isPlaying, totalDuration, includedItems]);
+  }, [isPlaying, audioUrl, totalDuration, includedItems]);
 
   const getAspectRatioClass = () => {
     switch (resolution) {
