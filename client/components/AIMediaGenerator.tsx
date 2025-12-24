@@ -159,7 +159,8 @@ export default function AIMediaGenerator({
                 Selected Episodes ({episodes.length})
               </p>
               <p className="text-xs text-muted-foreground">
-                {episodes.length} episode{episodes.length !== 1 ? "s" : ""} selected
+                {episodes.length} episode{episodes.length !== 1 ? "s" : ""}{" "}
+                selected
               </p>
             </div>
             <div className="space-y-2">
@@ -211,7 +212,8 @@ export default function AIMediaGenerator({
               ))}
             </div>
             <p className="text-xs text-muted-foreground italic">
-              Images will be generated for each episode based on its content and description.
+              Images will be generated for each episode based on its content and
+              description.
             </p>
           </div>
         )}
