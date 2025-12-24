@@ -44,6 +44,11 @@ export class ImageGenerationService {
 
   constructor() {
     this.leonardoApiKey = process.env.LEONARDO_API_KEY || null;
+    if (this.leonardoApiKey) {
+      console.log("[imageGen] Leonardo API key configured (length:", this.leonardoApiKey.length, ")");
+    } else {
+      console.warn("[imageGen] Leonardo API key NOT configured - process.env.LEONARDO_API_KEY is missing or empty");
+    }
   }
 
   private initializeOpenAI() {
