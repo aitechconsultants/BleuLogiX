@@ -284,16 +284,6 @@ export default function MediaTimelinePreview({
             Script:{" "}
             {script && script.length > 0 ? `${script.length} chars` : "EMPTY"}
           </div>
-          <div>
-            Episodes:{" "}
-            {episodes.length > 0 ? `${episodes.length} episodes` : "None"}
-          </div>
-          <div>
-            Effective Script:{" "}
-            {effectiveScript && effectiveScript.length > 0
-              ? `${effectiveScript.length} chars`
-              : "EMPTY"}
-          </div>
           <div>Voice: {selectedVoiceId ? selectedVoiceId : "NOT SELECTED"}</div>
           <div>Audio URL: {audioUrl ? "Generated" : "Not generated"}</div>
           <div>Generating Audio: {isGeneratingAudio ? "Yes" : "No"}</div>
