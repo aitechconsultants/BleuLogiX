@@ -362,49 +362,148 @@ Return ONLY valid JSON in this exact format:
   }
 
   /**
-   * Generate images using DALL-E 3 based on prompts
+   * Generate images using Leonardo.AI based on prompts
    */
   async generateImages(
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
   ): Promise<string[]> {
-    this.initializeOpenAI();
-
     if (!prompts || prompts.length === 0) {
       return [];
     }
 
     const imageUrls: string[] = [];
-
-    // Use "vivid" style for cinematic to enhance drama and contrast
-    // Use "natural" for realistic to maintain authenticity
-    const dallEStyle: "vivid" | "natural" =
-      imageStyle.toLowerCase() === "cinematic" ? "vivid" : "natural";
+    const modelId = this.getLeonardoModelId(imageStyle);
+    const presetStyle = this.getLeonardoPresetStyle(imageStyle);
 
     for (const prompt of prompts) {
       try {
         console.log(
-          `[imageGen] Generating image (${imageStyle}) for: ${prompt.description.slice(0, 50)}...`,
+          `[imageGen] Generating image with Leonardo (${imageStyle}) for: ${prompt.description.slice(0, 50)}...`,
         );
 
-        const response = await this.openai!.images.generate({
-          model: "dall-e-3",
+        // Create generation request
+        const generationRequest: LeonardoGenerationRequest = {
           prompt: prompt.description,
-          n: 1,
-          size: "1024x1024",
-          quality: "hd",
-          style: dallEStyle,
-        });
+          imageCount: 1,
+          modelId: modelId,
+          width: 1024,
+          height: 1024,
+          guidance_scale: 7,
+        };
 
-        const imageUrl = response.data[0]?.url;
+        if (presetStyle) {
+          generationRequest.presetStyle = presetStyle;
+        }
+
+        // Submit generation job
+        const createResponse = await fetch(
+          `${this.leonardoBaseUrl}/generations`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${this.leonardoApiKey}`,
+            },
+            body: JSON.stringify(generationRequest),
+          },
+        );
+
+        if (!createResponse.ok) {
+          const errorData = await createResponse.json().catch(() => ({}));
+          console.error(
+            `[imageGen] Leonardo API error (create):`,
+            errorData,
+            createResponse.status,
+          );
+          continue;
+        }
+
+        const createData = (await createResponse.json()) as LeonardoGenerationResponse;
+        const generationId = createData.sdGenerationJob?.generationId;
+
+        if (!generationId) {
+          console.error("[imageGen] No generation ID returned from Leonardo");
+          continue;
+        }
+
+        // Poll for completion (with timeout)
+        const maxWaitTime = 60000; // 60 seconds
+        const pollInterval = 2000; // 2 seconds
+        const startTime = Date.now();
+        let imageUrl: string | null = null;
+
+        while (Date.now() - startTime < maxWaitTime) {
+          const statusResponse = await fetch(
+            `${this.leonardoBaseUrl}/generations/${generationId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${this.leonardoApiKey}`,
+              },
+            },
+          );
+
+          if (!statusResponse.ok) {
+            console.error(
+              "[imageGen] Failed to check generation status:",
+              statusResponse.status,
+            );
+            break;
+          }
+
+          const statusData = (await statusResponse.json()) as LeonardoImageResponse;
+          const generation = statusData.generations_by_pk;
+
+          if (!generation) {
+            console.error("[imageGen] Invalid response from Leonardo status check");
+            break;
+          }
+
+          console.log(
+            `[imageGen] Generation ${generationId} status: ${generation.status}`,
+          );
+
+          if (generation.status === "COMPLETE") {
+            if (
+              generation.generated_images &&
+              generation.generated_images.length > 0
+            ) {
+              imageUrl = generation.generated_images[0].url;
+              console.log(
+                `[imageGen] Successfully generated image: ${imageUrl.substring(0, 50)}...`,
+              );
+            }
+            break;
+          } else if (
+            generation.status === "FAILED" ||
+            generation.status === "REJECTED"
+          ) {
+            console.error(
+              `[imageGen] Generation ${generationId} failed with status: ${generation.status}`,
+            );
+            break;
+          }
+
+          // Wait before polling again
+          await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        }
+
         if (imageUrl) {
           imageUrls.push(imageUrl);
           console.log(
-            `[imageGen] Successfully generated image ${imageUrls.length}`,
+            `[imageGen] Successfully added image ${imageUrls.length}/${prompts.length}`,
+          );
+        } else {
+          console.warn(
+            `[imageGen] Timeout waiting for generation ${generationId} or no image URL returned`,
           );
         }
       } catch (error) {
-        console.error(`[imageGen] Failed to generate image for prompt:`, error);
+        console.error(
+          `[imageGen] Error generating image with Leonardo:`,
+          error,
+        );
       }
     }
 
@@ -413,10 +512,10 @@ Return ONLY valid JSON in this exact format:
 
   /**
    * Calculate credit cost for image generation
-   * DALL-E 3 costs ~$0.04 per image
+   * Leonardo.AI typically costs 10 tokens per image
    */
   calculateImageGenerationCost(imageCount: number): number {
-    const costPerImage = 4; // in credits
+    const costPerImage = 10; // Leonardo tokens per image (varies by model, this is approximate)
     return imageCount * costPerImage;
   }
 
