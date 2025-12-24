@@ -160,7 +160,9 @@ export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
     console.error(`[imageGen] Error extracting prompts:`, error);
+    console.error(`[imageGen] Error stack:`, errorStack);
     logError(
       { correlationId },
       "Failed to extract image prompts",
@@ -170,6 +172,7 @@ export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
       error: "Failed to extract image prompts",
       message: errorMsg,
       correlationId,
+      details: process.env.NODE_ENV === "development" ? errorStack : undefined,
     });
   }
 };
