@@ -271,11 +271,28 @@ export default function VideoGeneratorCreate() {
       }
 
       const project: Project = await response.json();
-      const loadedFormState = {
+      const normalizedMediaFiles = (project.form_state.mediaFiles || []).map(
+        (file: any) => ({
+          id: file.id,
+          name: file.name,
+          url: file.url,
+          duration: file.duration,
+          included: file.included !== false,
+          source: file.source || "uploaded",
+          imageStyle: file.imageStyle,
+          generatedAt: file.generatedAt,
+        })
+      );
+
+      const loadedFormState: FormState = {
         ...project.form_state,
         videoTopic: project.form_state.videoTopic ?? "",
         niche: project.form_state.niche ?? "",
         styleTone: project.form_state.styleTone ?? "",
+        imageStyle: project.form_state.imageStyle ?? "realistic",
+        voiceoverUrl: project.form_state.voiceoverUrl,
+        voiceoverGeneratedAt: project.form_state.voiceoverGeneratedAt,
+        mediaFiles: normalizedMediaFiles,
       };
       setProjectName(project.name);
       setFormState(loadedFormState);
