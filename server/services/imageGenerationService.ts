@@ -374,6 +374,11 @@ Return ONLY valid JSON in this exact format:
       return [];
     }
 
+    if (!this.leonardoApiKey) {
+      console.error("[imageGen] Leonardo API key not configured");
+      return [];
+    }
+
     const imageUrls: string[] = [];
     const modelId = this.getLeonardoModelId(imageStyle);
     const presetStyle = this.getLeonardoPresetStyle(imageStyle);
