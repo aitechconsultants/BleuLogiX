@@ -57,12 +57,15 @@ export class ImageGenerationService {
         "fine art": "oil painting style, artistic composition, museum quality",
         cinematic:
           "cinematic composition, dramatic lighting, film noir or golden hour cinematography",
-        fantasy: "fantasy world, magical elements, mystical atmosphere, vibrant colors",
-        drama: "dramatic lighting, emotional intensity, theatrical composition, high contrast",
+        fantasy:
+          "fantasy world, magical elements, mystical atmosphere, vibrant colors",
+        drama:
+          "dramatic lighting, emotional intensity, theatrical composition, high contrast",
         dark: "dark moody atmosphere, low key lighting, noir style, mysterious tone",
       };
 
-      const styleGuide = styleGuideMap[imageStyle.toLowerCase()] || styleGuideMap.realistic;
+      const styleGuide =
+        styleGuideMap[imageStyle.toLowerCase()] || styleGuideMap.realistic;
 
       const response = await this.openai!.chat.completions.create({
         model: "gpt-4o-mini",
