@@ -88,7 +88,7 @@ export default function AIMediaGenerator({
           "Error:",
           errorData?.error || "Unknown error",
           "Message:",
-          errorData?.message || ""
+          errorData?.message || "",
         );
         return [];
       }
