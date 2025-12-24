@@ -144,10 +144,29 @@ export default function AIMediaGenerator({
             AI Image Generation
           </h3>
           <p className="text-sm text-muted-foreground">
-            Generate images automatically matched to your script using DALL-E 3.
+            Generate images automatically matched to your script or episodes using DALL-E 3.
             Each image generation costs 4 credits.
           </p>
         </div>
+
+        {/* Selected Episodes Display */}
+        {episodes.length > 0 && (
+          <div className="bg-accent-blue/10 border border-accent-blue/30 rounded-lg p-4">
+            <p className="text-sm font-medium text-foreground mb-2">
+              Selected Episodes ({episodes.length}):
+            </p>
+            <ul className="space-y-1">
+              {episodes.map((ep, idx) => (
+                <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                  <span className="font-semibold text-accent-blue min-w-fit">{ep.seriesName}</span>
+                  {ep.seasonNumber && <span>S{ep.seasonNumber}</span>}
+                  {ep.episodeNumber && <span>E{ep.episodeNumber}</span>}
+                  {ep.episodeName && <span>- {ep.episodeName}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Image Style Selector */}
         <div className="space-y-2">
