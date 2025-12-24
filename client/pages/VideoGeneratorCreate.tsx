@@ -901,6 +901,13 @@ export default function VideoGeneratorCreate() {
                         script,
                       });
                     }}
+                    onVoiceoverGenerated={(audioUrl, generatedAt) => {
+                      setFormState({
+                        ...formState,
+                        voiceoverUrl: audioUrl,
+                        voiceoverGeneratedAt: generatedAt,
+                      });
+                    }}
                   />
                 </div>
               </div>
