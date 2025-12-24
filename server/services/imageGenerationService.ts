@@ -72,29 +72,40 @@ export class ImageGenerationService {
         messages: [
           {
             role: "system",
-            content: `You are an expert at analyzing scripts for video production and identifying visual requirements.
+            content: `You are an expert at analyzing scripts for video production and identifying visual requirements for DALL-E 3.
 
 Your task is to analyze a video script and identify distinct visual scenes/shots that should be created.
-Return a JSON array of image prompts that would visually represent the key moments in the script.
+Return a JSON array of highly detailed image prompts that would visually represent the key moments in the script.
 
-IMPORTANT: All images must be created in the following style: ${styleGuide}
+CRITICAL STYLE REQUIREMENTS: All images MUST be in this exact style: ${styleGuide}
 
-Guidelines:
-- Identify 3-8 key visual moments based on the script length and content
-- Each prompt should be descriptive and incorporate the specified style
-- Include the visual style (${imageStyle}) consistently in all prompts
-- Focus on action, emotion, and key narrative elements
+Detailed Guidelines for ${imageStyle} style:
+${
+  imageStyle.toLowerCase() === "realistic"
+    ? "- Use professional photography language: 'professional photograph', '4K, high-resolution', 'sharp focus', 'RAW quality'\n- Include specific camera techniques: 'shot on professional DSLR', 'natural daylight', 'studio lighting'\n- Add material/texture descriptions: 'detailed textures', 'authentic surfaces', 'realistic proportions'\n- Specify atmosphere: 'documentary style', 'journalistic photography', 'candid moment'"
+    : imageStyle.toLowerCase() === "cinematic"
+      ? "- Use film language: 'cinematic', '35mm film', 'theatrical lighting', 'movie scene'\n- Include specific cinematography: 'golden hour', 'dramatic shadows', 'dynamic composition', 'film noir elements'\n- Add production quality: 'blockbuster quality', 'professional cinematography', 'high-end production'\n- Specify mood: 'epic', 'dramatic tension', 'visual storytelling', 'cinematic depth'"
+      : "- Be specific about the style's visual qualities\n- Include relevant technical/artistic descriptors\n- Emphasize the unique aesthetic characteristics"
+}
+
+General Requirements:
+- Generate 3-8 key visual moments based on script length and content
+- Each prompt should be EXTREMELY DETAILED (200+ characters) and highly specific
+- Always begin with style specification: e.g., "Professional photograph" or "Cinematic shot"
+- Include specific visual elements, composition, lighting, color palette, materials
+- Never use generic descriptions - be precise and visual
 - Create prompts that are distinct and complementary
-- Format each prompt to work well with DALL-E 3${
+- Ensure all prompts emphasize the ${imageStyle} style throughout${
               episodes.length > 0
                 ? "\n- If episodes are provided, align the visuals with the episode content and themes"
                 : ""
             }
+- Format for DALL-E 3 optimization: clear, detailed, style-specific language
 
 Return ONLY valid JSON in this exact format:
 [
   {
-    "description": "detailed visual description for DALL-E in the ${imageStyle} style",
+    "description": "extremely detailed visual description incorporating ${imageStyle} style, specific details, composition, and lighting",
     "context": "brief explanation of why this visual is needed",
     "index": 0
   }
@@ -102,11 +113,11 @@ Return ONLY valid JSON in this exact format:
           },
           {
             role: "user",
-            content: `Analyze this script and extract visual requirements:\n\n${script}${episodeContext}`,
+            content: `Analyze this script and extract highly detailed visual requirements in ${imageStyle} style:\n\n${script}${episodeContext}`,
           },
         ],
-        temperature: 0.7,
-        max_tokens: 1500,
+        temperature: 0.8,
+        max_tokens: 2000,
       });
 
       const content = response.choices[0]?.message?.content;
