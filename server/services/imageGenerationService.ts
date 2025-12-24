@@ -419,10 +419,11 @@ Return ONLY valid JSON in this exact format:
 
     console.log("[imageGen] Using model:", modelId, "preset:", presetStyle);
 
-    for (const prompt of prompts) {
+    for (let promptIdx = 0; promptIdx < prompts.length; promptIdx++) {
+      const prompt = prompts[promptIdx];
       try {
         console.log(
-          `[imageGen] Starting image generation for prompt: ${prompt.description.substring(0, 50)}...`,
+          `[imageGen] ===== Starting image generation ${promptIdx + 1}/${prompts.length} for prompt: ${prompt.description.substring(0, 50)}...`,
         );
 
         // Create generation request
@@ -445,7 +446,11 @@ Return ONLY valid JSON in this exact format:
         );
         console.log(
           "[imageGen] Request body:",
-          JSON.stringify(generationRequest).substring(0, 200),
+          JSON.stringify(generationRequest).substring(0, 300),
+        );
+        console.log(
+          "[imageGen] Authorization header will use API key:",
+          this.leonardoApiKey?.substring(0, 8) + "...",
         );
 
         // Submit generation job with timeout
