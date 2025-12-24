@@ -33,7 +33,10 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
     });
   }
 
-  if ((!script || typeof script !== "string" || script.trim().length === 0) && (!episodes || episodes.length === 0)) {
+  if (
+    (!script || typeof script !== "string" || script.trim().length === 0) &&
+    (!episodes || episodes.length === 0)
+  ) {
     return res.status(400).json({
       error: "Either script or episodes are required",
       correlationId,

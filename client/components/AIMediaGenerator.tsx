@@ -286,11 +286,14 @@ export default function AIMediaGenerator({
       )}
 
       {/* Empty State */}
-      {!isGenerating && imageUrls.length === 0 && (script.trim() || episodes.length > 0) && !error && (
-        <div className="text-center py-8 text-muted-foreground">
-          <p>Click "Generate Images from Script" to create AI images</p>
-        </div>
-      )}
+      {!isGenerating &&
+        imageUrls.length === 0 &&
+        (script.trim() || episodes.length > 0) &&
+        !error && (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Click "Generate Images from Script" to create AI images</p>
+          </div>
+        )}
     </div>
   );
 }
