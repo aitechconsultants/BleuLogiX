@@ -73,20 +73,30 @@ export default function MediaTimelinePreview({
     // Remove bracketed content [Wide shot], [Zoom in], etc.
     cleaned = cleaned.replace(/\[.*?\]/g, "");
 
-    // Remove Shot/Visual/Camera lines like "Shot 1: Wide shot" or "Visual: Background music"
+    // Remove parenthetical directions (Wide shot), (Camera pulls back), etc.
+    cleaned = cleaned.replace(/\(.*?(?:shot|pan|zoom|fade|cut|dissolve|transition|camera|pull|push|dolly|track|reveal).*?\)/gi, "");
+
+    // Remove lines starting with shot/visual/camera numbers: "Shot 1:", "Visual 2:", etc.
     cleaned = cleaned.replace(
-      /^(Shot|Visual|Camera|Scene|Action|Music|Sound)[\s\d]*:.*$/gm,
+      /^[\s]*(Shot|Visual|Camera|Scene|Action|Music|Sound)[\s\d]*:.*$/gm,
       "",
     );
 
-    // Remove common scene directions that appear on their own line
+    // Remove common scene directions in all caps
     cleaned = cleaned.replace(
-      /^(FADE IN|FADE OUT|CUT TO|DISSOLVE TO|TRANSITION):?.*$/gm,
+      /^[\s]*(FADE IN|FADE OUT|CUT TO|DISSOLVE TO|TRANSITION|INT\.|EXT\.|OPEN|CLOSE)[\s:]*.*$/gm,
       "",
     );
+
+    // Remove inline camera directions like "Shot 1: Wide shot -" at start of lines
+    cleaned = cleaned.replace(/^[\s]*Shot[\s\d]+:[\s]*(.*?)[\s]*-/gm, "$1 -");
+
+    // Remove "Wide shot", "Close-up", etc. when they appear at start of sentence
+    cleaned = cleaned.replace(/^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder)[:\s]*(.*)$/gm, "$2");
 
     // Clean up extra whitespace and newlines
     cleaned = cleaned.replace(/\n\s*\n/g, "\n").trim();
+    cleaned = cleaned.replace(/^\s*-\s*/gm, "");
 
     return cleaned;
   };
