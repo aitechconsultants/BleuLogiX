@@ -406,7 +406,8 @@ export default function AIMediaGenerator({
                                           {prompt.context}
                                         </p>
                                         <p className="text-xs text-muted-foreground italic mt-1">
-                                          "{prompt.description.substring(0, 100)}
+                                          "
+                                          {prompt.description.substring(0, 100)}
                                           ..."
                                         </p>
                                       </div>
@@ -523,7 +524,9 @@ export default function AIMediaGenerator({
       {/* Image Prompts Display */}
       {prompts.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-semibold text-foreground">Image Descriptions & Voiceover</h4>
+          <h4 className="font-semibold text-foreground">
+            Image Descriptions & Voiceover
+          </h4>
           <div className="space-y-3">
             {prompts.map((prompt, idx) => (
               <div

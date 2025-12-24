@@ -523,7 +523,10 @@ export default function MediaTimelinePreview({
 
                         // Adjust start if we're near the end
                         if (endSentence - startSentence < sentencesToShow - 1) {
-                          startSentence = Math.max(0, endSentence - sentencesToShow + 1);
+                          startSentence = Math.max(
+                            0,
+                            endSentence - sentencesToShow + 1,
+                          );
                         }
 
                         // Debug logging (every ~1 second)
@@ -542,34 +545,38 @@ export default function MediaTimelinePreview({
 
                         return (
                           <div className="leading-relaxed">
-                            {sentences.slice(startSentence, endSentence + 1).map((sentence, sentenceIdx) => {
-                              const absoluteSentenceIndex = startSentence + sentenceIdx;
-                              const isCurrentSentence =
-                                absoluteSentenceIndex === sentenceWithCurrentWord;
+                            {sentences
+                              .slice(startSentence, endSentence + 1)
+                              .map((sentence, sentenceIdx) => {
+                                const absoluteSentenceIndex =
+                                  startSentence + sentenceIdx;
+                                const isCurrentSentence =
+                                  absoluteSentenceIndex ===
+                                  sentenceWithCurrentWord;
 
-                              return (
-                                <div key={sentenceIdx}>
-                                  {sentence.map((word, wordIdx) => {
-                                    const isCurrentWord =
-                                      isCurrentSentence &&
-                                      wordIdx === wordIndexInCurrentSentence;
+                                return (
+                                  <div key={sentenceIdx}>
+                                    {sentence.map((word, wordIdx) => {
+                                      const isCurrentWord =
+                                        isCurrentSentence &&
+                                        wordIdx === wordIndexInCurrentSentence;
 
-                                    return (
-                                      <span
-                                        key={wordIdx}
-                                        className={
-                                          isCurrentWord
-                                            ? "bg-accent-blue text-black font-bold px-1 rounded mx-0.5"
-                                            : "mx-0.5"
-                                        }
-                                      >
-                                        {word}
-                                      </span>
-                                    );
-                                  })}
-                                </div>
-                              );
-                            })}
+                                      return (
+                                        <span
+                                          key={wordIdx}
+                                          className={
+                                            isCurrentWord
+                                              ? "bg-accent-blue text-black font-bold px-1 rounded mx-0.5"
+                                              : "mx-0.5"
+                                          }
+                                        >
+                                          {word}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })}
                           </div>
                         );
                       })()}

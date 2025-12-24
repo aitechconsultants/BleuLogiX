@@ -25,7 +25,9 @@ export class ImageGenerationService {
    * Extract voiceover scripts for episodes
    * Uses the episode description as the voiceover script, cleaned of camera directions
    */
-  private extractVoiceoverScriptsForEpisodes(episodes: any[]): Map<number, string> {
+  private extractVoiceoverScriptsForEpisodes(
+    episodes: any[],
+  ): Map<number, string> {
     const voiceoverScripts = new Map<number, string>();
 
     // If we have episodes, create a combined voiceover script from their descriptions
@@ -60,7 +62,8 @@ export class ImageGenerationService {
     }
 
     // Extract voiceover scripts from episodes
-    const episodeVoiceoverScripts = this.extractVoiceoverScriptsForEpisodes(episodes);
+    const episodeVoiceoverScripts =
+      this.extractVoiceoverScriptsForEpisodes(episodes);
     const combinedEpisodeVoiceover = episodeVoiceoverScripts.get(-1) || "";
 
     const episodeContext =
@@ -179,14 +182,19 @@ Return ONLY valid JSON in this exact format:
         );
 
         // If we're working with episodes and have combined voiceover, distribute it across prompts
-        if (combinedEpisodeVoiceover && episodes.length > 0 && prompts.length > 0) {
+        if (
+          combinedEpisodeVoiceover &&
+          episodes.length > 0 &&
+          prompts.length > 0
+        ) {
           const voiceoverSegments = this.distributeVoiceoverAcrossPrompts(
             combinedEpisodeVoiceover,
             prompts.length,
           );
           prompts = prompts.map((prompt, idx) => ({
             ...prompt,
-            voiceoverScript: voiceoverSegments[idx] || prompt.voiceoverScript || "",
+            voiceoverScript:
+              voiceoverSegments[idx] || prompt.voiceoverScript || "",
           }));
         }
 
@@ -229,7 +237,9 @@ Return ONLY valid JSON in this exact format:
     }
 
     // Split script into sentences for better segmentation
-    const sentences = voiceoverScript.match(/[^.!?]+[.!?]+/g) || [voiceoverScript];
+    const sentences = voiceoverScript.match(/[^.!?]+[.!?]+/g) || [
+      voiceoverScript,
+    ];
     const segments: string[] = Array(numPrompts).fill("");
     let sentenceIdx = 0;
 
