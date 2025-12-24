@@ -235,7 +235,7 @@ export default function AIMediaGenerator({
           <div className="border border-border rounded-lg overflow-hidden">
             <div className="flex min-h-96">
               {/* Left Panel: Episode List */}
-              <div className="border-r border-border lg:col-span-1 bg-muted/20">
+              <div className="w-1/3 border-r border-border bg-muted/20 flex flex-col">
                 <div className="p-4 border-b border-border space-y-2">
                   <p className="text-sm font-semibold text-foreground">
                     Episodes ({episodes.length})
