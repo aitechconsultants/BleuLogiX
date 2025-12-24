@@ -186,10 +186,15 @@ Return ONLY valid JSON in this exact format:
 
     const imageUrls: string[] = [];
 
+    // Use "vivid" style for cinematic to enhance drama and contrast
+    // Use "natural" for realistic to maintain authenticity
+    const dallEStyle: "vivid" | "natural" =
+      imageStyle.toLowerCase() === "cinematic" ? "vivid" : "natural";
+
     for (const prompt of prompts) {
       try {
         console.log(
-          `[imageGen] Generating image for: ${prompt.description.slice(0, 50)}...`,
+          `[imageGen] Generating image (${imageStyle}) for: ${prompt.description.slice(0, 50)}...`,
         );
 
         const response = await this.openai!.images.generate({
@@ -197,8 +202,8 @@ Return ONLY valid JSON in this exact format:
           prompt: prompt.description,
           n: 1,
           size: "1024x1024",
-          quality: "standard",
-          style: "natural",
+          quality: "hd",
+          style: dallEStyle,
         });
 
         const imageUrl = response.data[0]?.url;
