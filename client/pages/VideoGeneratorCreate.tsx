@@ -811,7 +811,11 @@ export default function VideoGeneratorCreate() {
                       ...formState,
                       mediaFiles: [
                         ...formState.mediaFiles,
-                        ...files.map((f) => ({ ...f, url: undefined })),
+                        ...files.map((f) => ({
+                          ...f,
+                          url: undefined,
+                          source: "uploaded" as const,
+                        })),
                       ],
                     })
                   }
