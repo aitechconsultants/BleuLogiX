@@ -47,6 +47,7 @@ export default function AIMediaGenerator({
   const [episodePrompts, setEpisodePrompts] = useState<
     Record<string, ImagePrompt[]>
   >({});
+  const [loadingPrompts, setLoadingPrompts] = useState<Set<string>>(new Set());
 
   const imageStyles = [
     "realistic",
