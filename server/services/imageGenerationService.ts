@@ -501,7 +501,10 @@ Return ONLY valid JSON in this exact format:
             "[imageGen] Failed to parse creation response:",
             parseErr,
           );
-          console.log("[imageGen] Raw creation response:", createDataText.substring(0, 500));
+          console.log(
+            "[imageGen] Raw creation response:",
+            createDataText.substring(0, 500),
+          );
           continue;
         }
 
@@ -511,9 +514,10 @@ Return ONLY valid JSON in this exact format:
         );
 
         // Try multiple possible paths for the generation ID
-        let generationId = createData?.sdGenerationJob?.generationId ||
-                          createData?.generation_id ||
-                          createData?.id;
+        let generationId =
+          createData?.sdGenerationJob?.generationId ||
+          createData?.generation_id ||
+          createData?.id;
 
         if (!generationId) {
           console.error(
@@ -602,7 +606,10 @@ Return ONLY valid JSON in this exact format:
               "[imageGen] Failed to parse status response:",
               parseErr,
             );
-            console.log("[imageGen] Raw status response text:", statusText.substring(0, 500));
+            console.log(
+              "[imageGen] Raw status response text:",
+              statusText.substring(0, 500),
+            );
             break;
           }
 
