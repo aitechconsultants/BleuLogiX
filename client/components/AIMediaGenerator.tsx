@@ -65,15 +65,19 @@ export default function AIMediaGenerator({
         "[AIMediaGenerator] Extracting prompts for episode:",
         episode.id,
       );
+      const body: any = {
+        episodes: [episode],
+      };
+      if (script && script.trim()) {
+        body.script = script;
+      }
+
       const response = await fetch("/api/images/extract-prompts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          script: script || undefined,
-          episodes: [episode],
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
