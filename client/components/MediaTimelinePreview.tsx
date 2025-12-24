@@ -21,6 +21,7 @@ interface MediaTimelinePreviewProps {
   onCaptionStyleChange: (style: string) => void;
   onCaptionColorChange: (color: string) => void;
   onScriptChange: (script: string) => void;
+  onVoiceoverGenerated?: (audioUrl: string, generatedAt: string) => void;
 }
 
 const captionStyles = [
