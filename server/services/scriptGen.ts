@@ -69,11 +69,14 @@ Topic: ${input.videoTopic}
 ${niche}${tone}Maximum characters: ${maxChars}
 
 Requirements:
-- Write an engaging script that grabs attention in the first 3 seconds
-- Keep it within ${maxChars} characters
-- Use clear, conversational language
+- START WITH A STRONG HOOK in the first 2-3 seconds that immediately grabs attention (this is critical - it's the most important part)
+- The hook should be a surprising statement, question, or revelation that makes viewers want to keep watching
+- After the hook, provide valuable content related to the topic
+- Keep the entire script within ${maxChars} characters
+- Use clear, conversational language that sounds natural when spoken
 - Include a strong call-to-action at the end
 - Format with line breaks for easy reading
+- Make the hook at least 1-2 sentences that stand out from the rest
 
 Output ONLY the script text, no additional explanation or metadata.`;
   }
