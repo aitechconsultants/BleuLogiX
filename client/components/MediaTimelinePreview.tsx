@@ -88,6 +88,8 @@ export default function MediaTimelinePreview({
 
         const params = new URLSearchParams({
           text: cleanedScript,
+          // Add timestamp to prevent browser caching
+          _t: Date.now().toString(),
         });
         const response = await fetch(
           `/api/voices/${selectedVoiceId}/preview?${params}`,
@@ -100,6 +102,12 @@ export default function MediaTimelinePreview({
         }
 
         const blob = await response.blob();
+
+        // Revoke old URL if it exists
+        if (audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+        }
+
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
         onVoiceoverGenerated?.(url, new Date().toISOString());
@@ -118,7 +126,7 @@ export default function MediaTimelinePreview({
         URL.revokeObjectURL(audioUrl);
       }
     };
-  }, [script, selectedVoiceId]);
+  }, [script, selectedVoiceId, audioUrl]);
 
   // Sync audio playback with video
   useEffect(() => {
