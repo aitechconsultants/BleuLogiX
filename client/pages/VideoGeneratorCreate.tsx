@@ -795,6 +795,9 @@ export default function VideoGeneratorCreate() {
                   onImageStyleChange={(style) =>
                     setFormState({ ...formState, imageStyle: style })
                   }
+                  onEpisodesChange={(episodes) =>
+                    setFormState({ ...formState, selectedEpisodes: episodes })
+                  }
                   onMediaSelected={(media) => {
                     setFormState((prevState) => ({
                       ...prevState,
