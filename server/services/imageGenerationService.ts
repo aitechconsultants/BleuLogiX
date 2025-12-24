@@ -504,9 +504,13 @@ Return ONLY valid JSON in this exact format:
             errorData = { parseError: String(e) };
           }
           console.error(
-            `[imageGen] Leonardo API error (create): status=${createResponse.status}`,
-            JSON.stringify(errorData),
+            `[imageGen] ❌ Leonardo API error (create): status=${createResponse.status}`,
           );
+          console.error(
+            "[imageGen] Response error data:",
+            JSON.stringify(errorData).substring(0, 500),
+          );
+          console.error("[imageGen] Skipping prompt and continuing to next...");
           continue;
         }
 
