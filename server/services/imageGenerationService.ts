@@ -376,28 +376,12 @@ Return ONLY valid JSON in this exact format:
 
   /**
    * Generate images using Leonardo.AI based on prompts
-   * NOTE: Currently returns placeholder images. Leonardo.AI async generation
-   * requires webhooks or background jobs for production use.
    */
   async generateImages(
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
   ): Promise<string[]> {
-    if (!prompts || prompts.length === 0) {
-      return [];
-    }
-
-    console.log(
-      `[imageGen] Generating ${prompts.length} images (using placeholders for now)`,
-    );
-
-    // Return placeholder images while Leonardo API integration is being finalized
-    const imageUrls: string[] = prompts.map((prompt, idx) => {
-      const seed = (idx * 1000 + prompt.description.length) % 10000;
-      return `https://picsum.photos/1024/1024?random=${seed}&t=${Date.now()}`;
-    });
-
-    return imageUrls;
+    return this.generateImagesWithLeonardo(prompts, imageStyle);
   }
 
   /**
