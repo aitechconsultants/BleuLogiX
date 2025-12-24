@@ -401,54 +401,65 @@ export default function MediaTimelinePreview({
                           .filter((w) => w.length > 0);
 
                         if (words.length === 0) {
-                          console.log(
-                            "[MediaTimelinePreview] No words in cleaned script",
-                            { originalScript: effectiveScript },
-                          );
                           return "";
                         }
 
                         // Use audio's current time for caption sync (most accurate)
-                        // Fallback to video timeline if audio not available
-                        const timeReference =
+                        const currentTime =
                           audioRef.current && audioUrl
                             ? audioRef.current.currentTime
                             : previewTime;
-                        const durationReference =
+                        const duration =
                           audioRef.current && audioUrl && audioDuration > 0
                             ? audioDuration
                             : totalDuration;
 
-                        // Calculate progress through the audio (0 to 1)
-                        const progress =
-                          durationReference > 0
-                            ? timeReference / durationReference
-                            : 0;
+                        // Avoid division by zero
+                        if (duration <= 0) {
+                          return "";
+                        }
 
-                        // Estimate which word we're at based on audio progress
+                        // Calculate progress (0 to 1)
+                        const progress = Math.min(1, currentTime / duration);
+
+                        // Calculate which word index we're at
+                        // This uses a simple linear mapping: if 50% through audio, show ~50% through words
                         const currentWordIndex = Math.floor(
-                          progress * words.length,
+                          progress * (words.length - 1),
                         );
 
-                        // Show a window of 10 words centered around current position
+                        // Show a sliding window of words around current position
                         const windowSize = 10;
-                        const startIndex = Math.max(
-                          0,
-                          currentWordIndex - Math.floor(windowSize / 2),
-                        );
-                        const endIndex = Math.min(
-                          words.length,
-                          startIndex + windowSize,
-                        );
+                        const halfWindow = Math.floor(windowSize / 2);
 
-                        const adjustedStartIndex = Math.max(
-                          0,
-                          endIndex - windowSize,
-                        );
+                        let startIndex = currentWordIndex - halfWindow;
+                        let endIndex = currentWordIndex + halfWindow + 1;
+
+                        // Clamp to word array bounds
+                        if (startIndex < 0) {
+                          startIndex = 0;
+                          endIndex = Math.min(windowSize, words.length);
+                        } else if (endIndex > words.length) {
+                          endIndex = words.length;
+                          startIndex = Math.max(0, endIndex - windowSize);
+                        }
+
                         const displayedWords = words.slice(
-                          adjustedStartIndex,
+                          startIndex,
                           endIndex,
                         );
+
+                        // Debug logging (every ~1 second)
+                        if (Math.round(currentTime * 10) % 10 === 0) {
+                          console.log("[Caption Sync]", {
+                            currentTime: currentTime.toFixed(2),
+                            duration: duration.toFixed(2),
+                            progress: (progress * 100).toFixed(1) + "%",
+                            currentWordIndex,
+                            totalWords: words.length,
+                            displayedWords: displayedWords.join(" "),
+                          });
+                        }
 
                         return (
                           <>
