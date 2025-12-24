@@ -83,9 +83,12 @@ export default function AIMediaGenerator({
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error(
-          "[AIMediaGenerator] Failed to extract prompts:",
+          "[AIMediaGenerator] Failed to extract prompts - Status:",
           response.status,
-          errorData,
+          "Error:",
+          errorData?.error || "Unknown error",
+          "Message:",
+          errorData?.message || ""
         );
         return [];
       }
