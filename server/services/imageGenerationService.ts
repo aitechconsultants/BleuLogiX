@@ -426,7 +426,8 @@ Return ONLY valid JSON in this exact format:
           continue;
         }
 
-        const createData = (await createResponse.json()) as LeonardoGenerationResponse;
+        const createData =
+          (await createResponse.json()) as LeonardoGenerationResponse;
         const generationId = createData.sdGenerationJob?.generationId;
 
         if (!generationId) {
@@ -459,11 +460,14 @@ Return ONLY valid JSON in this exact format:
             break;
           }
 
-          const statusData = (await statusResponse.json()) as LeonardoImageResponse;
+          const statusData =
+            (await statusResponse.json()) as LeonardoImageResponse;
           const generation = statusData.generations_by_pk;
 
           if (!generation) {
-            console.error("[imageGen] Invalid response from Leonardo status check");
+            console.error(
+              "[imageGen] Invalid response from Leonardo status check",
+            );
             break;
           }
 
