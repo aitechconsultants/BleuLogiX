@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { cleanScriptForVoiceover } from "../lib/scriptCleaner";
+import type { Episode } from "./SeriesEpisodesSelector";
 
 export interface MediaItem {
   id: string;
@@ -8,16 +9,6 @@ export interface MediaItem {
   url?: string;
   duration?: number;
   included?: boolean;
-}
-
-interface Episode {
-  id: string;
-  seriesName: string;
-  seasonNumber?: number;
-  episodeNumber?: number;
-  episodeName?: string;
-  description?: string;
-  source: "user-defined" | "predefined" | "ai-generated";
 }
 
 interface MediaTimelinePreviewProps {
