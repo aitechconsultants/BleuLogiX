@@ -8,8 +8,47 @@ interface ImagePrompt {
   voiceoverScript: string;
 }
 
+interface LeonardoGenerationRequest {
+  prompt: string;
+  imageCount?: number;
+  modelId?: string;
+  width?: number;
+  height?: number;
+  presetStyle?: string;
+  guidance_scale?: number;
+  seed?: number;
+}
+
+interface LeonardoGenerationResponse {
+  sdGenerationJob: {
+    generationId: string;
+    apiCreditCost: number;
+  };
+}
+
+interface LeonardoImageResponse {
+  generations_by_pk: {
+    id: string;
+    status: string;
+    generated_images: Array<{
+      id: string;
+      url: string;
+    }>;
+  };
+}
+
 export class ImageGenerationService {
   private openai: OpenAI | null = null;
+  private leonardoApiKey: string;
+  private leonardoBaseUrl: string = "https://api.leonardo.ai/rest/v1";
+
+  constructor() {
+    const apiKey = process.env.LEONARDO_API_KEY;
+    if (!apiKey) {
+      throw new Error("LEONARDO_API_KEY is not set");
+    }
+    this.leonardoApiKey = apiKey;
+  }
 
   private initializeOpenAI() {
     if (!this.openai) {
@@ -19,6 +58,39 @@ export class ImageGenerationService {
       }
       this.openai = new OpenAI({ apiKey });
     }
+  }
+
+  /**
+   * Get Leonardo.AI model ID based on image style
+   */
+  private getLeonardoModelId(imageStyle: string): string {
+    // Map our style names to Leonardo model IDs
+    const styleToModel: Record<string, string> = {
+      realistic: "6bef9f1b-740f-4731-915a-8424467e9f7a", // Leonardo Vision (photorealistic)
+      cinematic: "b63dcbd9-8f21-46d5-8e36-14490393bef0", // Cinematic
+      "fine art": "e0cf4d76-13d3-4bcc-869c-8758c8c54d75", // Artistic
+      fantasy: "f1929ea3-6033-4f59-aca5-d373518e2db0", // Creative
+      drama: "b63dcbd9-8f21-46d5-8e36-14490393bef0", // Cinematic (good for drama)
+      dark: "b63dcbd9-8f21-46d5-8e36-14490393bef0", // Cinematic (good for dark)
+    };
+
+    return styleToModel[imageStyle.toLowerCase()] || styleToModel.realistic;
+  }
+
+  /**
+   * Map style to Leonardo preset style
+   */
+  private getLeonardoPresetStyle(imageStyle: string): string | undefined {
+    const styleMap: Record<string, string> = {
+      realistic: "PHOTOGRAPHY",
+      cinematic: "CINEMATIC",
+      "fine art": "PAINTING",
+      fantasy: "FANTASY_ART",
+      drama: "CINEMATIC",
+      dark: "DARK_FANTASY",
+    };
+
+    return styleMap[imageStyle.toLowerCase()];
   }
 
   /**
