@@ -78,10 +78,8 @@ export default function MediaTimelinePreview({
     const generateAudio = async () => {
       console.log("[MediaTimelinePreview] Audio generation triggered:", {
         scriptLength: script?.length,
-        effectiveScriptLength: effectiveScript?.length,
         selectedVoiceId,
         script: script?.substring(0, 100),
-        effectiveScript: effectiveScript?.substring(0, 100),
       });
 
       if (!effectiveScript.trim() || !selectedVoiceId) {
