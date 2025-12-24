@@ -492,14 +492,16 @@ Return ONLY valid JSON in this exact format:
         }
 
         let createData: any;
+        let createDataText = "";
         try {
-          createData =
-            (await createResponse.json()) as LeonardoGenerationResponse;
+          createDataText = await createResponse.text();
+          createData = JSON.parse(createDataText) as LeonardoGenerationResponse;
         } catch (parseErr) {
           console.error(
             "[imageGen] Failed to parse creation response:",
             parseErr,
           );
+          console.log("[imageGen] Raw creation response:", createDataText.substring(0, 500));
           continue;
         }
 
@@ -508,19 +510,18 @@ Return ONLY valid JSON in this exact format:
           JSON.stringify(createData).substring(0, 500),
         );
 
-        const generationId = createData?.sdGenerationJob?.generationId;
+        // Try multiple possible paths for the generation ID
+        let generationId = createData?.sdGenerationJob?.generationId ||
+                          createData?.generation_id ||
+                          createData?.id;
 
         if (!generationId) {
           console.error(
             "[imageGen] No generation ID returned from Leonardo",
             "Response keys:",
             createData ? Object.keys(createData) : "null",
-            "sdGenerationJob keys:",
-            createData?.sdGenerationJob
-              ? Object.keys(createData.sdGenerationJob)
-              : "undefined",
             "Full response:",
-            JSON.stringify(createData),
+            JSON.stringify(createData).substring(0, 500),
           );
           continue;
         }
