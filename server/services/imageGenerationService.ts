@@ -385,8 +385,8 @@ Return ONLY valid JSON in this exact format:
   }
 
   /**
-   * Legacy Leonardo.AI image generation (keeping for reference, not used currently)
-   * The Leonardo API requires async job handling with webhooks for production.
+   * Generate images using Leonardo.AI with async job polling
+   * Creates a generation job and polls for completion with timeout protection
    */
   private async generateImagesWithLeonardo(
     prompts: ImagePrompt[],
