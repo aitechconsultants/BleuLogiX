@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ScriptPanel from "@/components/ScriptPanel";
 import StyleCard from "@/components/StyleCard";
 import VoiceCard from "@/components/VoiceCard";
