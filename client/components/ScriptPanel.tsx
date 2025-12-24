@@ -244,6 +244,30 @@ export default function ScriptPanel({
         />
       </div>
 
+      {/* Voiceover Preview */}
+      {value && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Volume2 className="w-4 h-4 text-accent-blue" />
+            <label className="text-sm font-medium text-foreground">
+              Voiceover Preview
+            </label>
+            <span className="text-xs text-muted-foreground">
+              (camera directions removed)
+            </span>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+            <p className="text-sm text-foreground leading-relaxed">
+              {cleanScriptForVoiceover(value) || (
+                <span className="text-muted-foreground italic">
+                  All text would be filtered out as camera directions
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Improvement Button */}
       {value && (
         <button
