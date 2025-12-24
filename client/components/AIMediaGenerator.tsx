@@ -153,25 +153,66 @@ export default function AIMediaGenerator({
 
         {/* Selected Episodes Display */}
         {episodes.length > 0 && (
-          <div className="bg-accent-blue/10 border border-accent-blue/30 rounded-lg p-4">
-            <p className="text-sm font-medium text-foreground mb-2">
-              Selected Episodes ({episodes.length}):
-            </p>
-            <ul className="space-y-1">
+          <div className="border border-border rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-foreground">
+                Selected Episodes ({episodes.length})
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {episodes.length} episode{episodes.length !== 1 ? "s" : ""} selected
+              </p>
+            </div>
+            <div className="space-y-2">
               {episodes.map((ep, idx) => (
-                <li
-                  key={idx}
-                  className="text-xs text-muted-foreground flex items-start gap-2"
+                <div
+                  key={ep.id}
+                  className="bg-muted/50 rounded-lg p-3 border border-border/50 flex items-start justify-between gap-3"
                 >
-                  <span className="font-semibold text-accent-blue min-w-fit">
-                    {ep.seriesName}
-                  </span>
-                  {ep.seasonNumber && <span>S{ep.seasonNumber}</span>}
-                  {ep.episodeNumber && <span>E{ep.episodeNumber}</span>}
-                  {ep.episodeName && <span>- {ep.episodeName}</span>}
-                </li>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-foreground text-sm">
+                        {ep.seriesName}
+                      </span>
+                      {ep.seasonNumber !== undefined && (
+                        <span className="text-xs bg-accent-blue/20 text-accent-blue px-2 py-1 rounded">
+                          S{ep.seasonNumber}
+                        </span>
+                      )}
+                      {ep.episodeNumber !== undefined && (
+                        <span className="text-xs bg-accent-blue/20 text-accent-blue px-2 py-1 rounded">
+                          E{ep.episodeNumber}
+                        </span>
+                      )}
+                    </div>
+                    {ep.episodeName && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {ep.episodeName}
+                      </p>
+                    )}
+                    {ep.description && (
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                        {ep.description}
+                      </p>
+                    )}
+                  </div>
+                  {onEpisodesChange && (
+                    <button
+                      onClick={() => {
+                        const filtered = episodes.filter((_, i) => i !== idx);
+                        onEpisodesChange(filtered);
+                      }}
+                      className="flex-shrink-0 p-2 rounded-lg hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-colors"
+                      title="Remove this episode"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              Images will be generated for each episode based on its content and description.
+            </p>
           </div>
         )}
 
