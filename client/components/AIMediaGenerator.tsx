@@ -11,12 +11,23 @@ interface ImagePrompt {
 interface AIMediaGeneratorProps {
   script: string;
   episodes?: Episode[];
-  onMediaSelected: (media: { id: string; name: string; url: string }) => void;
+  imageStyle?: string;
+  onImageStyleChange?: (style: string) => void;
+  onMediaSelected: (media: {
+    id: string;
+    name: string;
+    url: string;
+    source: "ai-generated";
+    imageStyle: string;
+    generatedAt: string;
+  }) => void;
 }
 
 export default function AIMediaGenerator({
   script,
   episodes = [],
+  imageStyle = "realistic",
+  onImageStyleChange,
   onMediaSelected,
 }: AIMediaGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -26,6 +37,15 @@ export default function AIMediaGenerator({
   const [creditCost, setCreditCost] = useState(0);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
+
+  const imageStyles = [
+    "realistic",
+    "fine art",
+    "cinematic",
+    "fantasy",
+    "drama",
+    "dark",
+  ];
 
   const generateImages = async () => {
     if (!script.trim()) {
