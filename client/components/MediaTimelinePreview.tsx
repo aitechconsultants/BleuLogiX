@@ -97,8 +97,8 @@ export default function MediaTimelinePreview({
       "$2",
     );
 
-    // Remove direction patterns with colons: "Opening shot:", "Quick montage:", "Setup:", "Image of:", etc.
-    cleaned = cleaned.replace(/^[\s]*(?:Opening|Quick|Setup|Image|Video|Scene|Intro|Start|Begin|Opening shot|Quick montage|Quick shot)[\s\w-]*:[\s]*/gim, "");
+    // Remove direction patterns with colons: "Opening shot:", "Quick montage:", "Setup:", etc.
+    cleaned = cleaned.replace(/^[\s]*(Opening[\s-]*shot|Quick[\s-]*(?:montage|shot)|Setup|Image[\s-]*(?:of)?|Video|Scene|Intro|Start|Begin|Establishing)[\s:]*:?[\s]*/gim, "");
 
     // Remove "Shot X:" patterns anywhere in the text (not just at line start)
     cleaned = cleaned.replace(/\bShot\s+\d+[\s:]*(?=\S)/gi, "");
