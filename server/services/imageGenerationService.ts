@@ -403,6 +403,12 @@ Return ONLY valid JSON in this exact format:
           generationRequest.presetStyle = presetStyle;
         }
 
+        console.log(
+          "[imageGen] Submitting generation request to:",
+          `${this.leonardoBaseUrl}/generations`,
+        );
+        console.log("[imageGen] Request body:", JSON.stringify(generationRequest).substring(0, 200));
+
         // Submit generation job
         const createResponse = await fetch(
           `${this.leonardoBaseUrl}/generations`,
@@ -416,32 +422,51 @@ Return ONLY valid JSON in this exact format:
           },
         );
 
+        console.log("[imageGen] Creation response status:", createResponse.status);
+
         if (!createResponse.ok) {
-          const errorData = await createResponse.json().catch(() => ({}));
+          let errorData: any = {};
+          try {
+            errorData = await createResponse.json();
+          } catch (e) {
+            errorData = { parseError: String(e) };
+          }
           console.error(
-            `[imageGen] Leonardo API error (create):`,
-            errorData,
-            createResponse.status,
+            `[imageGen] Leonardo API error (create): status=${createResponse.status}`,
+            JSON.stringify(errorData),
           );
           continue;
         }
 
-        const createData =
-          (await createResponse.json()) as LeonardoGenerationResponse;
+        let createData: any;
+        try {
+          createData =
+            (await createResponse.json()) as LeonardoGenerationResponse;
+        } catch (parseErr) {
+          console.error("[imageGen] Failed to parse creation response:", parseErr);
+          continue;
+        }
+
+        console.log("[imageGen] Creation response data:", JSON.stringify(createData).substring(0, 300));
+
         const generationId = createData.sdGenerationJob?.generationId;
 
         if (!generationId) {
-          console.error("[imageGen] No generation ID returned from Leonardo");
+          console.error("[imageGen] No generation ID returned from Leonardo. Full response:", JSON.stringify(createData));
           continue;
         }
+
+        console.log("[imageGen] Generation job created with ID:", generationId);
 
         // Poll for completion (with timeout)
         const maxWaitTime = 60000; // 60 seconds
         const pollInterval = 2000; // 2 seconds
         const startTime = Date.now();
         let imageUrl: string | null = null;
+        let pollCount = 0;
 
         while (Date.now() - startTime < maxWaitTime) {
+          pollCount++;
           const statusResponse = await fetch(
             `${this.leonardoBaseUrl}/generations/${generationId}`,
             {
@@ -452,21 +477,40 @@ Return ONLY valid JSON in this exact format:
             },
           );
 
+          console.log(`[imageGen] Poll #${pollCount} status response: ${statusResponse.status}`);
+
           if (!statusResponse.ok) {
             console.error(
               "[imageGen] Failed to check generation status:",
               statusResponse.status,
             );
+            let errorBody = "";
+            try {
+              errorBody = await statusResponse.text();
+            } catch (e) {
+              errorBody = "Could not read response body";
+            }
+            console.error("[imageGen] Status check error body:", errorBody);
             break;
           }
 
-          const statusData =
-            (await statusResponse.json()) as LeonardoImageResponse;
+          let statusData: any;
+          try {
+            statusData = (await statusResponse.json()) as LeonardoImageResponse;
+          } catch (parseErr) {
+            console.error("[imageGen] Failed to parse status response:", parseErr);
+            console.log("[imageGen] Status response text available above");
+            break;
+          }
+
+          console.log("[imageGen] Status response data:", JSON.stringify(statusData).substring(0, 300));
+
           const generation = statusData.generations_by_pk;
 
           if (!generation) {
             console.error(
-              "[imageGen] Invalid response from Leonardo status check",
+              "[imageGen] Invalid response structure - no generations_by_pk. Full response:",
+              JSON.stringify(statusData),
             );
             break;
           }
@@ -484,6 +528,8 @@ Return ONLY valid JSON in this exact format:
               console.log(
                 `[imageGen] Successfully generated image: ${imageUrl.substring(0, 50)}...`,
               );
+            } else {
+              console.warn("[imageGen] Generation complete but no images in response");
             }
             break;
           } else if (
@@ -515,9 +561,13 @@ Return ONLY valid JSON in this exact format:
           `[imageGen] Error generating image with Leonardo:`,
           error,
         );
+        if (error instanceof Error) {
+          console.error("[imageGen] Error stack:", error.stack);
+        }
       }
     }
 
+    console.log(`[imageGen] Image generation complete. Generated ${imageUrls.length} images out of ${prompts.length} prompts`);
     return imageUrls;
   }
 
