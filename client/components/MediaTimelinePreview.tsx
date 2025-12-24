@@ -189,7 +189,7 @@ export default function MediaTimelinePreview({
         URL.revokeObjectURL(audioUrl);
       }
     };
-  }, [script, selectedVoiceId]);
+  }, [effectiveScript, selectedVoiceId]);
 
   // Sync audio playback with video
   useEffect(() => {
