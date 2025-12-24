@@ -492,7 +492,14 @@ export default function AIMediaGenerator({
         </div>
 
         <button
-          onClick={generateImages}
+          onClick={() => {
+            console.log("[AIMediaGenerator] Button clicked directly", {
+              isGenerating,
+              episodesSelectedForGenerationSize: episodesSelectedForGeneration.size,
+              scriptLength: script.trim().length,
+            });
+            generateImages();
+          }}
           disabled={
             isGenerating ||
             (!script.trim() && episodesSelectedForGeneration.size === 0)
