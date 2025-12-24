@@ -74,7 +74,10 @@ export default function MediaTimelinePreview({
     cleaned = cleaned.replace(/\[.*?\]/g, "");
 
     // Remove parenthetical directions (Wide shot), (Camera pulls back), etc.
-    cleaned = cleaned.replace(/\(.*?(?:shot|pan|zoom|fade|cut|dissolve|transition|camera|pull|push|dolly|track|reveal|crane|handheld).*?\)/gi, "");
+    cleaned = cleaned.replace(
+      /\(.*?(?:shot|pan|zoom|fade|cut|dissolve|transition|camera|pull|push|dolly|track|reveal|crane|handheld).*?\)/gi,
+      "",
+    );
 
     // Remove lines starting with shot/visual/camera numbers: "Shot 1:", "Visual 2:", etc.
     cleaned = cleaned.replace(
@@ -89,13 +92,19 @@ export default function MediaTimelinePreview({
     );
 
     // Remove any line that starts with common camera shot names
-    cleaned = cleaned.replace(/^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder|Long[\s-]*shot|Establishing[\s-]*shot|Aerial[\s-]*shot|Bird's?[\s-]*eye[\s-]*view|POV|Point[\s-]*of[\s-]*view|Tracking[\s-]*shot|Pan|Tilt|Zoom)[\s:]*(.*)$/gmi, "$2");
+    cleaned = cleaned.replace(
+      /^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder|Long[\s-]*shot|Establishing[\s-]*shot|Aerial[\s-]*shot|Bird's?[\s-]*eye[\s-]*view|POV|Point[\s-]*of[\s-]*view|Tracking[\s-]*shot|Pan|Tilt|Zoom)[\s:]*(.*)$/gim,
+      "$2",
+    );
 
     // Remove "Shot X:" patterns anywhere in the text (not just at line start)
     cleaned = cleaned.replace(/\bShot\s+\d+[\s:]*(?=\S)/gi, "");
 
     // Remove inline parenthetical camera directions mixed with dialogue
-    cleaned = cleaned.replace(/[\s]*\([A-Z][^)]*(?:shot|camera|pan|zoom|fade|cut|dissolve|transition)[^)]*\)[\s]*/gi, " ");
+    cleaned = cleaned.replace(
+      /[\s]*\([A-Z][^)]*(?:shot|camera|pan|zoom|fade|cut|dissolve|transition)[^)]*\)[\s]*/gi,
+      " ",
+    );
 
     // Clean up extra whitespace and newlines
     cleaned = cleaned.replace(/\n\s*\n/g, "\n").trim();
