@@ -347,14 +347,14 @@ export default function MediaTimelinePreview({
                 </div>
 
                 {/* Caption Preview Overlay */}
-                {captionsEnabled && !script && (
+                {captionsEnabled && !effectiveScript && (
                   <div className="absolute bottom-0 left-0 right-0 bg-red-500/20 border-t-2 border-red-500 p-4">
                     <p className="text-sm text-red-600 font-semibold text-center">
                       ⚠️ No script provided. Please add a script in Step 2 to enable captions and voiceover.
                     </p>
                   </div>
                 )}
-                {captionsEnabled && script && (
+                {captionsEnabled && effectiveScript && (
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                     <p
                       className={getCaptionClasses()}
@@ -366,7 +366,7 @@ export default function MediaTimelinePreview({
                       }}
                     >
                       {(() => {
-                        const cleanedScript = cleanScriptForVoiceover(script);
+                        const cleanedScript = cleanScriptForVoiceover(effectiveScript);
                         const words = cleanedScript
                           .split(/\s+/)
                           .filter((w) => w.length > 0);
@@ -374,7 +374,7 @@ export default function MediaTimelinePreview({
                         if (words.length === 0) {
                           console.log(
                             "[MediaTimelinePreview] No words in cleaned script",
-                            { originalScript: script }
+                            { originalScript: effectiveScript }
                           );
                           return "";
                         }
