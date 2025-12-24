@@ -266,6 +266,14 @@ export default function MediaTimelinePreview({
           Preview
         </h3>
 
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground space-y-1">
+          <div>Script: {script && script.length > 0 ? `${script.length} chars` : "EMPTY"}</div>
+          <div>Voice: {selectedVoiceId ? selectedVoiceId : "NOT SELECTED"}</div>
+          <div>Audio URL: {audioUrl ? "Generated" : "Not generated"}</div>
+          <div>Generating Audio: {isGeneratingAudio ? "Yes" : "No"}</div>
+        </div>
+
         {/* Video Preview Container */}
         <div
           className={`relative w-full ${getAspectRatioClass()} rounded-lg overflow-hidden bg-black border-2 border-border group`}
