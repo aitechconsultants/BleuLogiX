@@ -410,7 +410,7 @@ Return ONLY valid JSON in this exact format:
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${this.leonardoApiKey}`,
+              Authorization: `Bearer ${this.leonardoApiKey!}`,
             },
             body: JSON.stringify(generationRequest),
           },
