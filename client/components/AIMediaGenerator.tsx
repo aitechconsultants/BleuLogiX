@@ -60,6 +60,7 @@ export default function AIMediaGenerator({
   // Extract prompts for a specific episode
   const extractPromptsForEpisode = async (episode: Episode) => {
     try {
+      console.log("[AIMediaGenerator] Extracting prompts for episode:", episode.id);
       const response = await fetch("/api/images/extract-prompts", {
         method: "POST",
         headers: {
@@ -72,32 +73,45 @@ export default function AIMediaGenerator({
       });
 
       if (!response.ok) {
-        console.error("Failed to extract prompts for episode");
+        const errorData = await response.json().catch(() => ({}));
+        console.error(
+          "[AIMediaGenerator] Failed to extract prompts:",
+          response.status,
+          errorData
+        );
         return [];
       }
 
       const data = await response.json();
+      console.log("[AIMediaGenerator] Extracted prompts:", data.prompts?.length);
       return data.prompts || [];
     } catch (err) {
-      console.error("Error extracting prompts:", err);
+      console.error("[AIMediaGenerator] Error extracting prompts:", err);
       return [];
     }
   };
 
   // Load prompts when an episode is selected
   useEffect(() => {
-    if (selectedEpisodeId) {
-      const episode = episodes.find((ep) => ep.id === selectedEpisodeId);
-      if (episode && !episodePrompts[selectedEpisodeId]) {
-        extractPromptsForEpisode(episode).then((prompts) => {
-          setEpisodePrompts((prev) => ({
-            ...prev,
-            [selectedEpisodeId]: prompts,
-          }));
-        });
-      }
+    if (!selectedEpisodeId) return;
+
+    const episode = episodes.find((ep) => ep.id === selectedEpisodeId);
+    if (!episode) return;
+
+    // Check if we already have prompts for this episode
+    if (episodePrompts[selectedEpisodeId]) {
+      console.log("[AIMediaGenerator] Using cached prompts for episode:", selectedEpisodeId);
+      return;
     }
-  }, [selectedEpisodeId, episodes]);
+
+    console.log("[AIMediaGenerator] Loading prompts for episode:", selectedEpisodeId);
+    extractPromptsForEpisode(episode).then((prompts) => {
+      setEpisodePrompts((prev) => ({
+        ...prev,
+        [selectedEpisodeId]: prompts,
+      }));
+    });
+  }, [selectedEpisodeId]);
 
   const toggleEpisodeSelection = (episodeId: string) => {
     const newSelected = new Set(episodesSelectedForGeneration);
