@@ -392,7 +392,11 @@ Return ONLY valid JSON in this exact format:
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
   ): Promise<string[]> {
-    console.log("[imageGen] generateImagesWithLeonardo called with", prompts.length, "prompts");
+    console.log(
+      "[imageGen] generateImagesWithLeonardo called with",
+      prompts.length,
+      "prompts",
+    );
 
     if (!prompts || prompts.length === 0) {
       console.log("[imageGen] No prompts provided, returning empty array");
@@ -404,7 +408,10 @@ Return ONLY valid JSON in this exact format:
       return [];
     }
 
-    console.log("[imageGen] Starting Leonardo image generation with API key", this.leonardoApiKey.substring(0, 8) + "...");
+    console.log(
+      "[imageGen] Starting Leonardo image generation with API key",
+      this.leonardoApiKey.substring(0, 8) + "...",
+    );
 
     const imageUrls: string[] = [];
     const modelId = this.getLeonardoModelId(imageStyle);
