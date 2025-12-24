@@ -39,15 +39,11 @@ interface LeonardoImageResponse {
 
 export class ImageGenerationService {
   private openai: OpenAI | null = null;
-  private leonardoApiKey: string;
+  private leonardoApiKey: string | null = null;
   private leonardoBaseUrl: string = "https://api.leonardo.ai/rest/v1";
 
   constructor() {
-    const apiKey = process.env.LEONARDO_API_KEY;
-    if (!apiKey) {
-      throw new Error("LEONARDO_API_KEY is not set");
-    }
-    this.leonardoApiKey = apiKey;
+    this.leonardoApiKey = process.env.LEONARDO_API_KEY || null;
   }
 
   private initializeOpenAI() {
