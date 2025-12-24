@@ -215,70 +215,153 @@ export default function AIMediaGenerator({
           </p>
         </div>
 
-        {/* Selected Episodes Display */}
+        {/* Episodes and Prompts - Two Panel Layout */}
         {episodes.length > 0 && (
-          <div className="border border-border rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">
-                Selected Episodes ({episodes.length})
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {episodes.length} episode{episodes.length !== 1 ? "s" : ""}{" "}
-                selected
-              </p>
-            </div>
-            <div className="space-y-2">
-              {episodes.map((ep, idx) => (
-                <div
-                  key={ep.id}
-                  className="bg-muted/50 rounded-lg p-3 border border-border/50 flex items-start justify-between gap-3"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-foreground text-sm">
-                        {ep.seriesName}
-                      </span>
-                      {ep.seasonNumber !== undefined && (
-                        <span className="text-xs bg-accent-blue/20 text-accent-blue px-2 py-1 rounded">
-                          S{ep.seasonNumber}
-                        </span>
-                      )}
-                      {ep.episodeNumber !== undefined && (
-                        <span className="text-xs bg-accent-blue/20 text-accent-blue px-2 py-1 rounded">
-                          E{ep.episodeNumber}
-                        </span>
-                      )}
-                    </div>
-                    {ep.episodeName && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {ep.episodeName}
-                      </p>
-                    )}
-                    {ep.description && (
-                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                        {ep.description}
-                      </p>
-                    )}
-                  </div>
-                  {onEpisodesChange && (
-                    <button
-                      onClick={() => {
-                        const filtered = episodes.filter((_, i) => i !== idx);
-                        onEpisodesChange(filtered);
-                      }}
-                      className="flex-shrink-0 p-2 rounded-lg hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-colors"
-                      title="Remove this episode"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
+          <div className="border border-border rounded-lg overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-96">
+              {/* Left Panel: Episode List */}
+              <div className="border-r border-border lg:col-span-1 bg-muted/20">
+                <div className="p-4 border-b border-border space-y-2">
+                  <p className="text-sm font-semibold text-foreground">
+                    Episodes ({episodes.length})
+                  </p>
+                  <button
+                    onClick={selectAllEpisodes}
+                    className="text-xs text-accent-blue hover:text-highlight-blue transition-colors"
+                  >
+                    {episodesSelectedForGeneration.size === episodes.length &&
+                    episodes.length > 0
+                      ? "Deselect All"
+                      : "Select All"}
+                  </button>
                 </div>
-              ))}
+                <div className="overflow-y-auto max-h-96">
+                  {episodes.map((ep) => (
+                    <div
+                      key={ep.id}
+                      onClick={() => setSelectedEpisodeId(ep.id)}
+                      className={`p-3 border-b border-border cursor-pointer transition-colors ${
+                        selectedEpisodeId === ep.id
+                          ? "bg-accent-blue/20 border-l-2 border-l-accent-blue"
+                          : "hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={episodesSelectedForGeneration.has(ep.id)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleEpisodeSelection(ep.id);
+                          }}
+                          className="mt-1 w-4 h-4 rounded border-border bg-card accent-accent-blue cursor-pointer"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className="font-medium text-sm text-foreground">
+                              {ep.seriesName}
+                            </span>
+                            {ep.seasonNumber !== undefined && (
+                              <span className="text-xs bg-accent-blue/20 text-accent-blue px-1.5 py-0.5 rounded">
+                                S{ep.seasonNumber}
+                              </span>
+                            )}
+                            {ep.episodeNumber !== undefined && (
+                              <span className="text-xs bg-accent-blue/20 text-accent-blue px-1.5 py-0.5 rounded">
+                                E{ep.episodeNumber}
+                              </span>
+                            )}
+                          </div>
+                          {ep.episodeName && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                              {ep.episodeName}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Panel: Episode Details and Prompts */}
+              <div className="lg:col-span-2 p-4">
+                {selectedEpisodeId ? (
+                  (() => {
+                    const selectedEpisode = episodes.find(
+                      (ep) => ep.id === selectedEpisodeId
+                    );
+                    const prompts = episodePrompts[selectedEpisodeId] || [];
+
+                    return (
+                      <div className="space-y-4">
+                        {selectedEpisode && (
+                          <>
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-2">
+                                {selectedEpisode.seriesName}
+                                {selectedEpisode.seasonNumber && (
+                                  <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    S{selectedEpisode.seasonNumber}E
+                                    {selectedEpisode.episodeNumber}
+                                  </span>
+                                )}
+                              </h4>
+                              {selectedEpisode.episodeName && (
+                                <p className="text-sm text-foreground mb-2">
+                                  {selectedEpisode.episodeName}
+                                </p>
+                              )}
+                              {selectedEpisode.description && (
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  {selectedEpisode.description}
+                                </p>
+                              )}
+                            </div>
+
+                            <div>
+                              <h5 className="font-medium text-foreground mb-2">
+                                Image Prompts ({prompts.length})
+                              </h5>
+                              {prompts.length > 0 ? (
+                                <div className="space-y-2">
+                                  {prompts.map((prompt, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="p-2 rounded-lg bg-muted/50 border border-border/50"
+                                    >
+                                      <p className="text-xs font-medium text-foreground mb-1">
+                                        Image {prompt.index + 1}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {prompt.context}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground italic mt-1">
+                                        "{prompt.description.substring(0, 100)}..."
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground">
+                                  Loading image prompts...
+                                </p>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div className="flex items-center justify-center h-full text-center">
+                    <p className="text-muted-foreground">
+                      Select an episode to view image prompts
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground italic">
-              Images will be generated for each episode based on its content and
-              description.
-            </p>
           </div>
         )}
 
