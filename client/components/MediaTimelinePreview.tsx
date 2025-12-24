@@ -79,6 +79,10 @@ export default function MediaTimelinePreview({
       try {
         const cleanedScript = cleanScriptForVoiceover(script);
 
+        // Debug logging
+        console.log("Original script:", script);
+        console.log("Cleaned script:", cleanedScript);
+
         // If the script is empty after cleaning, don't generate audio
         if (!cleanedScript.trim()) {
           setAudioUrl(null);
@@ -89,6 +93,7 @@ export default function MediaTimelinePreview({
         const params = new URLSearchParams({
           text: cleanedScript,
         });
+        console.log("Sending to voiceover API:", cleanedScript);
         const response = await fetch(
           `/api/voices/${selectedVoiceId}/preview?${params}`,
         );
