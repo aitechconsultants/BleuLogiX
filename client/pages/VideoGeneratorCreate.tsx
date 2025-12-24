@@ -888,6 +888,7 @@ export default function VideoGeneratorCreate() {
                   <MediaTimelinePreview
                     items={formState.mediaFiles}
                     script={formState.script}
+                    episodes={formState.selectedEpisodes}
                     captionsEnabled={formState.captionsEnabled}
                     captionStyle={formState.captionStyle}
                     captionColor={formState.captionColor}
