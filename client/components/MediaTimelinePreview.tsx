@@ -390,11 +390,24 @@ export default function MediaTimelinePreview({
                           return "";
                         }
 
-                        // Calculate progress through the timeline (0 to 1)
-                        const progress =
-                          totalDuration > 0 ? previewTime / totalDuration : 0;
+                        // Use audio's current time for caption sync (most accurate)
+                        // Fallback to video timeline if audio not available
+                        const timeReference =
+                          audioRef.current && audioUrl
+                            ? audioRef.current.currentTime
+                            : previewTime;
+                        const durationReference =
+                          audioRef.current && audioUrl && audioDuration > 0
+                            ? audioDuration
+                            : totalDuration;
 
-                        // Estimate which word we're at based on progress
+                        // Calculate progress through the audio (0 to 1)
+                        const progress =
+                          durationReference > 0
+                            ? timeReference / durationReference
+                            : 0;
+
+                        // Estimate which word we're at based on audio progress
                         const currentWordIndex = Math.floor(
                           progress * words.length,
                         );
