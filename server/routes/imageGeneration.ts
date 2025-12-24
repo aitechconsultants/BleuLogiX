@@ -56,6 +56,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
     const result = await imageGenService.generateImagesFromScript(
       script,
       episodes || [],
+      imageStyle || "realistic",
     );
     const { prompts, imageUrls, creditCost } = result;
 
