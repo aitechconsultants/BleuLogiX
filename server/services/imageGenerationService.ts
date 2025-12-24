@@ -346,12 +346,12 @@ Return ONLY valid JSON in this exact format:
     const numImages = words > 0 ? Math.min(Math.ceil(words / 100), 6) : 6;
 
     const themes = [
-      "professional business environment, sharp focus, natural lighting, 4K resolution, detailed textures",
-      "modern technology workspace, professional photograph, studio lighting, high-end production quality",
-      "creative collaboration, natural daylight, journalistic photography, authentic moment, documentary style",
-      "product showcase, product photography, professional lighting, RAW quality, studio setup, sharp details",
-      "success and growth, cinematic composition, golden hour lighting, dynamic angles, professional quality",
-      "team working together, professional environment, natural interaction, high-resolution, authentic setting",
+      "professional business environment, shot on Sony A7R, sharp focus, natural daylight, 4K resolution, crisp details, bokeh background",
+      "modern technology workspace, professional photograph, studio lighting setup, high-end production quality, vibrant colors, modern aesthetic",
+      "creative collaboration, natural daylight, journalistic photography, authentic candid moment, documentary style, warm lighting",
+      "product showcase, professional product photography, studio lighting, RAW quality, sharp focus, textured details, premium presentation",
+      "success and growth, cinematic 4K, golden hour lighting, dynamic depth of field, dramatic shadows, cinema color grading",
+      "team working together, professional environment, natural interaction, high-resolution, authentic setting, collaborative atmosphere",
     ];
 
     // Distribute script across prompts
@@ -360,7 +360,7 @@ Return ONLY valid JSON in this exact format:
       : Array(numImages).fill("");
 
     return Array.from({ length: numImages }, (_, i) => ({
-      description: `Professional photograph: ${themes[i % themes.length]}, professional DSLR quality`,
+      description: `${themes[i % themes.length]}, high quality, visually engaging, professional production`,
       context: `Visual segment ${i + 1} for the video narrative`,
       index: i,
       voiceoverScript: voiceoverSegments[i] || "",
