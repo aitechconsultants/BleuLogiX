@@ -102,14 +102,13 @@ export default function MediaTimelinePreview({
         }
 
         const blob = await response.blob();
-
-        // Revoke old URL if it exists
-        if (audioUrl) {
-          URL.revokeObjectURL(audioUrl);
-        }
-
         const url = URL.createObjectURL(blob);
-        setAudioUrl(url);
+        setAudioUrl((prevUrl) => {
+          if (prevUrl) {
+            URL.revokeObjectURL(prevUrl);
+          }
+          return url;
+        });
         onVoiceoverGenerated?.(url, new Date().toISOString());
       } catch (error) {
         console.error("Error generating audio:", error);
@@ -126,7 +125,7 @@ export default function MediaTimelinePreview({
         URL.revokeObjectURL(audioUrl);
       }
     };
-  }, [script, selectedVoiceId, audioUrl]);
+  }, [script, selectedVoiceId]);
 
   // Sync audio playback with video
   useEffect(() => {
