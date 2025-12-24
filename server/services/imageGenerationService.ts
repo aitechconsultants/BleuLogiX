@@ -22,7 +22,30 @@ export class ImageGenerationService {
   }
 
   /**
-   * Parse script to extract image/photo descriptions
+   * Extract voiceover scripts for episodes
+   * Uses the episode description as the voiceover script, cleaned of camera directions
+   */
+  private extractVoiceoverScriptsForEpisodes(episodes: any[]): Map<number, string> {
+    const voiceoverScripts = new Map<number, string>();
+
+    // If we have episodes, create a combined voiceover script from their descriptions
+    // Distribute them across image prompts
+    const episodeDescriptions = episodes
+      .map((ep) => ep.description)
+      .filter((desc) => desc && typeof desc === "string")
+      .join(" ");
+
+    if (episodeDescriptions.trim()) {
+      const cleanedScript = cleanScriptForVoiceover(episodeDescriptions);
+      // Store the combined voiceover script to be distributed across prompts
+      voiceoverScripts.set(-1, cleanedScript);
+    }
+
+    return voiceoverScripts;
+  }
+
+  /**
+   * Parse script to extract image/photo descriptions and corresponding voiceover
    * Uses AI to intelligently identify what visuals should accompany each section
    */
   async extractImagePromptsFromScript(
@@ -35,6 +58,10 @@ export class ImageGenerationService {
     if ((!script || script.trim().length === 0) && episodes.length === 0) {
       return [];
     }
+
+    // Extract voiceover scripts from episodes
+    const episodeVoiceoverScripts = this.extractVoiceoverScriptsForEpisodes(episodes);
+    const combinedEpisodeVoiceover = episodeVoiceoverScripts.get(-1) || "";
 
     const episodeContext =
       episodes.length > 0
@@ -109,7 +136,8 @@ Return ONLY valid JSON in this exact format:
   {
     "description": "extremely detailed visual description incorporating ${imageStyle} style, specific details, composition, and lighting",
     "context": "brief explanation of why this visual is needed",
-    "index": 0
+    "index": 0,
+    "voiceoverScript": "the specific voiceover text that should be spoken for this visual moment"
   }
 ]`,
           },
@@ -145,10 +173,29 @@ Return ONLY valid JSON in this exact format:
           return this.generateDefaultPrompts(script);
         }
 
-        const prompts = JSON.parse(jsonMatch[0]) as ImagePrompt[];
+        let prompts = JSON.parse(jsonMatch[0]) as ImagePrompt[];
         console.log(
           `[imageGen] Successfully extracted ${prompts.length} prompts from GPT`,
         );
+
+        // If we're working with episodes and have combined voiceover, distribute it across prompts
+        if (combinedEpisodeVoiceover && episodes.length > 0 && prompts.length > 0) {
+          const voiceoverSegments = this.distributeVoiceoverAcrossPrompts(
+            combinedEpisodeVoiceover,
+            prompts.length,
+          );
+          prompts = prompts.map((prompt, idx) => ({
+            ...prompt,
+            voiceoverScript: voiceoverSegments[idx] || prompt.voiceoverScript || "",
+          }));
+        }
+
+        // Ensure all prompts have voiceoverScript field
+        prompts = prompts.map((prompt) => ({
+          ...prompt,
+          voiceoverScript: prompt.voiceoverScript || "",
+        }));
+
         return prompts.slice(0, 8);
       } catch (parseError) {
         console.warn(
@@ -163,6 +210,43 @@ Return ONLY valid JSON in this exact format:
       console.log("[imageGen] Using default prompts as fallback");
       return this.generateDefaultPrompts(script);
     }
+  }
+
+  /**
+   * Distribute voiceover script across multiple image prompts
+   * Splits the script into roughly equal segments
+   */
+  private distributeVoiceoverAcrossPrompts(
+    voiceoverScript: string,
+    numPrompts: number,
+  ): string[] {
+    if (!voiceoverScript || numPrompts === 0) {
+      return [];
+    }
+
+    if (numPrompts === 1) {
+      return [voiceoverScript];
+    }
+
+    // Split script into sentences for better segmentation
+    const sentences = voiceoverScript.match(/[^.!?]+[.!?]+/g) || [voiceoverScript];
+    const segments: string[] = Array(numPrompts).fill("");
+    let sentenceIdx = 0;
+
+    // Distribute sentences across prompts as evenly as possible
+    for (let i = 0; i < numPrompts && sentenceIdx < sentences.length; i++) {
+      const sentencesPerPrompt = Math.ceil(
+        (sentences.length - sentenceIdx) / (numPrompts - i),
+      );
+      const segmentSentences = sentences.slice(
+        sentenceIdx,
+        sentenceIdx + sentencesPerPrompt,
+      );
+      segments[i] = segmentSentences.join("").trim();
+      sentenceIdx += sentencesPerPrompt;
+    }
+
+    return segments;
   }
 
   /**
