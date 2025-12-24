@@ -74,10 +74,16 @@ export default function MediaTimelinePreview({
     cleaned = cleaned.replace(/\[.*?\]/g, "");
 
     // Remove Shot/Visual/Camera lines like "Shot 1: Wide shot" or "Visual: Background music"
-    cleaned = cleaned.replace(/^(Shot|Visual|Camera|Scene|Action|Music|Sound)[\s\d]*:.*$/gm, "");
+    cleaned = cleaned.replace(
+      /^(Shot|Visual|Camera|Scene|Action|Music|Sound)[\s\d]*:.*$/gm,
+      "",
+    );
 
     // Remove common scene directions that appear on their own line
-    cleaned = cleaned.replace(/^(FADE IN|FADE OUT|CUT TO|DISSOLVE TO|TRANSITION):?.*$/gm, "");
+    cleaned = cleaned.replace(
+      /^(FADE IN|FADE OUT|CUT TO|DISSOLVE TO|TRANSITION):?.*$/gm,
+      "",
+    );
 
     // Clean up extra whitespace and newlines
     cleaned = cleaned.replace(/\n\s*\n/g, "\n").trim();
