@@ -157,6 +157,44 @@ export default function VideoGeneratorCreate() {
     fetchCredits();
   }, []);
 
+  const autoSaveProject = async (silent = true) => {
+    if (!projectName.trim() || !currentProjectId) {
+      return;
+    }
+
+    try {
+      setSaveStatus("saving");
+      const url = `/api/projects/${currentProjectId}`;
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: projectName,
+          formState,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Failed to save project: ${response.status}`,
+        );
+      }
+
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+      setProjectsRefreshTrigger((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error auto-saving project:", error);
+      setSaveStatus("idle");
+      if (!silent) {
+        alert(error instanceof Error ? error.message : "Failed to save project");
+      }
+    }
+  };
+
   const saveProject = async () => {
     if (!projectName.trim()) {
       alert("Please enter a project name");
