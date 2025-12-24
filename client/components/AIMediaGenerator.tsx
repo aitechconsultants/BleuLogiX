@@ -48,8 +48,8 @@ export default function AIMediaGenerator({
   ];
 
   const generateImages = async () => {
-    if (!script.trim()) {
-      setError("Please enter a script first");
+    if (!script.trim() && episodes.length === 0) {
+      setError("Please enter a script or select episodes first");
       return;
     }
 
@@ -173,7 +173,7 @@ export default function AIMediaGenerator({
 
         <button
           onClick={generateImages}
-          disabled={isGenerating || !script.trim()}
+          disabled={isGenerating || (!script.trim() && episodes.length === 0)}
           className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium glow-blue"
         >
           {isGenerating ? (
@@ -286,7 +286,7 @@ export default function AIMediaGenerator({
       )}
 
       {/* Empty State */}
-      {!isGenerating && imageUrls.length === 0 && script.trim() && !error && (
+      {!isGenerating && imageUrls.length === 0 && (script.trim() || episodes.length > 0) && !error && (
         <div className="text-center py-8 text-muted-foreground">
           <p>Click "Generate Images from Script" to create AI images</p>
         </div>
