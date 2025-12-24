@@ -242,6 +242,26 @@ export default function VideoGeneratorCreate() {
     }
   };
 
+  // Auto-save debounced
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (!currentProjectId) return;
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      autoSaveProject(true);
+    }, 1000);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [formState, projectName, currentProjectId]);
+
   const loadProject = async (projectId: string) => {
     try {
       const response = await fetch(`/api/projects/${projectId}`);
