@@ -70,8 +70,23 @@ export default function MediaTimelinePreview({
     0,
   );
 
-  // Voiceover requires an explicit script - episodes are for image selection only
-  const effectiveScript = script;
+  // Generate effective script: prioritize explicit script, fallback to episode descriptions
+  const getEffectiveScript = (): string => {
+    if (script && script.trim()) {
+      return script;
+    }
+    // If no explicit script, use episode descriptions
+    if (episodes.length > 0) {
+      const episodeDescriptions = episodes
+        .map((ep) => ep.description || "")
+        .filter((desc) => desc.trim())
+        .join(" ");
+      return episodeDescriptions;
+    }
+    return "";
+  };
+
+  const effectiveScript = getEffectiveScript();
 
   // Generate audio from selected voice and script
   useEffect(() => {
