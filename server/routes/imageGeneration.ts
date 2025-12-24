@@ -139,11 +139,11 @@ export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
 
   try {
     console.log(
-      `[imageGen] POST /api/images/extract-prompts - script length: ${script.length}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
+      `[imageGen] POST /api/images/extract-prompts - script length: ${script?.length || 0}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
     );
 
     const prompts = await imageGenService.extractImagePromptsFromScript(
-      script,
+      script || "",
       episodes || [],
     );
 
