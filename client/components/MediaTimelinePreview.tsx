@@ -317,7 +317,13 @@ export default function MediaTimelinePreview({
                           .split(/\s+/)
                           .filter((w) => w.length > 0);
 
-                        if (words.length === 0) return "";
+                        if (words.length === 0) {
+                          console.log(
+                            "[MediaTimelinePreview] No words in cleaned script",
+                            { originalScript: script }
+                          );
+                          return "";
+                        }
 
                         // Calculate progress through the timeline (0 to 1)
                         const progress =
