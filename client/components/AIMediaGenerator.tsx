@@ -300,7 +300,7 @@ export default function AIMediaGenerator({
               </div>
 
               {/* Right Panel: Episode Details and Prompts */}
-              <div className="lg:col-span-2 p-4">
+              <div className="w-2/3 p-4 overflow-y-auto flex flex-col">
                 {selectedEpisodeId ? (
                   (() => {
                     const selectedEpisode = episodes.find(
