@@ -91,14 +91,20 @@ export default function MediaTimelinePreview({
       "",
     );
 
-    // Remove any line that starts with common camera shot names
+    // Remove any line that starts with common camera shot names and direction keywords
     cleaned = cleaned.replace(
-      /^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder|Long[\s-]*shot|Establishing[\s-]*shot|Aerial[\s-]*shot|Bird's?[\s-]*eye[\s-]*view|POV|Point[\s-]*of[\s-]*view|Tracking[\s-]*shot|Pan|Tilt|Zoom)[\s:]*(.*)$/gim,
+      /^[\s]*(Wide[\s-]*shot|Close[\s-]*up|Medium[\s-]*shot|Extreme[\s-]*close[\s-]*up|Two[\s-]*shot|Over[\s-]*the[\s-]*shoulder|Long[\s-]*shot|Establishing[\s-]*shot|Aerial[\s-]*shot|Bird's?[\s-]*eye[\s-]*view|POV|Point[\s-]*of[\s-]*view|Tracking[\s-]*shot|Opening[\s-]*shot|Opening[\s-]*on|Pan|Tilt|Zoom)[\s:]*(.*)$/gim,
       "$2",
     );
 
+    // Remove direction patterns like "Opening shot:", "Setup shot:", etc. at the start
+    cleaned = cleaned.replace(/^[\s]*\w+[\s-]*(?:shot|on|scene|montage|sequence)[\s:]*:?[\s]*/gim, "");
+
     // Remove "Shot X:" patterns anywhere in the text (not just at line start)
     cleaned = cleaned.replace(/\bShot\s+\d+[\s:]*(?=\S)/gi, "");
+
+    // Remove colon-separated direction patterns that appear inline: "Opening shot: text" -> "text"
+    cleaned = cleaned.replace(/^([\s\w]+)[\s:]*:/gm, "");
 
     // Remove inline parenthetical camera directions mixed with dialogue
     cleaned = cleaned.replace(
