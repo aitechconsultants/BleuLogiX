@@ -108,7 +108,7 @@ export default function MediaTimelinePreview({
           {
             hasEffectiveScript: !!effectiveScript?.trim(),
             hasVoice: !!selectedVoiceId,
-          }
+          },
         );
         setAudioUrl(null);
         return;
@@ -298,9 +298,20 @@ export default function MediaTimelinePreview({
 
         {/* Debug Info */}
         <div className="mb-4 p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground space-y-1">
-          <div>Script: {script && script.length > 0 ? `${script.length} chars` : "EMPTY"}</div>
-          <div>Episodes: {episodes.length > 0 ? `${episodes.length} episodes` : "None"}</div>
-          <div>Effective Script: {effectiveScript && effectiveScript.length > 0 ? `${effectiveScript.length} chars` : "EMPTY"}</div>
+          <div>
+            Script:{" "}
+            {script && script.length > 0 ? `${script.length} chars` : "EMPTY"}
+          </div>
+          <div>
+            Episodes:{" "}
+            {episodes.length > 0 ? `${episodes.length} episodes` : "None"}
+          </div>
+          <div>
+            Effective Script:{" "}
+            {effectiveScript && effectiveScript.length > 0
+              ? `${effectiveScript.length} chars`
+              : "EMPTY"}
+          </div>
           <div>Voice: {selectedVoiceId ? selectedVoiceId : "NOT SELECTED"}</div>
           <div>Audio URL: {audioUrl ? "Generated" : "Not generated"}</div>
           <div>Generating Audio: {isGeneratingAudio ? "Yes" : "No"}</div>
@@ -343,7 +354,8 @@ export default function MediaTimelinePreview({
                 {captionsEnabled && !effectiveScript && (
                   <div className="absolute bottom-0 left-0 right-0 bg-red-500/20 border-t-2 border-red-500 p-4">
                     <p className="text-sm text-red-600 font-semibold text-center">
-                      ⚠️ No script provided. Please add a script in Step 2 to enable captions and voiceover.
+                      ⚠️ No script provided. Please add a script in Step 2 to
+                      enable captions and voiceover.
                     </p>
                   </div>
                 )}
@@ -359,7 +371,8 @@ export default function MediaTimelinePreview({
                       }}
                     >
                       {(() => {
-                        const cleanedScript = cleanScriptForVoiceover(effectiveScript);
+                        const cleanedScript =
+                          cleanScriptForVoiceover(effectiveScript);
                         const words = cleanedScript
                           .split(/\s+/)
                           .filter((w) => w.length > 0);
@@ -367,7 +380,7 @@ export default function MediaTimelinePreview({
                         if (words.length === 0) {
                           console.log(
                             "[MediaTimelinePreview] No words in cleaned script",
-                            { originalScript: effectiveScript }
+                            { originalScript: effectiveScript },
                           );
                           return "";
                         }
