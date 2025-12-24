@@ -1,4 +1,5 @@
 import { OpenAI } from "openai";
+import { cleanScriptForVoiceover } from "../../client/lib/scriptCleaner";
 
 interface ImagePrompt {
   description: string;
