@@ -514,7 +514,7 @@ Return ONLY valid JSON in this exact format:
         let createDataText = "";
         try {
           createDataText = await createResponse.text();
-          createData = JSON.parse(createDataText) as LeonardoGenerationResponse;
+          createData = JSON.parse(createDataText) as LeonardoCreateResponse;
         } catch (parseErr) {
           console.error(
             "[imageGen] Failed to parse creation response:",
