@@ -102,8 +102,16 @@ export default function AIMediaGenerator({
     // Check if we already have prompts for this episode
     if (episodePrompts[selectedEpisodeId]) {
       console.log("[AIMediaGenerator] Using cached prompts for episode:", selectedEpisodeId);
+      setLoadingPrompts((prev) => {
+        const updated = new Set(prev);
+        updated.delete(selectedEpisodeId);
+        return updated;
+      });
       return;
     }
+
+    // Mark this episode as loading
+    setLoadingPrompts((prev) => new Set(prev).add(selectedEpisodeId));
 
     console.log("[AIMediaGenerator] Loading prompts for episode:", selectedEpisodeId);
     extractPromptsForEpisode(episode).then((prompts) => {
@@ -111,6 +119,11 @@ export default function AIMediaGenerator({
         ...prev,
         [selectedEpisodeId]: prompts,
       }));
+      setLoadingPrompts((prev) => {
+        const updated = new Set(prev);
+        updated.delete(selectedEpisodeId);
+        return updated;
+      });
     });
   }, [selectedEpisodeId]);
 
