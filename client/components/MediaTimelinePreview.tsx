@@ -206,6 +206,24 @@ export default function MediaTimelinePreview({
     }
   }, [previewTime, audioUrl, isPlaying]);
 
+  // Force caption re-render while audio is playing using timeupdate event
+  useEffect(() => {
+    if (!audioRef.current || !audioUrl) return;
+
+    const handleTimeUpdate = () => {
+      // This forces React to re-render the captions by updating a dummy state
+      // The caption display will use audioRef.current.currentTime directly
+      setPreviewTime(audioRef.current?.currentTime || 0);
+    };
+
+    const audioElement = audioRef.current;
+    audioElement.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+      audioElement.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [audioUrl]);
+
   // Auto-advance through media during playback
   useEffect(() => {
     if (!isPlaying) return;
