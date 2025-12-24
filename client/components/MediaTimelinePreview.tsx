@@ -93,8 +93,11 @@ export default function MediaTimelinePreview({
     const generateAudio = async () => {
       console.log("[MediaTimelinePreview] Audio generation triggered:", {
         scriptLength: script?.length,
+        episodeCount: episodes.length,
         selectedVoiceId,
-        script: script?.substring(0, 100),
+        effectiveScriptLength: effectiveScript?.length,
+        script: script?.substring(0, 50),
+        effectiveScript: effectiveScript?.substring(0, 50),
       });
 
       if (!effectiveScript.trim() || !selectedVoiceId) {
@@ -103,6 +106,8 @@ export default function MediaTimelinePreview({
           {
             hasEffectiveScript: !!effectiveScript?.trim(),
             hasVoice: !!selectedVoiceId,
+            sourceIsScript: !!script?.trim(),
+            sourceIsEpisodes: episodes.length > 0,
           },
         );
         setAudioUrl(null);
