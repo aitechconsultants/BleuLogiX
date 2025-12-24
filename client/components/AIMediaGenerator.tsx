@@ -62,7 +62,7 @@ export default function AIMediaGenerator({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ script, episodes }),
+        body: JSON.stringify({ script, episodes, imageStyle }),
       });
 
       if (!response.ok) {
