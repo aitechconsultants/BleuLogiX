@@ -521,9 +521,19 @@ export default function VideoGeneratorCreate() {
                   </button>
                 </div>
                 {currentProjectId && (
-                  <p className="text-xs text-muted-foreground">
-                    Currently editing: {projectName}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-muted-foreground">
+                      Currently editing: {projectName}
+                    </p>
+                    {saveStatus === "saving" && (
+                      <span className="text-xs text-accent-blue animate-pulse">
+                        Saving...
+                      </span>
+                    )}
+                    {saveStatus === "saved" && (
+                      <span className="text-xs text-green-500">✓ Saved</span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
