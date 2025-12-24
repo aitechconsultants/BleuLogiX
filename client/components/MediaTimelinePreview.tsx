@@ -50,6 +50,7 @@ export default function MediaTimelinePreview({
   onCaptionStyleChange,
   onCaptionColorChange,
   onScriptChange,
+  onVoiceoverGenerated,
 }: MediaTimelinePreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [previewTime, setPreviewTime] = useState(0);
