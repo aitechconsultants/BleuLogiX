@@ -105,18 +105,29 @@ export default function MediaTimelinePreview({
           // Add timestamp to prevent browser caching
           _t: Date.now().toString(),
         });
-        const response = await fetch(
-          `/api/voices/${selectedVoiceId}/preview?${params}`,
-        );
+        const apiUrl = `/api/voices/${selectedVoiceId}/preview?${params}`;
+        console.log("[MediaTimelinePreview] Fetching audio from:", apiUrl);
+
+        const response = await fetch(apiUrl);
 
         if (!response.ok) {
-          console.error("Failed to generate audio:", response.status);
+          console.error("[MediaTimelinePreview] Failed to generate audio:", {
+            status: response.status,
+            statusText: response.statusText,
+          });
           setAudioUrl(null);
           return;
         }
 
         const blob = await response.blob();
+        console.log("[MediaTimelinePreview] Received audio blob:", {
+          size: blob.size,
+          type: blob.type,
+        });
+
         const url = URL.createObjectURL(blob);
+        console.log("[MediaTimelinePreview] Created object URL:", url);
+
         setAudioUrl((prevUrl) => {
           if (prevUrl) {
             URL.revokeObjectURL(prevUrl);
@@ -125,7 +136,7 @@ export default function MediaTimelinePreview({
         });
         onVoiceoverGenerated?.(url, new Date().toISOString());
       } catch (error) {
-        console.error("Error generating audio:", error);
+        console.error("[MediaTimelinePreview] Error generating audio:", error);
         setAudioUrl(null);
       } finally {
         setIsGeneratingAudio(false);
