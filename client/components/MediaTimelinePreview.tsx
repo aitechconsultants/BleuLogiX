@@ -62,6 +62,7 @@ export default function MediaTimelinePreview({
   const [isMuted, setIsMuted] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const includedItems = items.filter((item) => item.included !== false);
