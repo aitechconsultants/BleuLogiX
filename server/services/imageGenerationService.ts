@@ -528,15 +528,36 @@ Return ONLY valid JSON in this exact format:
 
         while (Date.now() - startTime < maxWaitTime) {
           pollCount++;
-          const statusResponse = await fetch(
-            `${this.leonardoBaseUrl}/generations/${generationId}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${this.leonardoApiKey!}`,
+          const pollController = new AbortController();
+          const pollTimeoutId = setTimeout(() => pollController.abort(), 10000); // 10 second timeout per poll
+
+          let statusResponse;
+          try {
+            statusResponse = await fetch(
+              `${this.leonardoBaseUrl}/generations/${generationId}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${this.leonardoApiKey!}`,
+                },
+                signal: pollController.signal,
               },
-            },
-          );
+            );
+          } catch (pollFetchErr) {
+            clearTimeout(pollTimeoutId);
+            if (pollFetchErr instanceof Error && pollFetchErr.name === "AbortError") {
+              console.error(
+                `[imageGen] Leonardo status check timeout (10s) on poll #${pollCount}`,
+              );
+            } else {
+              console.error(
+                `[imageGen] Leonardo status fetch error:`,
+                pollFetchErr instanceof Error ? pollFetchErr.message : String(pollFetchErr),
+              );
+            }
+            break;
+          }
+          clearTimeout(pollTimeoutId);
 
           console.log(
             `[imageGen] Poll #${pollCount} status response: ${statusResponse.status}`,
