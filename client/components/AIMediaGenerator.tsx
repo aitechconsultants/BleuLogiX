@@ -39,9 +39,14 @@ export default function AIMediaGenerator({
   const [creditCost, setCreditCost] = useState(0);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
-  const [selectedEpisodeId, setSelectedEpisodeId] = useState<string | null>(null);
-  const [episodesSelectedForGeneration, setEpisodesSelectedForGeneration] = useState<Set<string>>(new Set());
-  const [episodePrompts, setEpisodePrompts] = useState<Record<string, ImagePrompt[]>>({});
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState<string | null>(
+    null,
+  );
+  const [episodesSelectedForGeneration, setEpisodesSelectedForGeneration] =
+    useState<Set<string>>(new Set());
+  const [episodePrompts, setEpisodePrompts] = useState<
+    Record<string, ImagePrompt[]>
+  >({});
 
   const imageStyles = [
     "realistic",
@@ -126,9 +131,7 @@ export default function AIMediaGenerator({
       // Filter episodes to only those selected for generation
       const episodesToGenerate =
         selectedCount > 0
-          ? episodes.filter((ep) =>
-              episodesSelectedForGeneration.has(ep.id)
-            )
+          ? episodes.filter((ep) => episodesSelectedForGeneration.has(ep.id))
           : episodes;
 
       const response = await fetch("/api/images/generate", {
@@ -301,7 +304,7 @@ export default function AIMediaGenerator({
                 {selectedEpisodeId ? (
                   (() => {
                     const selectedEpisode = episodes.find(
-                      (ep) => ep.id === selectedEpisodeId
+                      (ep) => ep.id === selectedEpisodeId,
                     );
                     const prompts = episodePrompts[selectedEpisodeId] || [];
 
@@ -349,7 +352,8 @@ export default function AIMediaGenerator({
                                         {prompt.context}
                                       </p>
                                       <p className="text-xs text-muted-foreground italic mt-1">
-                                        "{prompt.description.substring(0, 100)}..."
+                                        "{prompt.description.substring(0, 100)}
+                                        ..."
                                       </p>
                                     </div>
                                   ))}
