@@ -127,9 +127,9 @@ export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
   const correlationId = (req as any).correlationId || "unknown";
   const { script, episodes } = req.body;
 
-  if (!script || typeof script !== "string" || script.trim().length === 0) {
+  if ((!script || typeof script !== "string" || script.trim().length === 0) && (!episodes || episodes.length === 0)) {
     return res.status(400).json({
-      error: "Script is required",
+      error: "Either script or episodes are required",
       correlationId,
     });
   }
