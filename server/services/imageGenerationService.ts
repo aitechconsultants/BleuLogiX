@@ -154,8 +154,8 @@ Return ONLY valid JSON in this exact format:
    * Generate fallback prompts if AI extraction fails
    */
   private generateDefaultPrompts(script: string): ImagePrompt[] {
-    const words = script.split(/\s+/).length;
-    const numImages = Math.min(Math.ceil(words / 100), 6);
+    const words = script?.trim() ? script.split(/\s+/).length : 0;
+    const numImages = Math.min(Math.ceil(words / 100) || 6, 6);
 
     const themes = [
       "professional business environment, sharp focus, natural lighting, 4K resolution, detailed textures",
