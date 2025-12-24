@@ -730,7 +730,10 @@ Return ONLY valid JSON in this exact format:
           error instanceof Error ? error.message : String(error),
         );
         if (error instanceof Error) {
-          console.error("[imageGen] Stack trace:", error.stack?.substring(0, 300));
+          console.error(
+            "[imageGen] Stack trace:",
+            error.stack?.substring(0, 300),
+          );
         }
       }
     }
