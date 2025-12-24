@@ -429,18 +429,15 @@ Return ONLY valid JSON in this exact format:
 
         let createResponse;
         try {
-          createResponse = await fetch(
-            `${this.leonardoBaseUrl}/generations`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.leonardoApiKey!}`,
-              },
-              body: JSON.stringify(generationRequest),
-              signal: controller.signal,
+          createResponse = await fetch(`${this.leonardoBaseUrl}/generations`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${this.leonardoApiKey!}`,
             },
-          );
+            body: JSON.stringify(generationRequest),
+            signal: controller.signal,
+          });
         } catch (fetchErr) {
           clearTimeout(timeoutId);
           if (fetchErr instanceof Error && fetchErr.name === "AbortError") {
@@ -545,14 +542,19 @@ Return ONLY valid JSON in this exact format:
             );
           } catch (pollFetchErr) {
             clearTimeout(pollTimeoutId);
-            if (pollFetchErr instanceof Error && pollFetchErr.name === "AbortError") {
+            if (
+              pollFetchErr instanceof Error &&
+              pollFetchErr.name === "AbortError"
+            ) {
               console.error(
                 `[imageGen] Leonardo status check timeout (10s) on poll #${pollCount}`,
               );
             } else {
               console.error(
                 `[imageGen] Leonardo status fetch error:`,
-                pollFetchErr instanceof Error ? pollFetchErr.message : String(pollFetchErr),
+                pollFetchErr instanceof Error
+                  ? pollFetchErr.message
+                  : String(pollFetchErr),
               );
             }
             break;
