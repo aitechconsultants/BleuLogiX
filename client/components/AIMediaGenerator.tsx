@@ -6,6 +6,7 @@ interface ImagePrompt {
   description: string;
   context: string;
   index: number;
+  voiceoverScript?: string;
 }
 
 interface AIMediaGeneratorProps {
