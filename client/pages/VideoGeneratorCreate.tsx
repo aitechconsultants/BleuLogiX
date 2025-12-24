@@ -85,12 +85,17 @@ export default function VideoGeneratorCreate() {
     styleTone: "",
     selectedStyle: "",
     selectedVoice: "",
+    voiceoverUrl: undefined,
+    imageStyle: "realistic",
     captionsEnabled: true,
     captionStyle: "clean",
     captionColor: "white",
     mediaFiles: [],
     selectedEpisodes: [],
   });
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle"
+  );
 
   // Scroll to top when step changes
   useEffect(() => {
