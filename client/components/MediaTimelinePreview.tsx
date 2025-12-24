@@ -188,13 +188,15 @@ export default function MediaTimelinePreview({
     if (!audioRef.current) return;
 
     if (isPlaying && audioUrl && !isMuted) {
+      console.log("[Play Audio] Attempting to play, duration:", audioDuration);
       audioRef.current.play().catch((error) => {
-        console.error("Error playing audio:", error);
+        console.error("[Play Audio] Error playing audio:", error);
       });
     } else {
+      console.log("[Pause Audio]");
       audioRef.current.pause();
     }
-  }, [isPlaying, audioUrl, isMuted]);
+  }, [isPlaying, audioUrl, isMuted, audioDuration]);
 
   // Sync audio timeline position with preview timeline
   useEffect(() => {
