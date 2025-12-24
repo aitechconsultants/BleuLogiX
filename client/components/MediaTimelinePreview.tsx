@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { cleanScriptForVoiceover } from "../lib/scriptCleaner";
 
 export interface MediaItem {
   id: string;
