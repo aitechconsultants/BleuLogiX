@@ -92,6 +92,7 @@ export default function MediaTimelinePreview({
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
+        onVoiceoverGenerated?.(url, new Date().toISOString());
       } catch (error) {
         console.error("Error generating audio:", error);
         setAudioUrl(null);
