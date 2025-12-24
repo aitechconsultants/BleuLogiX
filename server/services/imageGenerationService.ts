@@ -630,13 +630,13 @@ Return ONLY valid JSON in this exact format:
           let statusText = "";
           try {
             statusText = await statusResponse.text();
-            statusData = JSON.parse(statusText) as LeonardoImageResponse;
+            statusData = JSON.parse(statusText);
           } catch (parseErr) {
             console.error(
               "[imageGen] Failed to parse status response:",
               parseErr,
             );
-            console.log(
+            console.error(
               "[imageGen] Raw status response text:",
               statusText.substring(0, 500),
             );
@@ -648,20 +648,20 @@ Return ONLY valid JSON in this exact format:
             JSON.stringify(statusData).substring(0, 300),
           );
 
-          // Handle both possible response structures from Leonardo
-          let generation = statusData.generations_by_pk;
+          // Leonardo API returns a flat structure at generations_by_pk or directly
+          let generation: LeonardoGeneration | null = null;
 
-          // Alternative: check if the response directly contains generation data
-          if (!generation && statusData.status) {
+          if (statusData.generations_by_pk) {
+            generation = statusData.generations_by_pk;
+          } else if (statusData.id && statusData.status) {
+            // Direct generation response
             generation = statusData;
           }
 
           if (!generation) {
             console.error(
-              "[imageGen] Invalid response structure. Full response keys:",
-              Object.keys(statusData),
-              "Full response:",
-              JSON.stringify(statusData).substring(0, 500),
+              "[imageGen] Invalid response structure. Response keys:",
+              Object.keys(statusData || {}),
             );
             break;
           }
