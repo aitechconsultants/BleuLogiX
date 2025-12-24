@@ -266,10 +266,16 @@ Return ONLY valid JSON in this exact format:
       "team working together, professional environment, natural interaction, high-resolution, authentic setting",
     ];
 
+    // Distribute script across prompts
+    const voiceoverSegments = script?.trim()
+      ? this.distributeVoiceoverAcrossPrompts(script, numImages)
+      : Array(numImages).fill("");
+
     return Array.from({ length: numImages }, (_, i) => ({
       description: `Professional photograph: ${themes[i % themes.length]}, professional DSLR quality`,
       context: `Visual segment ${i + 1} for the video narrative`,
       index: i,
+      voiceoverScript: voiceoverSegments[i] || "",
     }));
   }
 
