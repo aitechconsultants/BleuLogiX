@@ -233,7 +233,7 @@ export default function AIMediaGenerator({
         {/* Episodes and Prompts - Two Panel Layout */}
         {episodes.length > 0 && (
           <div className="border border-border rounded-lg overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-96">
+            <div className="flex min-h-96">
               {/* Left Panel: Episode List */}
               <div className="border-r border-border lg:col-span-1 bg-muted/20">
                 <div className="p-4 border-b border-border space-y-2">
