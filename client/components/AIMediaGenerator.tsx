@@ -174,6 +174,13 @@ export default function AIMediaGenerator({
         <button
           onClick={generateImages}
           disabled={isGenerating || (!script.trim() && episodes.length === 0)}
+          title={
+            isGenerating
+              ? "Generating images..."
+              : !script.trim() && episodes.length === 0
+                ? "Please enter a script or select episodes first"
+                : "Generate AI images from your script or episodes"
+          }
           className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg bg-accent-blue text-black hover:bg-highlight-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium glow-blue"
         >
           {isGenerating ? (
