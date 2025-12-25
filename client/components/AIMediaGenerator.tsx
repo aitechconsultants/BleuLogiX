@@ -60,6 +60,8 @@ export default function AIMediaGenerator({
     "dark",
   ];
 
+  const apiFetch = useApiFetch();
+
   // Extract prompts for a specific episode
   const extractPromptsForEpisode = async (episode: Episode) => {
     try {
@@ -74,35 +76,24 @@ export default function AIMediaGenerator({
         body.script = script;
       }
 
-      const response = await fetch("/api/images/extract-prompts", {
+      const data = await apiFetch("/api/images/extract-prompts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        body,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error(
-          "[AIMediaGenerator] Failed to extract prompts - Status:",
-          response.status,
-          "Error:",
-          errorData?.error || "Unknown error",
-          "Message:",
-          errorData?.message || "",
-        );
-        return [];
-      }
-
-      const data = await response.json();
       console.log(
         "[AIMediaGenerator] Extracted prompts:",
         data.prompts?.length,
       );
       return data.prompts || [];
     } catch (err) {
-      console.error("[AIMediaGenerator] Error extracting prompts:", err);
+      const errorMsg =
+        err instanceof APIError
+          ? `Failed to extract prompts: ${err.status} - ${err.responseText}`
+          : err instanceof Error
+            ? err.message
+            : "Unknown error";
+      console.error("[AIMediaGenerator] Error extracting prompts:", errorMsg);
       return [];
     }
   };
