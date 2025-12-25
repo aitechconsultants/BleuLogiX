@@ -379,7 +379,7 @@ Return ONLY valid JSON in this exact format:
   async generateImages(
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
-  ): Promise<string[]> {
+  ): Promise<{ imageUrls: string[]; generationId: string | null }> {
     return this.generateImagesWithLeonardo(prompts, imageStyle);
   }
 
