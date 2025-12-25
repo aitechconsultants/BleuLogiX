@@ -465,12 +465,11 @@ Return ONLY valid JSON in this exact format:
           clearTimeout(timeoutId);
           if (fetchErr instanceof Error && fetchErr.name === "AbortError") {
             console.error(
-              `[imageGen] Leonardo API request timeout (15s) for prompt:`,
-              prompt.description.substring(0, 50),
+              `[imageGen] [${cid}] Leonardo API request timeout (15s)`,
             );
           } else {
             console.error(
-              `[imageGen] Leonardo API fetch error:`,
+              `[imageGen] [${cid}] Leonardo API fetch error:`,
               fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
             );
           }
@@ -479,31 +478,13 @@ Return ONLY valid JSON in this exact format:
         clearTimeout(timeoutId);
 
         console.log(
-          "[imageGen] Creation response status:",
-          createResponse.status,
+          `[imageGen] [${cid}] Creation response status: ${createResponse.status}`,
         );
 
         if (!createResponse.ok) {
-          let errorData: any = {};
-          let errorText = "";
-          try {
-            errorText = await createResponse.text();
-            try {
-              errorData = JSON.parse(errorText);
-            } catch {
-              errorData = { rawText: errorText };
-            }
-          } catch (e) {
-            errorData = { parseError: String(e) };
-          }
           console.error(
-            `[imageGen] ❌ Leonardo API error (create): status=${createResponse.status}`,
+            `[imageGen] [${cid}] Leonardo API error (create): status=${createResponse.status}`,
           );
-          console.error(
-            "[imageGen] Response error data:",
-            JSON.stringify(errorData).substring(0, 500),
-          );
-          console.error("[imageGen] Skipping prompt and continuing to next...");
           continue;
         }
 
