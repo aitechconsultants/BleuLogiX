@@ -38,6 +38,10 @@ export default function AIMediaGenerator({
   const [prompts, setPrompts] = useState<ImagePrompt[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<{
+    correlationId?: string;
+    message?: string;
+  } | null>(null);
   const [creditCost, setCreditCost] = useState(0);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
