@@ -61,7 +61,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
       episodes || [],
       imageStyle || "realistic",
     );
-    const { prompts, imageUrls, creditCost } = result;
+    const { prompts, imageUrls, creditCost, generationId, timestamp } = result;
 
     if (creditsRemaining < creditCost) {
       console.warn(
