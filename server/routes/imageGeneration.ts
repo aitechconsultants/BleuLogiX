@@ -76,6 +76,19 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
       });
     }
 
+    // Ensure images were actually generated
+    if (!imageUrls || imageUrls.length === 0) {
+      console.error(
+        `[imageGen] Image generation returned zero images for user ${clerkUserId}`,
+      );
+      return res.status(502).json({
+        ok: false,
+        error: "Image generation returned zero images",
+        generationId,
+        correlationId,
+      });
+    }
+
     if (imageUrls.length > 0) {
       await query(
         `INSERT INTO credit_ledger (user_id, delta, reason)
@@ -83,7 +96,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
         [
           userId,
           -creditCost,
-          `Generated ${imageUrls.length} images with DALL-E`,
+          `Generated ${imageUrls.length} images with Leonardo.AI`,
         ],
       );
       console.log(
@@ -115,7 +128,30 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
       error instanceof Error ? error : new Error(String(error)),
     );
 
-    // Return 500 with more details for debugging
+    // Return 503 if Leonardo API key is missing
+    if (
+      errorMsg.includes("Leonardo API key is not configured") ||
+      errorMsg.includes("LEONARDO_API_KEY")
+    ) {
+      return res.status(503).json({
+        error: "Image generation service unavailable",
+        message:
+          "Leonardo.AI API is not properly configured. Please try again later.",
+        correlationId,
+      });
+    }
+
+    // Return 502 if image generation failed (0 images returned)
+    if (errorMsg.includes("0 images generated")) {
+      return res.status(502).json({
+        ok: false,
+        error: "Image generation returned zero images",
+        message: errorMsg,
+        correlationId,
+      });
+    }
+
+    // Default to 500 for other errors
     res.status(500).json({
       error: "Failed to generate images",
       message: errorMsg,
