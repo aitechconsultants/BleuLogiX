@@ -428,7 +428,7 @@ Return ONLY valid JSON in this exact format:
       const prompt = prompts[promptIdx];
       try {
         console.log(
-          `[imageGen] ===== Starting image generation ${promptIdx + 1}/${prompts.length} for prompt: ${prompt.description.substring(0, 50)}...`,
+          `[imageGen] [${cid}] Starting image generation ${promptIdx + 1}/${prompts.length}`,
         );
 
         // Create generation request with Leonardo API correct field names
@@ -443,16 +443,7 @@ Return ONLY valid JSON in this exact format:
         };
 
         console.log(
-          "[imageGen] Submitting generation request to:",
-          `${this.leonardoBaseUrl}/generations`,
-        );
-        console.log(
-          "[imageGen] Request body:",
-          JSON.stringify(generationRequest).substring(0, 300),
-        );
-        console.log(
-          "[imageGen] Authorization header will use API key:",
-          this.leonardoApiKey?.substring(0, 8) + "...",
+          `[imageGen] [${cid}] Submitting generation request to Leonardo API`,
         );
 
         // Submit generation job with timeout
