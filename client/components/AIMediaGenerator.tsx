@@ -194,38 +194,15 @@ export default function AIMediaGenerator({
         imageStyle,
       });
 
-      const response = await fetch("/api/images/generate", {
+      const data = await apiFetch("/api/images/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+        body: {
           script,
           episodes: episodesToGenerate,
           imageStyle,
-        }),
+        },
       });
 
-      console.log("[AIMediaGenerator] API response status:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-
-        console.error("[AIMediaGenerator] API error response:", errorData);
-
-        if (response.status === 402) {
-          setError(
-            `Insufficient credits. Need ${errorData.creditsNeeded} but you have ${errorData.creditsAvailable}`,
-          );
-        } else {
-          setError(
-            errorData.error || `Failed to generate images: ${response.status}`,
-          );
-        }
-        return;
-      }
-
-      const data = await response.json();
       console.log("[AIMediaGenerator] Successfully generated images:", {
         promptsCount: data.prompts?.length || 0,
         imageUrlsCount: data.imageUrls?.length || 0,
@@ -239,9 +216,35 @@ export default function AIMediaGenerator({
       setSelectedImages(new Set());
     } catch (err) {
       console.error("Error generating images:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to generate images",
-      );
+
+      if (err instanceof APIError) {
+        // Handle specific HTTP error codes
+        if (err.status === 402) {
+          setError(
+            "Insufficient credits. Please purchase more credits to generate images.",
+          );
+        } else if (err.status === 502) {
+          setError(
+            `Image generation service returned no images. This may indicate a temporary service issue. If this persists, please contact support.`,
+          );
+        } else if (err.status === 503) {
+          setError(
+            "Image generation service is temporarily unavailable. Please try again later.",
+          );
+        } else if (err.status === 500) {
+          setError(
+            "An error occurred while generating images. Please try again or contact support.",
+          );
+        } else {
+          setError(
+            `Failed to generate images: ${err.status} - ${err.responseText}`,
+          );
+        }
+      } else {
+        setError(
+          err instanceof Error ? err.message : "Failed to generate images",
+        );
+      }
     } finally {
       setIsGenerating(false);
     }
