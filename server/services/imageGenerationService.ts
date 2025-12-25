@@ -403,9 +403,7 @@ Return ONLY valid JSON in this exact format:
     }
 
     if (!this.leonardoApiKey) {
-      console.error(
-        `[imageGen] [${cid}] Leonardo API key not configured`,
-      );
+      console.error(`[imageGen] [${cid}] Leonardo API key not configured`);
       throw new Error(
         "Leonardo API key is not configured. Please set LEONARDO_API_KEY environment variable.",
       );
