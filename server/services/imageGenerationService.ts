@@ -391,11 +391,11 @@ Return ONLY valid JSON in this exact format:
   private async generateImagesWithLeonardo(
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
+    correlationId?: string,
   ): Promise<{ imageUrls: string[]; generationId: string | null }> {
+    const cid = correlationId || "unknown";
     console.log(
-      "[imageGen] generateImagesWithLeonardo called with",
-      prompts.length,
-      "prompts",
+      `[imageGen] [${cid}] generateImagesWithLeonardo called with ${prompts.length} prompts`,
     );
 
     if (!prompts || prompts.length === 0) {
@@ -403,7 +403,9 @@ Return ONLY valid JSON in this exact format:
     }
 
     if (!this.leonardoApiKey) {
-      console.error("[imageGen] Leonardo API key not configured");
+      console.error(
+        `[imageGen] [${cid}] Leonardo API key not configured`,
+      );
       throw new Error(
         "Leonardo API key is not configured. Please set LEONARDO_API_KEY environment variable.",
       );
