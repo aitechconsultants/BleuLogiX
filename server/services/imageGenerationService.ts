@@ -766,6 +766,7 @@ Return ONLY valid JSON in this exact format:
     script: string,
     episodes: any[] = [],
     imageStyle: string = "realistic",
+    correlationId?: string,
   ): Promise<{
     prompts: ImagePrompt[];
     imageUrls: string[];
@@ -773,8 +774,9 @@ Return ONLY valid JSON in this exact format:
     generationId: string | null;
     timestamp: string;
   }> {
+    const cid = correlationId || "unknown";
     console.log(
-      `[imageGen] Starting image generation pipeline with style: ${imageStyle}`,
+      `[imageGen] [${cid}] Starting image generation pipeline with style: ${imageStyle}`,
     );
 
     const prompts = await this.extractImagePromptsFromScript(
@@ -782,12 +784,14 @@ Return ONLY valid JSON in this exact format:
       episodes,
       imageStyle,
     );
-    console.log(`[imageGen] Extracted ${prompts.length} image prompts`);
+    console.log(
+      `[imageGen] [${cid}] Extracted ${prompts.length} image prompts`,
+    );
 
-    const result = await this.generateImages(prompts, imageStyle);
+    const result = await this.generateImages(prompts, imageStyle, cid);
     const imageUrls = result.imageUrls;
     const generationId = result.generationId;
-    console.log(`[imageGen] Generated ${imageUrls.length} images`);
+    console.log(`[imageGen] [${cid}] Generated ${imageUrls.length} images`);
 
     const creditCost = this.calculateImageGenerationCost(imageUrls.length);
 
