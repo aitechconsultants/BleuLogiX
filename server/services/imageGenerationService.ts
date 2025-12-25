@@ -553,11 +553,11 @@ Return ONLY valid JSON in this exact format:
               pollFetchErr.name === "AbortError"
             ) {
               console.error(
-                `[imageGen] Leonardo status check timeout (10s) on poll #${pollCount}`,
+                `[imageGen] [${cid}] Leonardo status check timeout (10s) on poll #${pollCount}`,
               );
             } else {
               console.error(
-                `[imageGen] Leonardo status fetch error:`,
+                `[imageGen] [${cid}] Leonardo status fetch error:`,
                 pollFetchErr instanceof Error
                   ? pollFetchErr.message
                   : String(pollFetchErr),
@@ -567,22 +567,10 @@ Return ONLY valid JSON in this exact format:
           }
           clearTimeout(pollTimeoutId);
 
-          console.log(
-            `[imageGen] Poll #${pollCount} status response: ${statusResponse.status}`,
-          );
-
           if (!statusResponse.ok) {
             console.error(
-              "[imageGen] Failed to check generation status:",
-              statusResponse.status,
+              `[imageGen] [${cid}] Failed to check generation status: ${statusResponse.status}`,
             );
-            let errorBody = "";
-            try {
-              errorBody = await statusResponse.text();
-            } catch (e) {
-              errorBody = "Could not read response body";
-            }
-            console.error("[imageGen] Status check error body:", errorBody);
             break;
           }
 
@@ -593,20 +581,10 @@ Return ONLY valid JSON in this exact format:
             statusData = JSON.parse(statusText);
           } catch (parseErr) {
             console.error(
-              "[imageGen] Failed to parse status response:",
-              parseErr,
-            );
-            console.error(
-              "[imageGen] Raw status response text:",
-              statusText.substring(0, 500),
+              `[imageGen] [${cid}] Failed to parse status response`,
             );
             break;
           }
-
-          console.log(
-            "[imageGen] Status response data:",
-            JSON.stringify(statusData).substring(0, 300),
-          );
 
           // Leonardo API returns a flat structure at generations_by_pk or directly
           let generation: LeonardoGeneration | null = null;
@@ -620,32 +598,25 @@ Return ONLY valid JSON in this exact format:
 
           if (!generation) {
             console.error(
-              "[imageGen] Invalid response structure. Response keys:",
-              Object.keys(statusData || {}),
+              `[imageGen] [${cid}] Invalid response structure from Leonardo`,
             );
             break;
           }
 
           console.log(
-            `[imageGen] Generation ${generationId} status: ${generation.status}`,
+            `[imageGen] [${cid}] Poll #${pollCount} status: ${generation.status}`,
           );
 
           if (generation.status === "COMPLETE") {
-            console.log(
-              "[imageGen] Generation complete. Checking for images...",
-            );
-
             const images = generation.generated_images || [];
             if (images.length > 0) {
               imageUrl = images[0].url;
               console.log(
-                `[imageGen] ✓ Image URL retrieved: ${imageUrl.substring(0, 60)}...`,
+                `[imageGen] [${cid}] Image generation complete and URL retrieved`,
               );
             } else {
               console.warn(
-                "[imageGen] ⚠️ Generation complete but generated_images is empty",
-                "Images array:",
-                JSON.stringify(images),
+                `[imageGen] [${cid}] Generation complete but no images returned`,
               );
             }
             break;
@@ -654,7 +625,7 @@ Return ONLY valid JSON in this exact format:
             generation.status === "REJECTED"
           ) {
             console.error(
-              `[imageGen] Generation ${generationId} failed with status: ${generation.status}`,
+              `[imageGen] [${cid}] Generation failed with status: ${generation.status}`,
             );
             break;
           }
