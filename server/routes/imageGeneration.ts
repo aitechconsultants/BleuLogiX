@@ -60,6 +60,7 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
       script,
       episodes || [],
       imageStyle || "realistic",
+      correlationId,
     );
     const { prompts, imageUrls, creditCost, generationId, timestamp } = result;
 
