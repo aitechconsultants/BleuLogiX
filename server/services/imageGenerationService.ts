@@ -759,6 +759,8 @@ Return ONLY valid JSON in this exact format:
     prompts: ImagePrompt[];
     imageUrls: string[];
     creditCost: number;
+    generationId: string | null;
+    timestamp: string;
   }> {
     console.log(
       `[imageGen] Starting image generation pipeline with style: ${imageStyle}`,
@@ -771,7 +773,9 @@ Return ONLY valid JSON in this exact format:
     );
     console.log(`[imageGen] Extracted ${prompts.length} image prompts`);
 
-    const imageUrls = await this.generateImages(prompts, imageStyle);
+    const result = await this.generateImages(prompts, imageStyle);
+    const imageUrls = result.imageUrls;
+    const generationId = result.generationId;
     console.log(`[imageGen] Generated ${imageUrls.length} images`);
 
     const creditCost = this.calculateImageGenerationCost(imageUrls.length);
@@ -780,6 +784,8 @@ Return ONLY valid JSON in this exact format:
       prompts,
       imageUrls,
       creditCost,
+      generationId,
+      timestamp: new Date().toISOString(),
     };
   }
 }
