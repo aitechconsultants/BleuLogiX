@@ -415,6 +415,7 @@ Return ONLY valid JSON in this exact format:
     const imageUrls: string[] = [];
     const modelId = this.getLeonardoModelId(imageStyle);
     const presetStyle = this.getLeonardoPresetStyle(imageStyle);
+    let firstGenerationId: string | null = null;
 
     console.log("[imageGen] Using model:", modelId, "preset:", presetStyle);
 
