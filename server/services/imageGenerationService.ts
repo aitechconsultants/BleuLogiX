@@ -17,24 +17,15 @@ interface LeonardoGenerationRequest {
   guidance_scale?: number;
   seed?: number;
   public?: boolean;
+
+  // Some Leonardo deployments accept a preset/style field; keep optional.
+  presetStyle?: string;
 }
 
-interface LeonardoSDJob {
-  generationId: string;
-}
+type LeonardoCreateResponseAny = any;
+type LeonardoStatusResponseAny = any;
 
-interface LeonardoCreateResponse {
-  sdGenerationJob: LeonardoSDJob;
-}
-
-interface LeonardoGeneration {
-  id: string;
-  status: string;
-  generated_images?: Array<{
-    id: string;
-    url: string;
-  }>;
-}
+type LeonardoGeneratedImage = { id?: string; url?: string };
 
 export class ImageGenerationService {
   private openai: OpenAI | null = null;
@@ -43,6 +34,7 @@ export class ImageGenerationService {
 
   constructor() {
     this.leonardoApiKey = process.env.LEONARDO_API_KEY || null;
+
     if (this.leonardoApiKey) {
       console.log(
         "[imageGen] Leonardo API key configured (length:",
@@ -59,33 +51,23 @@ export class ImageGenerationService {
   private initializeOpenAI() {
     if (!this.openai) {
       const apiKey = process.env.OPENAI_API_KEY;
-      if (!apiKey) {
-        throw new Error("OPENAI_API_KEY is not set");
-      }
+      if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
       this.openai = new OpenAI({ apiKey });
     }
   }
 
-  /**
-   * Get Leonardo.AI model ID based on image style
-   */
   private getLeonardoModelId(imageStyle: string): string {
-    // Map our style names to Leonardo model IDs
     const styleToModel: Record<string, string> = {
-      realistic: "6bef9f1b-740f-4731-915a-8424467e9f7a", // Leonardo Vision (photorealistic)
-      cinematic: "b63dcbd9-8f21-46d5-8e36-14490393bef0", // Cinematic
-      "fine art": "e0cf4d76-13d3-4bcc-869c-8758c8c54d75", // Artistic
-      fantasy: "f1929ea3-6033-4f59-aca5-d373518e2db0", // Creative
-      drama: "b63dcbd9-8f21-46d5-8e36-14490393bef0", // Cinematic (good for drama)
-      dark: "b63dcbd9-8f21-46d5-8e36-14490393bef0", // Cinematic (good for dark)
+      realistic: "6bef9f1b-740f-4731-915a-8424467e9f7a",
+      cinematic: "b63dcbd9-8f21-46d5-8e36-14490393bef0",
+      "fine art": "e0cf4d76-13d3-4bcc-869c-8758c8c54d75",
+      fantasy: "f1929ea3-6033-4f59-aca5-d373518e2db0",
+      drama: "b63dcbd9-8f21-46d5-8e36-14490393bef0",
+      dark: "b63dcbd9-8f21-46d5-8e36-14490393bef0",
     };
-
     return styleToModel[imageStyle.toLowerCase()] || styleToModel.realistic;
   }
 
-  /**
-   * Map style to Leonardo preset style
-   */
   private getLeonardoPresetStyle(imageStyle: string): string | undefined {
     const styleMap: Record<string, string> = {
       realistic: "PHOTOGRAPHY",
@@ -95,21 +77,12 @@ export class ImageGenerationService {
       drama: "CINEMATIC",
       dark: "DARK_FANTASY",
     };
-
     return styleMap[imageStyle.toLowerCase()];
   }
 
-  /**
-   * Extract voiceover scripts for episodes
-   * Uses the episode description as the voiceover script, cleaned of camera directions
-   */
-  private extractVoiceoverScriptsForEpisodes(
-    episodes: any[],
-  ): Map<number, string> {
+  private extractVoiceoverScriptsForEpisodes(episodes: any[]): Map<number, string> {
     const voiceoverScripts = new Map<number, string>();
 
-    // If we have episodes, create a combined voiceover script from their descriptions
-    // Distribute them across image prompts
     const episodeDescriptions = episodes
       .map((ep) => ep.description)
       .filter((desc) => desc && typeof desc === "string")
@@ -117,17 +90,12 @@ export class ImageGenerationService {
 
     if (episodeDescriptions.trim()) {
       const cleanedScript = cleanScriptForVoiceover(episodeDescriptions);
-      // Store the combined voiceover script to be distributed across prompts
       voiceoverScripts.set(-1, cleanedScript);
     }
 
     return voiceoverScripts;
   }
 
-  /**
-   * Parse script to extract image/photo descriptions and corresponding voiceover
-   * Uses AI to intelligently identify what visuals should accompany each section
-   */
   async extractImagePromptsFromScript(
     script: string,
     episodes: any[] = [],
@@ -139,9 +107,7 @@ export class ImageGenerationService {
       return [];
     }
 
-    // Extract voiceover scripts from episodes
-    const episodeVoiceoverScripts =
-      this.extractVoiceoverScriptsForEpisodes(episodes);
+    const episodeVoiceoverScripts = this.extractVoiceoverScriptsForEpisodes(episodes);
     const combinedEpisodeVoiceover = episodeVoiceoverScripts.get(-1) || "";
 
     const episodeContext =
@@ -155,84 +121,45 @@ export class ImageGenerationService {
                   ep.description ? `(${ep.description})` : ""
                 }`,
             )
-            .join(
-              "\n",
-            )}\n\nUse these episodes to inform the visual style and context of the generated images.`
+            .join("\n")}\n\nUse these episodes to inform the visual style and context of the generated images.`
         : "";
 
+    const styleGuideMap: Record<string, string> = {
+      realistic:
+        "photorealistic, documentary style, natural lighting, authentic details",
+      "fine art": "oil painting style, artistic composition, museum quality",
+      cinematic:
+        "cinematic composition, dramatic lighting, film noir or golden hour cinematography",
+      fantasy:
+        "fantasy world, magical elements, mystical atmosphere, vibrant colors",
+      drama:
+        "dramatic lighting, emotional intensity, theatrical composition, high contrast",
+      dark: "dark moody atmosphere, low key lighting, noir style, mysterious tone",
+    };
+
+    const styleGuide = styleGuideMap[imageStyle.toLowerCase()] || styleGuideMap.realistic;
+
     try {
-      const styleGuideMap: Record<string, string> = {
-        realistic:
-          "photorealistic, documentary style, natural lighting, authentic details",
-        "fine art": "oil painting style, artistic composition, museum quality",
-        cinematic:
-          "cinematic composition, dramatic lighting, film noir or golden hour cinematography",
-        fantasy:
-          "fantasy world, magical elements, mystical atmosphere, vibrant colors",
-        drama:
-          "dramatic lighting, emotional intensity, theatrical composition, high contrast",
-        dark: "dark moody atmosphere, low key lighting, noir style, mysterious tone",
-      };
-
-      const styleGuide =
-        styleGuideMap[imageStyle.toLowerCase()] || styleGuideMap.realistic;
-
       const response = await this.openai!.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: `You are an expert at analyzing scripts for video production and identifying visual requirements for Leonardo.AI image generation.
+            content: `You analyze scripts and output Leonardo.AI-ready image prompts.
 
-Your task is to analyze a video script and identify distinct visual scenes/shots that should be created.
-Return a JSON array of highly detailed image prompts optimized for Leonardo.AI that would visually represent the key moments in the script.
+Return ONLY valid JSON: an array of objects with:
+- description (250+ chars, detailed, ${imageStyle} style)
+- context
+- index
+- voiceoverScript
 
-CRITICAL STYLE REQUIREMENTS: All images MUST be in this exact style: ${styleGuide}
-
-Leonardo.AI Optimization Tips:
-- Be very specific and descriptive with composition and lighting details
-- Use action-oriented language that Leonardo understands well
-- Include art medium/style references (e.g., "cinematic 4K", "digital painting", "professional photography")
-- Mention color palette and atmosphere explicitly
-- Leonardo performs better with rich detail - use 200-300 character descriptions
-
-Detailed Guidelines for ${imageStyle} style:
-${
-  imageStyle.toLowerCase() === "realistic"
-    ? "- Use Leonardo's photography presets: 'professional photograph', 'shot on Sony A7R', '4K resolution', 'RAW quality'\n- Include lighting: 'studio lighting', 'natural daylight', 'golden hour', 'soft diffused light'\n- Add material details: 'crisp details', 'sharp focus', 'bokeh background', 'textured surfaces'\n- Specify mood: 'documentary style', 'authentic', 'candid moment'"
-    : imageStyle.toLowerCase() === "cinematic"
-      ? "- Use cinematic language: 'cinematic 4K', '35mm film', 'theatrical color grading'\n- Include cinematography: 'golden hour', 'dramatic shadows', 'dynamic depth', 'color grading'\n- Add production quality: 'blockbuster cinematography', 'professional lighting setup', 'cinema color palette'\n- Specify mood: 'epic', 'dramatic tension', 'cinematic depth of field'"
-      : "- Be specific about the style's visual qualities\n- Include relevant artistic descriptors that Leonardo responds well to\n- Emphasize texture, lighting, and color in the style"
-}
-
-General Requirements:
-- Generate 3-8 key visual moments based on script length and content
-- Each prompt should be EXTREMELY DETAILED (250+ characters) and highly specific
-- Include specific visual elements, composition, lighting, color palette, and atmosphere
-- Never use generic descriptions - be precise and vivid
-- Create prompts that are distinct and complementary
-- Ensure all prompts emphasize the ${imageStyle} style throughout${
-              episodes.length > 0
-                ? "\n- If episodes are provided, align the visuals with the episode content and themes"
-                : ""
-            }
-- Use rich, evocative language that inspires high-quality AI generation
-
-Return ONLY valid JSON in this exact format:
-[
-  {
-    "description": "extremely detailed visual description for Leonardo.AI incorporating ${imageStyle} style, specific details, composition, lighting, and atmosphere",
-    "context": "brief explanation of why this visual is needed",
-    "index": 0,
-    "voiceoverScript": "the specific voiceover text that should be spoken for this visual moment"
-  }
-]`,
+CRITICAL STYLE: ${styleGuide}`,
           },
           {
             role: "user",
             content: script?.trim()
-              ? `Analyze this script and extract highly detailed visual requirements in ${imageStyle} style:\n\n${script}${episodeContext}`
-              : `Based on the selected episodes${episodeContext}\n\nGenerate visual descriptions for images that would represent key scenes and moments from these episodes in ${imageStyle} style.`,
+              ? `Script:\n${script}${episodeContext}`
+              : `Episodes:\n${episodeContext}\nGenerate visuals in ${imageStyle} style.`,
           },
         ],
         temperature: 0.8,
@@ -240,115 +167,63 @@ Return ONLY valid JSON in this exact format:
       });
 
       const content = response.choices[0]?.message?.content;
-      if (!content) {
-        console.warn(
-          "[imageGen] No content in GPT response, using default prompts",
+      if (!content) return this.generateDefaultPrompts(script);
+
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) return this.generateDefaultPrompts(script);
+
+      let prompts = JSON.parse(jsonMatch[0]) as ImagePrompt[];
+
+      if (
+        combinedEpisodeVoiceover &&
+        episodes.length > 0 &&
+        prompts.length > 0
+      ) {
+        const voiceoverSegments = this.distributeVoiceoverAcrossPrompts(
+          combinedEpisodeVoiceover,
+          prompts.length,
         );
-        return this.generateDefaultPrompts(script);
-      }
-
-      try {
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) {
-          console.warn(
-            "[imageGen] No JSON array found in response, using default prompts",
-          );
-          console.log(
-            "[imageGen] GPT response preview:",
-            content.substring(0, 200),
-          );
-          return this.generateDefaultPrompts(script);
-        }
-
-        let prompts = JSON.parse(jsonMatch[0]) as ImagePrompt[];
-        console.log(
-          `[imageGen] Successfully extracted ${prompts.length} prompts from GPT`,
-        );
-
-        // If we're working with episodes and have combined voiceover, distribute it across prompts
-        if (
-          combinedEpisodeVoiceover &&
-          episodes.length > 0 &&
-          prompts.length > 0
-        ) {
-          const voiceoverSegments = this.distributeVoiceoverAcrossPrompts(
-            combinedEpisodeVoiceover,
-            prompts.length,
-          );
-          prompts = prompts.map((prompt, idx) => ({
-            ...prompt,
-            voiceoverScript:
-              voiceoverSegments[idx] || prompt.voiceoverScript || "",
-          }));
-        }
-
-        // Ensure all prompts have voiceoverScript field
-        prompts = prompts.map((prompt) => ({
+        prompts = prompts.map((prompt, idx) => ({
           ...prompt,
-          voiceoverScript: prompt.voiceoverScript || "",
+          voiceoverScript: voiceoverSegments[idx] || prompt.voiceoverScript || "",
         }));
-
-        return prompts.slice(0, 8);
-      } catch (parseError) {
-        console.warn(
-          "[imageGen] Failed to parse image prompts JSON:",
-          parseError,
-        );
-        console.log("[imageGen] Using default prompts as fallback");
-        return this.generateDefaultPrompts(script);
       }
-    } catch (error) {
-      console.error("[imageGen] Error extracting image prompts:", error);
-      console.log("[imageGen] Using default prompts as fallback");
+
+      prompts = prompts.map((p, idx) => ({
+        description: String(p.description || "").trim(),
+        context: String(p.context || "").trim(),
+        index: Number.isFinite(p.index) ? p.index : idx,
+        voiceoverScript: String(p.voiceoverScript || "").trim(),
+      })).filter((p) => p.description.length > 0);
+
+      return prompts.slice(0, 8);
+    } catch (err) {
+      console.error("[imageGen] Error extracting prompts:", err);
       return this.generateDefaultPrompts(script);
     }
   }
 
-  /**
-   * Distribute voiceover script across multiple image prompts
-   * Splits the script into roughly equal segments
-   */
-  private distributeVoiceoverAcrossPrompts(
-    voiceoverScript: string,
-    numPrompts: number,
-  ): string[] {
-    if (!voiceoverScript || numPrompts === 0) {
-      return [];
-    }
+  private distributeVoiceoverAcrossPrompts(voiceoverScript: string, numPrompts: number): string[] {
+    if (!voiceoverScript || numPrompts === 0) return [];
+    if (numPrompts === 1) return [voiceoverScript];
 
-    if (numPrompts === 1) {
-      return [voiceoverScript];
-    }
-
-    // Split script into sentences for better segmentation
-    const sentences = voiceoverScript.match(/[^.!?]+[.!?]+/g) || [
-      voiceoverScript,
-    ];
+    const sentences = voiceoverScript.match(/[^.!?]+[.!?]+/g) || [voiceoverScript];
     const segments: string[] = Array(numPrompts).fill("");
     let sentenceIdx = 0;
 
-    // Distribute sentences across prompts as evenly as possible
     for (let i = 0; i < numPrompts && sentenceIdx < sentences.length; i++) {
       const sentencesPerPrompt = Math.ceil(
         (sentences.length - sentenceIdx) / (numPrompts - i),
       );
-      const segmentSentences = sentences.slice(
-        sentenceIdx,
-        sentenceIdx + sentencesPerPrompt,
-      );
-      segments[i] = segmentSentences.join("").trim();
+      segments[i] = sentences.slice(sentenceIdx, sentenceIdx + sentencesPerPrompt).join("").trim();
       sentenceIdx += sentencesPerPrompt;
     }
 
     return segments;
   }
 
-  /**
-   * Generate fallback prompts if AI extraction fails
-   */
   private generateDefaultPrompts(script: string): ImagePrompt[] {
     const words = script?.trim() ? script.split(/\s+/).length : 0;
-    // If no script, generate 6 images; otherwise base on script length
     const numImages = words > 0 ? Math.min(Math.ceil(words / 100), 6) : 6;
 
     const themes = [
@@ -360,7 +235,6 @@ Return ONLY valid JSON in this exact format:
       "team working together, professional environment, natural interaction, high-resolution, authentic setting, collaborative atmosphere",
     ];
 
-    // Distribute script across prompts
     const voiceoverSegments = script?.trim()
       ? this.distributeVoiceoverAcrossPrompts(script, numImages)
       : Array(numImages).fill("");
@@ -373,9 +247,6 @@ Return ONLY valid JSON in this exact format:
     }));
   }
 
-  /**
-   * Generate images using Leonardo.AI based on prompts
-   */
   async generateImages(
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
@@ -384,52 +255,88 @@ Return ONLY valid JSON in this exact format:
     return this.generateImagesWithLeonardo(prompts, imageStyle, correlationId);
   }
 
-  /**
-   * Generate images using Leonardo.AI with async job polling
-   * Creates a generation job and polls for completion with timeout protection
-   */
+  private async leonardoFetch(
+    url: string,
+    init: RequestInit,
+    cid: string,
+    timeoutMs: number,
+  ): Promise<{ ok: boolean; status: number; text: string }> {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const res = await fetch(url, { ...init, signal: controller.signal });
+      const text = await res.text();
+      return { ok: res.ok, status: res.status, text };
+    } catch (e: any) {
+      const msg = e?.name === "AbortError" ? `Timeout after ${timeoutMs}ms` : (e?.message || String(e));
+      throw new Error(`[imageGen] [${cid}] Leonardo fetch failed: ${msg}`);
+    } finally {
+      clearTimeout(t);
+    }
+  }
+
+  private extractGenerationId(createData: LeonardoCreateResponseAny): string | null {
+    return (
+      createData?.sdGenerationJob?.generationId ||
+      createData?.sdGenerationJob?.generation_id ||
+      createData?.generationId ||
+      createData?.generation_id ||
+      createData?.id ||
+      null
+    );
+  }
+
+  private extractStatusAndImages(statusData: LeonardoStatusResponseAny): {
+    status: string | null;
+    images: LeonardoGeneratedImage[];
+  } {
+    const gen =
+      statusData?.generations_by_pk ||
+      statusData?.generation ||
+      statusData;
+
+    const status = gen?.status ? String(gen.status) : null;
+
+    const imagesRaw =
+      gen?.generated_images ||
+      gen?.generatedImages ||
+      statusData?.generated_images ||
+      statusData?.generatedImages ||
+      [];
+
+    const images: LeonardoGeneratedImage[] = Array.isArray(imagesRaw) ? imagesRaw : [];
+    return { status, images };
+  }
+
   private async generateImagesWithLeonardo(
     prompts: ImagePrompt[],
     imageStyle: string = "realistic",
     correlationId?: string,
   ): Promise<{ imageUrls: string[]; generationId: string | null }> {
     const cid = correlationId || "unknown";
-    console.log(
-      `[imageGen] [${cid}] generateImagesWithLeonardo called with ${prompts.length} prompts`,
-    );
 
     if (!prompts || prompts.length === 0) {
       throw new Error("No image prompts provided for generation");
     }
 
     if (!this.leonardoApiKey) {
-      console.error(`[imageGen] [${cid}] Leonardo API key not configured`);
-      throw new Error(
-        "Leonardo API key is not configured. Please set LEONARDO_API_KEY environment variable.",
-      );
+      throw new Error("Leonardo API key is not configured. Set LEONARDO_API_KEY.");
     }
 
-    console.log(
-      `[imageGen] [${cid}] Starting Leonardo image generation for style: ${imageStyle}`,
-    );
-
-    const imageUrls: string[] = [];
     const modelId = this.getLeonardoModelId(imageStyle);
     const presetStyle = this.getLeonardoPresetStyle(imageStyle);
+
+    const imageUrls: string[] = [];
     let firstGenerationId: string | null = null;
 
-    console.log(
-      `[imageGen] [${cid}] Using model: ${modelId}, preset: ${presetStyle}`,
-    );
+    // Collect per-prompt failures so we can throw one useful error at the end.
+    const failures: Array<{ promptIndex: number; reason: string }> = [];
 
     for (let promptIdx = 0; promptIdx < prompts.length; promptIdx++) {
       const prompt = prompts[promptIdx];
-      try {
-        console.log(
-          `[imageGen] [${cid}] Starting image generation ${promptIdx + 1}/${prompts.length}`,
-        );
 
-        // Create generation request with Leonardo API correct field names
+      try {
         const generationRequest: LeonardoGenerationRequest = {
           prompt: prompt.description,
           num_images: 1,
@@ -438,246 +345,144 @@ Return ONLY valid JSON in this exact format:
           height: 1024,
           guidance_scale: 7,
           public: false,
+          ...(presetStyle ? { presetStyle } : {}),
         };
 
-        console.log(
-          `[imageGen] [${cid}] Submitting generation request to Leonardo API`,
-        );
-
-        // Submit generation job with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-
-        let createResponse;
-        try {
-          createResponse = await fetch(`${this.leonardoBaseUrl}/generations`, {
+        const create = await this.leonardoFetch(
+          `${this.leonardoBaseUrl}/generations`,
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${this.leonardoApiKey!}`,
+              Authorization: `Bearer ${this.leonardoApiKey}`,
             },
             body: JSON.stringify(generationRequest),
-            signal: controller.signal,
-          });
-        } catch (fetchErr) {
-          clearTimeout(timeoutId);
-          if (fetchErr instanceof Error && fetchErr.name === "AbortError") {
-            console.error(
-              `[imageGen] [${cid}] Leonardo API request timeout (15s)`,
-            );
-          } else {
-            console.error(
-              `[imageGen] [${cid}] Leonardo API fetch error:`,
-              fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
-            );
-          }
-          continue;
-        }
-        clearTimeout(timeoutId);
-
-        console.log(
-          `[imageGen] [${cid}] Creation response status: ${createResponse.status}`,
+          },
+          cid,
+          20000,
         );
 
-        if (!createResponse.ok) {
-          console.error(
-            `[imageGen] [${cid}] Leonardo API error (create): status=${createResponse.status}`,
-          );
+        if (!create.ok) {
+          failures.push({
+            promptIndex: promptIdx,
+            reason: `Create failed (${create.status}): ${create.text.slice(0, 500)}`,
+          });
           continue;
         }
 
         let createData: any;
-        let createDataText = "";
         try {
-          createDataText = await createResponse.text();
-          createData = JSON.parse(createDataText) as LeonardoCreateResponse;
-        } catch (parseErr) {
-          console.error(
-            `[imageGen] [${cid}] Failed to parse creation response`,
-          );
+          createData = JSON.parse(create.text);
+        } catch {
+          failures.push({
+            promptIndex: promptIdx,
+            reason: `Create returned non-JSON: ${create.text.slice(0, 500)}`,
+          });
           continue;
         }
 
-        // Try multiple possible paths for the generation ID
-        let generationId =
-          createData?.sdGenerationJob?.generationId ||
-          createData?.generation_id ||
-          createData?.id;
-
+        const generationId = this.extractGenerationId(createData);
         if (!generationId) {
-          console.error(
-            `[imageGen] [${cid}] No generation ID returned from Leonardo`,
-          );
+          failures.push({
+            promptIndex: promptIdx,
+            reason: `No generationId in create response: ${JSON.stringify(createData).slice(0, 500)}`,
+          });
           continue;
         }
 
-        console.log(
-          `[imageGen] [${cid}] Generation job created with ID: ${generationId.substring(0, 12)}...`,
-        );
+        if (!firstGenerationId) firstGenerationId = generationId;
 
-        // Track first generation ID for response
-        if (!firstGenerationId) {
-          firstGenerationId = generationId;
-        }
+        // Poll
+        const maxWaitMs = 60000; // 60s
+        const pollEveryMs = 1200;
+        const start = Date.now();
+        let finalUrl: string | null = null;
 
-        // Poll for completion (with timeout)
-        const maxWaitTime = 45000; // 45 seconds max wait
-        const pollInterval = 1000; // 1 second between polls
-        const startTime = Date.now();
-        let imageUrl: string | null = null;
-        let pollCount = 0;
+        while (Date.now() - start < maxWaitMs) {
+          const statusRes = await this.leonardoFetch(
+            `${this.leonardoBaseUrl}/generations/${generationId}`,
+            {
+              method: "GET",
+              headers: { Authorization: `Bearer ${this.leonardoApiKey}` },
+            },
+            cid,
+            15000,
+          );
 
-        while (Date.now() - startTime < maxWaitTime) {
-          pollCount++;
-          const pollController = new AbortController();
-          const pollTimeoutId = setTimeout(() => pollController.abort(), 10000); // 10 second timeout per poll
-
-          let statusResponse;
-          try {
-            statusResponse = await fetch(
-              `${this.leonardoBaseUrl}/generations/${generationId}`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${this.leonardoApiKey!}`,
-                },
-                signal: pollController.signal,
-              },
-            );
-          } catch (pollFetchErr) {
-            clearTimeout(pollTimeoutId);
-            if (
-              pollFetchErr instanceof Error &&
-              pollFetchErr.name === "AbortError"
-            ) {
-              console.error(
-                `[imageGen] [${cid}] Leonardo status check timeout (10s) on poll #${pollCount}`,
-              );
-            } else {
-              console.error(
-                `[imageGen] [${cid}] Leonardo status fetch error:`,
-                pollFetchErr instanceof Error
-                  ? pollFetchErr.message
-                  : String(pollFetchErr),
-              );
-            }
-            break;
-          }
-          clearTimeout(pollTimeoutId);
-
-          if (!statusResponse.ok) {
-            console.error(
-              `[imageGen] [${cid}] Failed to check generation status: ${statusResponse.status}`,
-            );
+          if (!statusRes.ok) {
+            failures.push({
+              promptIndex: promptIdx,
+              reason: `Status failed (${statusRes.status}): ${statusRes.text.slice(0, 500)}`,
+            });
             break;
           }
 
           let statusData: any;
-          let statusText = "";
           try {
-            statusText = await statusResponse.text();
-            statusData = JSON.parse(statusText);
-          } catch (parseErr) {
-            console.error(
-              `[imageGen] [${cid}] Failed to parse status response`,
-            );
+            statusData = JSON.parse(statusRes.text);
+          } catch {
+            failures.push({
+              promptIndex: promptIdx,
+              reason: `Status returned non-JSON: ${statusRes.text.slice(0, 500)}`,
+            });
             break;
           }
 
-          // Leonardo API returns a flat structure at generations_by_pk or directly
-          let generation: LeonardoGeneration | null = null;
+          const { status, images } = this.extractStatusAndImages(statusData);
 
-          if (statusData.generations_by_pk) {
-            generation = statusData.generations_by_pk;
-          } else if (statusData.id && statusData.status) {
-            // Direct generation response
-            generation = statusData;
-          }
-
-          if (!generation) {
-            console.error(
-              `[imageGen] [${cid}] Invalid response structure from Leonardo`,
-            );
+          if (status === "COMPLETE") {
+            const url = images?.[0]?.url;
+            if (url) finalUrl = url;
             break;
           }
 
-          console.log(
-            `[imageGen] [${cid}] Poll #${pollCount} status: ${generation.status}`,
-          );
-
-          if (generation.status === "COMPLETE") {
-            const images = generation.generated_images || [];
-            if (images.length > 0) {
-              imageUrl = images[0].url;
-              console.log(
-                `[imageGen] [${cid}] Image generation complete and URL retrieved`,
-              );
-            } else {
-              console.warn(
-                `[imageGen] [${cid}] Generation complete but no images returned`,
-              );
-            }
-            break;
-          } else if (
-            generation.status === "FAILED" ||
-            generation.status === "REJECTED"
-          ) {
-            console.error(
-              `[imageGen] [${cid}] Generation failed with status: ${generation.status}`,
-            );
+          if (status === "FAILED" || status === "REJECTED") {
+            failures.push({
+              promptIndex: promptIdx,
+              reason: `Generation ${status}`,
+            });
             break;
           }
 
-          // Wait before polling again
-          await new Promise((resolve) => setTimeout(resolve, pollInterval));
+          await new Promise((r) => setTimeout(r, pollEveryMs));
         }
 
-        if (imageUrl) {
-          imageUrls.push(imageUrl);
-          console.log(
-            `[imageGen] [${cid}] Successfully added image ${imageUrls.length}/${prompts.length}`,
-          );
+        if (finalUrl) {
+          imageUrls.push(finalUrl);
         } else {
-          console.warn(
-            `[imageGen] [${cid}] Timeout waiting for generation or no image URL returned`,
-          );
+          failures.push({
+            promptIndex: promptIdx,
+            reason: `Timed out / no image URL returned`,
+          });
         }
-      } catch (error) {
-        console.error(
-          `[imageGen] [${cid}] Exception during image generation for prompt ${promptIdx + 1}:`,
-          error instanceof Error ? error.message : String(error),
-        );
+      } catch (e: any) {
+        failures.push({
+          promptIndex: promptIdx,
+          reason: e?.message || String(e),
+        });
       }
     }
 
-    console.log(
-      `[imageGen] [${cid}] FINAL RESULT: Generated ${imageUrls.length} images out of ${prompts.length} prompts`,
-    );
-
     if (imageUrls.length === 0) {
+      // Throw ONE clear error so your API can return 5xx and your UI won’t pretend success.
+      const reasons = failures
+        .slice(0, 5)
+        .map((f) => `#${f.promptIndex + 1}: ${f.reason}`)
+        .join(" | ");
+
       throw new Error(
-        `Image generation failed: 0 images generated from ${prompts.length} prompts. Leonardo API may be unavailable or requests timed out.`,
+        `Leonardo image generation failed (0/${prompts.length}). Top reasons: ${reasons}`,
       );
     }
 
-    return {
-      imageUrls,
-      generationId: firstGenerationId,
-    };
+    return { imageUrls, generationId: firstGenerationId };
   }
 
-  /**
-   * Calculate credit cost for image generation
-   * Leonardo.AI typically costs 10 tokens per image
-   */
   calculateImageGenerationCost(imageCount: number): number {
-    const costPerImage = 10; // Leonardo tokens per image (varies by model, this is approximate)
+    const costPerImage = 10;
     return imageCount * costPerImage;
   }
 
-  /**
-   * Full pipeline: extract prompts from script and generate images
-   */
   async generateImagesFromScript(
     script: string,
     episodes: any[] = [],
@@ -691,23 +496,12 @@ Return ONLY valid JSON in this exact format:
     timestamp: string;
   }> {
     const cid = correlationId || "unknown";
-    console.log(
-      `[imageGen] [${cid}] Starting image generation pipeline with style: ${imageStyle}`,
-    );
+    console.log(`[imageGen] [${cid}] Starting image generation pipeline: ${imageStyle}`);
 
-    const prompts = await this.extractImagePromptsFromScript(
-      script,
-      episodes,
-      imageStyle,
-    );
-    console.log(
-      `[imageGen] [${cid}] Extracted ${prompts.length} image prompts`,
-    );
+    const prompts = await this.extractImagePromptsFromScript(script, episodes, imageStyle);
 
-    const result = await this.generateImages(prompts, imageStyle, cid);
-    const imageUrls = result.imageUrls;
-    const generationId = result.generationId;
-    console.log(`[imageGen] [${cid}] Generated ${imageUrls.length} images`);
+    // IMPORTANT: Do NOT allow “success with 0 images”.
+    const { imageUrls, generationId } = await this.generateImages(prompts, imageStyle, cid);
 
     const creditCost = this.calculateImageGenerationCost(imageUrls.length);
 
