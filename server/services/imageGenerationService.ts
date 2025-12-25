@@ -637,29 +637,23 @@ Return ONLY valid JSON in this exact format:
         if (imageUrl) {
           imageUrls.push(imageUrl);
           console.log(
-            `[imageGen] ✓ Successfully added image ${imageUrls.length}/${prompts.length}`,
+            `[imageGen] [${cid}] Successfully added image ${imageUrls.length}/${prompts.length}`,
           );
         } else {
           console.warn(
-            `[imageGen] ⚠️ Timeout waiting for generation ${generationId} or no image URL returned after polling`,
+            `[imageGen] [${cid}] Timeout waiting for generation or no image URL returned`,
           );
         }
       } catch (error) {
         console.error(
-          `[imageGen] ❌ Exception during image generation for prompt ${promptIdx + 1}:`,
+          `[imageGen] [${cid}] Exception during image generation for prompt ${promptIdx + 1}:`,
           error instanceof Error ? error.message : String(error),
         );
-        if (error instanceof Error) {
-          console.error(
-            "[imageGen] Stack trace:",
-            error.stack?.substring(0, 300),
-          );
-        }
       }
     }
 
     console.log(
-      `[imageGen] ===== FINAL RESULT: Generated ${imageUrls.length} images out of ${prompts.length} prompts =====`,
+      `[imageGen] [${cid}] FINAL RESULT: Generated ${imageUrls.length} images out of ${prompts.length} prompts`,
     );
 
     if (imageUrls.length === 0) {
