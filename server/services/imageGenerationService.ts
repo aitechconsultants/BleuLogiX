@@ -737,6 +737,13 @@ Return ONLY valid JSON in this exact format:
     console.log(
       `[imageGen] ===== FINAL RESULT: Generated ${imageUrls.length} images out of ${prompts.length} prompts =====`,
     );
+
+    if (imageUrls.length === 0) {
+      throw new Error(
+        `Image generation failed: 0 images generated from ${prompts.length} prompts. Leonardo API may be unavailable or requests timed out.`,
+      );
+    }
+
     return {
       imageUrls,
       generationId: firstGenerationId,
