@@ -221,34 +221,44 @@ export default function AIMediaGenerator({
     } catch (err) {
       console.error("Error generating images:", err);
 
+      let errorMessage = "Failed to generate images";
+      let correlationId: string | undefined;
+
       if (err instanceof APIError) {
+        // Try to parse correlationId from response text
+        try {
+          const errorData = JSON.parse(err.responseText);
+          correlationId = errorData.correlationId;
+        } catch {
+          // responseText may not be JSON, that's ok
+        }
+
         // Handle specific HTTP error codes
         if (err.status === 402) {
-          setError(
-            "Insufficient credits. Please purchase more credits to generate images.",
-          );
+          errorMessage =
+            "Insufficient credits. Please purchase more credits to generate images.";
         } else if (err.status === 502) {
-          setError(
-            `Image generation service returned no images. This may indicate a temporary service issue. If this persists, please contact support.`,
-          );
+          errorMessage =
+            "Image generation service returned no images. This may indicate a temporary service issue. If this persists, please contact support.";
         } else if (err.status === 503) {
-          setError(
-            "Image generation service is temporarily unavailable. Please try again later.",
-          );
+          errorMessage =
+            "Image generation service is temporarily unavailable. Please try again later.";
         } else if (err.status === 500) {
-          setError(
-            "An error occurred while generating images. Please try again or contact support.",
-          );
+          errorMessage =
+            "An error occurred while generating images. Please try again or contact support.";
         } else {
-          setError(
-            `Failed to generate images: ${err.status} - ${err.responseText}`,
-          );
+          errorMessage = `Failed to generate images: ${err.status}`;
         }
       } else {
-        setError(
-          err instanceof Error ? err.message : "Failed to generate images",
-        );
+        errorMessage =
+          err instanceof Error ? err.message : "Failed to generate images";
       }
+
+      setError(errorMessage);
+      setErrorDetails({
+        correlationId,
+        message: errorMessage,
+      });
     } finally {
       setIsGenerating(false);
     }
