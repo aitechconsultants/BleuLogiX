@@ -563,9 +563,14 @@ Return ONLY valid JSON in this exact format:
           generationId,
         );
 
+        // Track first generation ID for response
+        if (!firstGenerationId) {
+          firstGenerationId = generationId;
+        }
+
         // Poll for completion (with timeout)
-        const maxWaitTime = 60000; // 60 seconds
-        const pollInterval = 2000; // 2 seconds
+        const maxWaitTime = 45000; // 45 seconds max wait
+        const pollInterval = 1000; // 1 second between polls
         const startTime = Date.now();
         let imageUrl: string | null = null;
         let pollCount = 0;
