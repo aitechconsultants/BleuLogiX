@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, Loader, AlertCircle, X, ChevronRight } from "lucide-react";
+import { useApiFetch, APIError } from "@/lib/api";
 import type { Episode } from "./SeriesEpisodesSelector";
 
 interface ImagePrompt {
