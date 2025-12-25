@@ -412,8 +412,7 @@ Return ONLY valid JSON in this exact format:
     }
 
     console.log(
-      "[imageGen] Starting Leonardo image generation with API key",
-      this.leonardoApiKey.substring(0, 8) + "...",
+      `[imageGen] [${cid}] Starting Leonardo image generation for style: ${imageStyle}`,
     );
 
     const imageUrls: string[] = [];
@@ -421,7 +420,9 @@ Return ONLY valid JSON in this exact format:
     const presetStyle = this.getLeonardoPresetStyle(imageStyle);
     let firstGenerationId: string | null = null;
 
-    console.log("[imageGen] Using model:", modelId, "preset:", presetStyle);
+    console.log(
+      `[imageGen] [${cid}] Using model: ${modelId}, preset: ${presetStyle}`,
+    );
 
     for (let promptIdx = 0; promptIdx < prompts.length; promptIdx++) {
       const prompt = prompts[promptIdx];
