@@ -736,7 +736,10 @@ Return ONLY valid JSON in this exact format:
     console.log(
       `[imageGen] ===== FINAL RESULT: Generated ${imageUrls.length} images out of ${prompts.length} prompts =====`,
     );
-    return imageUrls;
+    return {
+      imageUrls,
+      generationId: firstGenerationId,
+    };
   }
 
   /**
