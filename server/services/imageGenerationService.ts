@@ -398,13 +398,14 @@ Return ONLY valid JSON in this exact format:
     );
 
     if (!prompts || prompts.length === 0) {
-      console.log("[imageGen] No prompts provided, returning empty array");
-      return [];
+      throw new Error("No image prompts provided for generation");
     }
 
     if (!this.leonardoApiKey) {
       console.error("[imageGen] Leonardo API key not configured");
-      return [];
+      throw new Error(
+        "Leonardo API key is not configured. Please set LEONARDO_API_KEY environment variable.",
+      );
     }
 
     console.log(
