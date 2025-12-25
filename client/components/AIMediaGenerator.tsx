@@ -562,8 +562,13 @@ export default function AIMediaGenerator({
       {error && (
         <div className="flex gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/30">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-medium text-red-600">{error}</p>
+            {errorDetails?.correlationId && (
+              <p className="text-xs text-red-500/70 mt-1">
+                Support reference: <code>{errorDetails.correlationId}</code>
+              </p>
+            )}
           </div>
         </div>
       )}
