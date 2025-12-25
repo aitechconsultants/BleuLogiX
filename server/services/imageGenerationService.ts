@@ -495,20 +495,10 @@ Return ONLY valid JSON in this exact format:
           createData = JSON.parse(createDataText) as LeonardoCreateResponse;
         } catch (parseErr) {
           console.error(
-            "[imageGen] Failed to parse creation response:",
-            parseErr,
-          );
-          console.log(
-            "[imageGen] Raw creation response:",
-            createDataText.substring(0, 500),
+            `[imageGen] [${cid}] Failed to parse creation response`,
           );
           continue;
         }
-
-        console.log(
-          "[imageGen] Creation response data:",
-          JSON.stringify(createData).substring(0, 500),
-        );
 
         // Try multiple possible paths for the generation ID
         let generationId =
@@ -518,26 +508,13 @@ Return ONLY valid JSON in this exact format:
 
         if (!generationId) {
           console.error(
-            "[imageGen] ❌ No generation ID returned from Leonardo!",
-          );
-          console.error(
-            "[imageGen] Response keys:",
-            createData ? Object.keys(createData) : "null",
-          );
-          console.error(
-            "[imageGen] Full response:",
-            JSON.stringify(createData).substring(0, 500),
-          );
-          console.error(
-            "[imageGen] sdGenerationJob structure:",
-            JSON.stringify(createData?.sdGenerationJob),
+            `[imageGen] [${cid}] No generation ID returned from Leonardo`,
           );
           continue;
         }
 
         console.log(
-          "[imageGen] ✓ Generation job created with ID:",
-          generationId,
+          `[imageGen] [${cid}] Generation job created with ID: ${generationId.substring(0, 12)}...`,
         );
 
         // Track first generation ID for response
