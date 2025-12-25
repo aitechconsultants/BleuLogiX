@@ -97,9 +97,11 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      prompts,
       imageUrls,
+      prompts,
       creditCost,
+      generationId,
+      timestamp,
       creditsRemaining: creditsRemaining - creditCost,
     });
   } catch (error) {
