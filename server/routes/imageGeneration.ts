@@ -1,217 +1,469 @@
 import { RequestHandler } from "express";
-import { ImageGenerationService } from "../services/imageGenerationService";
-import { queryOne, query } from "../db";
-import { logError } from "../logging";
-import { upsertUser } from "../users";
+import { z } from "zod";
 
-interface CreditsResult {
-  total: number;
+// ============================================================================
+// Leonardo AI Image Generation Route
+// ============================================================================
+// 
+// REQUIRED ENV VARS:
+//   LEONARDO_API_KEY - Your Leonardo AI API key (get from https://app.leonardo.ai/settings)
+//
+// ENDPOINTS:
+//   POST /api/images/generate - Generate images from prompts
+//   POST /api/images/extract-prompts - Extract image prompts from script
+//
+// LEONARDO API FLOW:
+//   1. POST https://cloud.leonardo.ai/api/rest/v1/generations (returns generationId)
+//   2. Poll GET https://cloud.leonardo.ai/api/rest/v1/generations/{id} until status=COMPLETE
+//   3. Return generated image URLs
+//
+// ============================================================================
+
+const LEONARDO_BASE_URL = "https://cloud.leonardo.ai/api/rest/v1";
+
+// Leonardo preset styles mapping
+const STYLE_TO_PRESET: Record<string, string> = {
+  realistic: "PHOTOGRAPHY",
+  cinematic: "CINEMATIC",
+  anime: "ANIME",
+  illustration: "ILLUSTRATION",
+  "3d": "RENDER_3D",
+  sketch: "SKETCH_COLOR",
+  dynamic: "DYNAMIC",
+  creative: "CREATIVE",
+  photography: "PHOTOGRAPHY",
+  portrait: "PORTRAIT",
+  // Fallback for unknown styles
+  default: "DYNAMIC",
+};
+
+// Leonardo model IDs for different use cases
+const STYLE_TO_MODEL: Record<string, string> = {
+  // Leonardo Phoenix (recommended for most use cases)
+  realistic: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix
+  cinematic: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix
+  photography: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix
+  portrait: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix
+  
+  // Leonardo Anime XL for anime style
+  anime: "e71a1c2f-4f80-4800-934f-2c68979d8cc8", // Leonardo Anime XL
+  
+  // Default model
+  default: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix
+};
+
+// Request validation schemas
+const GenerateImagesRequestSchema = z.object({
+  prompts: z.array(z.string().min(1).max(1000)).min(1).max(20),
+  imageStyle: z.string().optional().default("realistic"),
+  width: z.number().int().min(512).max(1536).optional().default(1024),
+  height: z.number().int().min(512).max(1536).optional().default(1024),
+  numImages: z.number().int().min(1).max(4).optional().default(1),
+});
+
+const ExtractPromptsRequestSchema = z.object({
+  script: z.string().min(10).max(50000),
+  episodesToGenerateCount: z.number().int().min(1).max(20).optional().default(1),
+  imageStyle: z.string().optional().default("realistic"),
+});
+
+// Type definitions
+interface LeonardoGenerationResponse {
+  sdGenerationJob?: {
+    generationId: string;
+    apiCreditCost?: number;
+  };
+  error?: string;
+  message?: string;
 }
 
-const imageGenService = new ImageGenerationService();
-
-async function getCreditsRemaining(userId: string): Promise<number> {
-  const result = await queryOne<CreditsResult>(
-    `SELECT COALESCE(SUM(delta), 0) as total
-     FROM credit_ledger
-     WHERE user_id = $1`,
-    [userId],
-  );
-  return result?.total || 0;
+interface LeonardoGenerationStatus {
+  generations_by_pk?: {
+    status: "PENDING" | "COMPLETE" | "FAILED";
+    generated_images?: Array<{
+      id: string;
+      url: string;
+      nsfw?: boolean;
+    }>;
+    id?: string;
+  };
+  error?: string;
 }
 
-export const handleGenerateImages: RequestHandler = async (req, res) => {
-  const correlationId = (req as any).correlationId || "unknown";
-  const auth = (req as any).auth;
-  const clerkUserId = auth?.clerkUserId;
-  const { script, episodes, imageStyle } = req.body;
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
-  if (!clerkUserId) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      correlationId,
-    });
+function getLeonardoApiKey(): string | null {
+  return process.env.LEONARDO_API_KEY || null;
+}
+
+function getPresetStyle(imageStyle: string): string {
+  const normalized = imageStyle.toLowerCase().trim();
+  return STYLE_TO_PRESET[normalized] || STYLE_TO_PRESET.default;
+}
+
+function getModelId(imageStyle: string): string {
+  const normalized = imageStyle.toLowerCase().trim();
+  return STYLE_TO_MODEL[normalized] || STYLE_TO_MODEL.default;
+}
+
+async function createLeonardoGeneration(
+  prompt: string,
+  options: {
+    imageStyle: string;
+    width: number;
+    height: number;
+    numImages: number;
+  }
+): Promise<{ generationId: string } | { error: string; status: number }> {
+  const apiKey = getLeonardoApiKey();
+  if (!apiKey) {
+    return { error: "Leonardo API key not configured", status: 503 };
   }
 
-  if (
-    (!script || typeof script !== "string" || script.trim().length === 0) &&
-    (!episodes || episodes.length === 0)
-  ) {
-    return res.status(400).json({
-      error: "Either script or episodes are required",
-      correlationId,
-    });
-  }
+  const presetStyle = getPresetStyle(options.imageStyle);
+  const modelId = getModelId(options.imageStyle);
+
+  const requestBody = {
+    prompt,
+    modelId,
+    presetStyle,
+    width: options.width,
+    height: options.height,
+    num_images: options.numImages,
+    alchemy: true, // Enable Alchemy for better quality
+    guidance_scale: 7,
+    num_inference_steps: 30,
+    negative_prompt: "blurry, low quality, distorted, watermark, text, logo",
+  };
 
   try {
-    console.log(
-      `[imageGen] POST /api/images/generate - clerkUserId: ${clerkUserId}, script length: ${script?.length || 0}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
-    );
+    const response = await fetch(`${LEONARDO_BASE_URL}/generations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-    const user = await upsertUser(clerkUserId, auth?.email);
-    const userId = user.id;
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorData: { error?: string; message?: string } = {};
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { error: errorText };
+      }
 
-    const creditsRemaining = await getCreditsRemaining(userId);
-    console.log(
-      `[imageGen] User ${clerkUserId} has ${creditsRemaining} credits remaining`,
-    );
+      console.error("[Leonardo] Generation request failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
 
-    const result = await imageGenService.generateImagesFromScript(
-      script,
-      episodes || [],
-      imageStyle || "realistic",
+      // Map Leonardo errors to appropriate status codes
+      if (response.status === 401 || response.status === 403) {
+        return { error: "Leonardo API authentication failed", status: 401 };
+      }
+      if (response.status === 429) {
+        return { error: "Leonardo API rate limit exceeded", status: 429 };
+      }
+      if (response.status === 400) {
+        return {
+          error: `Leonardo API validation error: ${errorData.message || errorData.error || "Invalid request"}`,
+          status: 400,
+        };
+      }
+
+      return {
+        error: `Leonardo API error: ${errorData.message || errorData.error || response.statusText}`,
+        status: response.status,
+      };
+    }
+
+    const data: LeonardoGenerationResponse = await response.json();
+
+    if (!data.sdGenerationJob?.generationId) {
+      console.error("[Leonardo] No generation ID in response:", data);
+      return { error: "Leonardo API returned no generation ID", status: 500 };
+    }
+
+    return { generationId: data.sdGenerationJob.generationId };
+  } catch (err) {
+    console.error("[Leonardo] Network error creating generation:", err);
+    return { error: `Network error: ${(err as Error).message}`, status: 500 };
+  }
+}
+
+async function pollLeonardoGeneration(
+  generationId: string,
+  maxAttempts = 60,
+  intervalMs = 2000
+): Promise<{ images: Array<{ id: string; url: string }> } | { error: string; status: number }> {
+  const apiKey = getLeonardoApiKey();
+  if (!apiKey) {
+    return { error: "Leonardo API key not configured", status: 503 };
+  }
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const response = await fetch(
+        `${LEONARDO_BASE_URL}/generations/${generationId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[Leonardo] Poll request failed:", {
+          attempt,
+          status: response.status,
+          error: errorText,
+        });
+
+        // Don't retry on auth errors
+        if (response.status === 401 || response.status === 403) {
+          return { error: "Leonardo API authentication failed", status: 401 };
+        }
+
+        // Continue polling on temporary errors
+        if (attempt < maxAttempts - 1) {
+          await new Promise((resolve) => setTimeout(resolve, intervalMs));
+          continue;
+        }
+
+        return { error: `Failed to poll generation status`, status: 500 };
+      }
+
+      const data: LeonardoGenerationStatus = await response.json();
+      const generation = data.generations_by_pk;
+
+      if (!generation) {
+        console.error("[Leonardo] Generation not found:", generationId);
+        return { error: "Generation not found", status: 404 };
+      }
+
+      if (generation.status === "COMPLETE") {
+        const images =
+          generation.generated_images?.map((img) => ({
+            id: img.id,
+            url: img.url,
+          })) || [];
+
+        if (images.length === 0) {
+          return { error: "Generation completed but no images returned", status: 500 };
+        }
+
+        return { images };
+      }
+
+      if (generation.status === "FAILED") {
+        console.error("[Leonardo] Generation failed:", generationId);
+        return { error: "Leonardo image generation failed", status: 500 };
+      }
+
+      // Status is PENDING, continue polling
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      }
+    } catch (err) {
+      console.error("[Leonardo] Network error polling generation:", err);
+
+      // Continue polling on network errors
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        continue;
+      }
+
+      return { error: `Network error: ${(err as Error).message}`, status: 500 };
+    }
+  }
+
+  return { error: "Generation timed out after maximum polling attempts", status: 504 };
+}
+
+// ============================================================================
+// Route Handlers
+// ============================================================================
+
+export const handleGenerateImages: RequestHandler = async (req, res) => {
+  const correlationId = `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  // Check Leonardo API key
+  if (!getLeonardoApiKey()) {
+    console.error(`[${correlationId}] LEONARDO_API_KEY not configured`);
+    res.status(503).json({
+      error: "Image generation service not configured",
+      details: "LEONARDO_API_KEY environment variable is not set",
       correlationId,
-    );
-    const { prompts, imageUrls, creditCost, generationId, timestamp } = result;
+    });
+    return;
+  }
 
-    if (creditsRemaining < creditCost) {
-      console.warn(
-        `[imageGen] Insufficient credits: ${creditsRemaining} < ${creditCost}`,
-      );
-      return res.status(402).json({
-        error: "Insufficient credits",
-        message: `You need ${creditCost} credits but only have ${creditsRemaining}`,
-        creditsNeeded: creditCost,
-        creditsAvailable: creditsRemaining,
+  // Validate request body
+  const parseResult = GenerateImagesRequestSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    console.error(`[${correlationId}] Invalid request:`, parseResult.error.errors);
+    res.status(400).json({
+      error: "Invalid request body",
+      details: parseResult.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`),
+      correlationId,
+    });
+    return;
+  }
+
+  const { prompts, imageStyle, width, height, numImages } = parseResult.data;
+
+  console.log(`[${correlationId}] Generating ${prompts.length} images with style: ${imageStyle}`);
+
+  try {
+    const results: Array<{
+      prompt: string;
+      images?: Array<{ id: string; url: string }>;
+      error?: string;
+    }> = [];
+
+    // Process prompts sequentially to avoid rate limits
+    for (const prompt of prompts) {
+      // Create generation
+      const createResult = await createLeonardoGeneration(prompt, {
+        imageStyle,
+        width,
+        height,
+        numImages,
+      });
+
+      if ("error" in createResult) {
+        results.push({ prompt, error: createResult.error });
+        continue;
+      }
+
+      // Poll for completion
+      const pollResult = await pollLeonardoGeneration(createResult.generationId);
+
+      if ("error" in pollResult) {
+        results.push({ prompt, error: pollResult.error });
+        continue;
+      }
+
+      results.push({ prompt, images: pollResult.images });
+    }
+
+    // Check if all failed
+    const allFailed = results.every((r) => r.error);
+    if (allFailed) {
+      res.status(500).json({
+        error: "All image generations failed",
+        results,
         correlationId,
       });
+      return;
     }
-
-    // Ensure images were actually generated
-    if (!imageUrls || imageUrls.length === 0) {
-      console.error(
-        `[imageGen] Image generation returned zero images for user ${clerkUserId}`,
-      );
-      return res.status(502).json({
-        ok: false,
-        error: "Image generation returned zero images",
-        generationId,
-        correlationId,
-      });
-    }
-
-    if (imageUrls.length > 0) {
-      await query(
-        `INSERT INTO credit_ledger (user_id, delta, reason)
-         VALUES ($1, $2, $3)`,
-        [
-          userId,
-          -creditCost,
-          `Generated ${imageUrls.length} images with Leonardo.AI`,
-        ],
-      );
-      console.log(
-        `[imageGen] Deducted ${creditCost} credits for user ${clerkUserId}`,
-      );
-    }
-
-    console.log(
-      `[imageGen] Successfully generated ${imageUrls.length} images for user ${clerkUserId}`,
-    );
 
     res.json({
       success: true,
-      imageUrls,
-      prompts,
-      creditCost,
-      generationId,
-      timestamp,
-      creditsRemaining: creditsRemaining - creditCost,
-    });
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : "";
-    console.error(`[imageGen] Error generating images:`, error);
-    console.error(`[imageGen] Error stack:`, errorStack);
-    logError(
-      { correlationId },
-      "Failed to generate images",
-      error instanceof Error ? error : new Error(String(error)),
-    );
-
-    // Return 503 if Leonardo API key is missing
-    if (
-      errorMsg.includes("Leonardo API key is not configured") ||
-      errorMsg.includes("LEONARDO_API_KEY")
-    ) {
-      return res.status(503).json({
-        error: "Image generation service unavailable",
-        message:
-          "Leonardo.AI API is not properly configured. Please try again later.",
-        correlationId,
-      });
-    }
-
-    // Return 502 if image generation failed (0 images returned)
-    if (errorMsg.includes("0 images generated")) {
-      return res.status(502).json({
-        ok: false,
-        error: "Image generation returned zero images",
-        message: errorMsg,
-        correlationId,
-      });
-    }
-
-    // Default to 500 for other errors
-    res.status(500).json({
-      error: "Failed to generate images",
-      message: errorMsg,
+      results,
       correlationId,
-      details: process.env.NODE_ENV === "development" ? errorStack : undefined,
+    });
+  } catch (err) {
+    console.error(`[${correlationId}] Unexpected error:`, err);
+    res.status(500).json({
+      error: "Unexpected error during image generation",
+      details: (err as Error).message,
+      correlationId,
     });
   }
 };
 
 export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
-  const correlationId = (req as any).correlationId || "unknown";
-  const { script, episodes } = req.body;
+  const correlationId = `extract-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-  if (
-    (!script || typeof script !== "string" || script.trim().length === 0) &&
-    (!episodes || episodes.length === 0)
-  ) {
-    return res.status(400).json({
-      error: "Either script or episodes are required",
+  // Validate request body
+  const parseResult = ExtractPromptsRequestSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    console.error(`[${correlationId}] Invalid request:`, parseResult.error.errors);
+    res.status(400).json({
+      error: "Invalid request body",
+      details: parseResult.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`),
       correlationId,
     });
+    return;
   }
 
-  try {
-    console.log(
-      `[imageGen] POST /api/images/extract-prompts - script length: ${script?.length || 0}, episodes: ${(episodes || []).length}, correlationId: ${correlationId}`,
-    );
+  const { script, episodesToGenerateCount, imageStyle } = parseResult.data;
 
-    const prompts = await imageGenService.extractImagePromptsFromScript(
-      script || "",
-      episodes || [],
-    );
+  // Extract scene descriptions from script
+  // This is a simple extraction - can be enhanced with AI later
+  const scenes = extractSceneDescriptions(script, episodesToGenerateCount);
+  
+  // Format prompts for the specified image style
+  const prompts = scenes.map((scene) => formatPromptForStyle(scene, imageStyle));
 
-    console.log(
-      `[imageGen] Extracted ${prompts.length} image prompts from script`,
-    );
-
-    res.json({
-      prompts,
-      count: prompts.length,
-      estimatedCost: imageGenService.calculateImageGenerationCost(
-        prompts.length,
-      ),
-    });
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : "";
-    console.error(`[imageGen] Error extracting prompts:`, error);
-    console.error(`[imageGen] Error stack:`, errorStack);
-    logError(
-      { correlationId },
-      "Failed to extract image prompts",
-      error instanceof Error ? error : new Error(String(error)),
-    );
-    res.status(500).json({
-      error: "Failed to extract image prompts",
-      message: errorMsg,
-      correlationId,
-      details: process.env.NODE_ENV === "development" ? errorStack : undefined,
-    });
-  }
+  res.json({
+    success: true,
+    prompts,
+    imageStyle,
+    correlationId,
+  });
 };
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+function extractSceneDescriptions(script: string, count: number): string[] {
+  // Split script into sentences
+  const sentences = script
+    .split(/[.!?]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 20);
+
+  if (sentences.length === 0) {
+    return [script.slice(0, 500)];
+  }
+
+  // Select evenly distributed sentences
+  const step = Math.max(1, Math.floor(sentences.length / count));
+  const selected: string[] = [];
+
+  for (let i = 0; i < sentences.length && selected.length < count; i += step) {
+    selected.push(sentences[i]);
+  }
+
+  // Ensure we have at least one
+  if (selected.length === 0) {
+    selected.push(sentences[0]);
+  }
+
+  return selected;
+}
+
+function formatPromptForStyle(scene: string, imageStyle: string): string {
+  const styleModifiers: Record<string, string> = {
+    realistic: "photorealistic, high detail, 8k, professional photography",
+    cinematic: "cinematic lighting, dramatic, movie scene, film grain",
+    anime: "anime style, vibrant colors, detailed anime art",
+    illustration: "digital illustration, artistic, detailed artwork",
+    "3d": "3D render, octane render, volumetric lighting",
+    sketch: "pencil sketch, detailed line art, artistic sketch",
+    photography: "professional photography, natural lighting, high resolution",
+    portrait: "portrait photography, studio lighting, detailed face",
+    dynamic: "dynamic composition, vibrant, energetic",
+    creative: "creative art, imaginative, unique style",
+  };
+
+  const modifier = styleModifiers[imageStyle.toLowerCase()] || styleModifiers.realistic;
+  
+  // Clean and truncate scene
+  const cleanScene = scene.replace(/[^\w\s,.-]/g, " ").trim().slice(0, 400);
+
+  return `${cleanScene}, ${modifier}`;
+}
