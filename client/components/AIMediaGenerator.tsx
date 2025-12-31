@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { RefreshCw, Loader, AlertCircle, X, ChevronRight } from "lucide-react";
+import { RefreshCw, Loader, AlertCircle } from "lucide-react";
 import { useApiFetch, APIError } from "@/lib/api";
 import type { Episode } from "./SeriesEpisodesSelector";
 
@@ -141,7 +141,7 @@ export default function AIMediaGenerator({
         return updated;
       });
     });
-  }, [selectedEpisodeId]);
+  }, [selectedEpisodeId, episodes, episodePrompts, script]);
 
   const toggleEpisodeSelection = (episodeId: string) => {
     const newSelected = new Set(episodesSelectedForGeneration);
@@ -161,15 +161,46 @@ export default function AIMediaGenerator({
     }
   };
 
+  /**
+   * Normalize episodes into the minimal shape the backend can reliably read.
+   * The backend expects each episode to have a text source it can turn into prompts.
+   */
+  const toEpisodePayload = (eps: Episode[]) => {
+    return (eps || [])
+      .map((ep: any) => {
+        const text =
+          (ep?.text ??
+            ep?.voiceoverScript ??
+            ep?.description ??
+            ep?.content ??
+            ep?.body ??
+            "") + "";
+
+        return {
+          id: ep?.id,
+          seriesName: ep?.seriesName,
+          episodeName: ep?.episodeName,
+          seasonNumber: ep?.seasonNumber,
+          episodeNumber: ep?.episodeNumber,
+          description: ep?.description,
+          text: text.trim(),
+        };
+      })
+      .filter((ep: any) => ep.text && ep.text.length > 0);
+  };
+
   const generateImages = async () => {
     const selectedCount = episodesSelectedForGeneration.size;
+    const safeScript = (script || "").toString().trim();
+
     console.log("[AIMediaGenerator] Generate button clicked", {
       selectedCount,
-      scriptLength: script.trim().length,
+      scriptLength: safeScript.length,
       episodesCount: episodes.length,
     });
 
-    if (selectedCount === 0 && !script.trim()) {
+    // Keep UI-safe validation
+    if (selectedCount === 0 && !safeScript) {
       setError("Please select episodes or enter a script first");
       return;
     }
@@ -177,34 +208,49 @@ export default function AIMediaGenerator({
     try {
       setIsGenerating(true);
       setError(null);
+      setErrorDetails(null);
 
       // Determine which episodes to use for generation
-      let episodesToGenerate = episodes;
+      let episodesToGenerate: Episode[] = [];
 
       // If specific episodes are selected, use only those
       if (selectedCount > 0) {
         episodesToGenerate = episodes.filter((ep) =>
           episodesSelectedForGeneration.has(ep.id),
         );
-      } else if (episodes.length > 0 && !script.trim()) {
+      } else if (episodes.length > 0 && !safeScript) {
         // If no episodes selected but episodes exist and no script, auto-select all
         episodesToGenerate = episodes;
       }
-      // Otherwise use empty array (script-only mode)
+      // Otherwise leave empty (script-only mode)
 
-      console.log("[AIMediaGenerator] Calling /api/images/generate with:", {
-        scriptLength: script.length,
-        episodesToGenerateCount: episodesToGenerate.length,
-        imageStyle,
+      // Build the request body so the backend ALWAYS receives a prompt source.
+      const episodesPayload = toEpisodePayload(episodesToGenerate);
+
+      const requestBody: any =
+        episodesPayload.length > 0
+          ? { episodes: episodesPayload, imageStyle }
+          : { script: safeScript, imageStyle };
+
+      // Hard guard: if neither script nor episodes text exists, do not call API.
+      if (
+        (!requestBody.script || !requestBody.script.trim()) &&
+        (!requestBody.episodes || requestBody.episodes.length === 0)
+      ) {
+        setError("Please select episodes with text or enter a script first");
+        return;
+      }
+
+      console.log("[AIMediaGenerator] Calling /api/images/generate with body:", {
+        hasScript: !!requestBody.script,
+        scriptLength: requestBody.script?.length || 0,
+        episodesCount: requestBody.episodes?.length || 0,
+        imageStyle: requestBody.imageStyle,
       });
 
       const data = await apiFetch("/api/images/generate", {
         method: "POST",
-        body: {
-          script,
-          episodes: episodesToGenerate,
-          imageStyle,
-        },
+        body: requestBody,
       });
 
       console.log("[AIMediaGenerator] Successfully generated images:", {
@@ -234,7 +280,10 @@ export default function AIMediaGenerator({
         }
 
         // Handle specific HTTP error codes
-        if (err.status === 402) {
+        if (err.status === 400) {
+          errorMessage =
+            "Invalid request. Please ensure you have a script or episode text to generate images from.";
+        } else if (err.status === 402) {
           errorMessage =
             "Insufficient credits. Please purchase more credits to generate images.";
         } else if (err.status === 502) {
@@ -445,8 +494,7 @@ export default function AIMediaGenerator({
                                           {prompt.context}
                                         </p>
                                         <p className="text-xs text-muted-foreground italic mt-1">
-                                          "
-                                          {prompt.description.substring(0, 100)}
+                                          "{prompt.description.substring(0, 100)}
                                           ..."
                                         </p>
                                       </div>
@@ -514,22 +562,24 @@ export default function AIMediaGenerator({
               isGenerating,
               episodesSelectedForGenerationSize:
                 episodesSelectedForGeneration.size,
-              scriptLength: script.trim().length,
+              scriptLength: (script || "").trim().length,
             });
             generateImages();
           }}
           disabled={
             isGenerating ||
-            (!script.trim() && episodesSelectedForGeneration.size === 0)
+            (!(script || "").trim() && episodesSelectedForGeneration.size === 0)
           }
           title={
             isGenerating
               ? "Generating images..."
-              : !script.trim() && episodesSelectedForGeneration.size === 0
+              : !(script || "").trim() && episodesSelectedForGeneration.size === 0
                 ? "Please enter a script or select episodes first"
                 : `Generate AI images for ${
                     episodesSelectedForGeneration.size > 0
-                      ? `${episodesSelectedForGeneration.size} episode${episodesSelectedForGeneration.size !== 1 ? "s" : ""}`
+                      ? `${episodesSelectedForGeneration.size} episode${
+                          episodesSelectedForGeneration.size !== 1 ? "s" : ""
+                        }`
                       : "script"
                   }`
           }
@@ -544,7 +594,11 @@ export default function AIMediaGenerator({
             <>
               <RefreshCw className="w-5 h-5" />
               {episodesSelectedForGeneration.size > 0
-                ? `Generate Images for ${episodesSelectedForGeneration.size} Episode${episodesSelectedForGeneration.size !== 1 ? "s" : ""}`
+                ? `Generate Images for ${
+                    episodesSelectedForGeneration.size
+                  } Episode${
+                    episodesSelectedForGeneration.size !== 1 ? "s" : ""
+                  }`
                 : "Generate Images from Script"}
             </>
           )}
@@ -668,7 +722,7 @@ export default function AIMediaGenerator({
       {/* Empty State */}
       {!isGenerating &&
         imageUrls.length === 0 &&
-        (script.trim() || episodes.length > 0) &&
+        ((script || "").trim() || episodes.length > 0) &&
         !error && (
           <div className="text-center py-8 text-muted-foreground">
             <p>Click "Generate Images from Script" to create AI images</p>
