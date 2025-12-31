@@ -24,14 +24,13 @@ export const handleScriptGenHealth: RequestHandler = (req, res) => {
 
 export const handleScriptGenDebug: RequestHandler = async (req, res) => {
   const service = getScriptGenService();
-  const openaiHealthy = await service.checkOpenAIHealth();
+  const healthy = await service.checkHealth();
 
   res.json({
     service: "script-gen",
-    openai_healthy: openaiHealthy,
-    openai_key_set: !!process.env.OPENAI_API_KEY,
-    script_gen_model: process.env.SCRIPT_GEN_MODEL || "gpt-4-mini",
-    script_gen_enable_mock: process.env.SCRIPT_GEN_ENABLE_MOCK || "false",
+    pipedream_healthy: healthy,
+    script_gen_url_set: !!process.env.SCRIPT_GEN_URL,
+    script_gen_token_set: !!process.env.SCRIPT_GEN_TOKEN,
   });
 };
 
