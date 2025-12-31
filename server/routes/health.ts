@@ -1,331 +1,134 @@
 import { RequestHandler } from "express";
-import { queryOne, parseDatabaseUrl } from "../db";
-import { logError } from "../logging";
-import { getScriptGenService } from "../services/scriptGen";
+import { pool, isDbReady } from "../db";
 
-const APP_START_TIME = Date.now();
+// ============================================================================
+// Health Check Routes
+// ============================================================================
 
-interface HealthCheck {
-  name: string;
-  ok: boolean;
-  message: string;
-}
+const COMMIT_SHA = process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
 
-export const handleHealth: RequestHandler = async (req, res) => {
-  const uptime = Math.floor((Date.now() - APP_START_TIME) / 1000);
+/**
+ * GET /api/health
+ * Returns service health status without leaking secrets
+ */
+export const handleHealth: RequestHandler = async (_req, res) => {
+  // Check environment variable presence (not values)
+  const env = {
+    hasLeonardoKey: Boolean(process.env.LEONARDO_API_KEY),
+    hasStripeKey: Boolean(process.env.STRIPE_SECRET_KEY),
+    hasDbUrl: Boolean(process.env.DATABASE_URL),
+  };
 
-  res.json({
-    ok: true,
-    timestamp: new Date().toISOString(),
-    uptime,
+  // Check service connectivity
+  const services = {
+    dbOk: false,
+    leonardoOk: false,
+  };
+
+  // Database check
+  try {
+    if (isDbReady() && pool) {
+      const result = await pool.query("SELECT 1 as ok");
+      services.dbOk = result.rows?.[0]?.ok === 1;
+    }
+  } catch (err) {
+    console.error("[Health] DB check failed:", (err as Error).message);
+    services.dbOk = false;
+  }
+
+  // Leonardo API check (lightweight - just verify auth)
+  if (env.hasLeonardoKey) {
+    try {
+      const response = await fetch("https://cloud.leonardo.ai/api/rest/v1/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.LEONARDO_API_KEY}`,
+          Accept: "application/json",
+        },
+      });
+      services.leonardoOk = response.ok;
+    } catch (err) {
+      console.error("[Health] Leonardo check failed:", (err as Error).message);
+      services.leonardoOk = false;
+    }
+  }
+
+  const ok = services.dbOk && (env.hasLeonardoKey ? services.leonardoOk : true);
+
+  res.status(ok ? 200 : 503).json({
+    ok,
+    commit: COMMIT_SHA,
+    env,
+    services,
   });
 };
 
-export const handleHealthRoutes: RequestHandler = async (req, res) => {
-  const correlationId = (req as any).correlationId || "unknown";
+/**
+ * GET /api/health/routes
+ * Returns list of registered routes (for debugging)
+ */
+export const handleHealthRoutes: RequestHandler = (req, res) => {
+  const app = req.app;
+  const routes: Array<{ method: string; path: string }> = [];
 
-  try {
-    const routes = {
-      home: "/",
-      login: "/login",
-      signup: "/signup",
-      video: "/video",
-      videoCreate: "/video/create",
-      videoHistory: "/video/history",
-      accountHub: "/accounts",
-      adminAudit: "/admin/audit",
-      adminPolicies: "/admin/policies",
-      adminUsers: "/admin/users",
-    };
-
-    res.json({
-      ok: true,
-      routes,
-    });
-  } catch (error) {
-    logError(
-      { correlationId },
-      "Failed to fetch routes",
-      error instanceof Error ? error : new Error(String(error)),
-    );
-    res.status(500).json({
-      error: "Failed to fetch routes",
-      correlationId,
-    });
+  // Extract routes from Express app
+  const stack = app._router?.stack || [];
+  for (const layer of stack) {
+    if (layer.route) {
+      const methods = Object.keys(layer.route.methods).map((m) => m.toUpperCase());
+      routes.push({ method: methods.join(","), path: layer.route.path });
+    } else if (layer.name === "router" && layer.handle?.stack) {
+      for (const subLayer of layer.handle.stack) {
+        if (subLayer.route) {
+          const methods = Object.keys(subLayer.route.methods).map((m) => m.toUpperCase());
+          routes.push({ method: methods.join(","), path: subLayer.route.path });
+        }
+      }
+    }
   }
+
+  res.json({ routes });
 };
 
-export const handleHealthIntegrations: RequestHandler = async (req, res) => {
-  const correlationId = (req as any).correlationId || "unknown";
-  const checks: HealthCheck[] = [];
+/**
+ * GET /api/health/integrations
+ * Admin-only detailed integration status
+ */
+export const handleHealthIntegrations: RequestHandler = async (_req, res) => {
+  const integrations = {
+    clerk: Boolean(process.env.CLERK_SECRET_KEY),
+    stripe: Boolean(process.env.STRIPE_SECRET_KEY),
+    leonardo: Boolean(process.env.LEONARDO_API_KEY),
+    openai: Boolean(process.env.OPENAI_API_KEY),
+    pipedream: Boolean(process.env.PIPEDREAM_SCRIPT_WORKFLOW_URL),
+    database: Boolean(process.env.DATABASE_URL),
+  };
 
-  try {
-    // 1. Database check
-    let dbCheck: HealthCheck = {
-      name: "database",
-      ok: false,
-      message: "Not configured",
-    };
-
-    if (process.env.DATABASE_URL) {
-      try {
-        await queryOne("SELECT 1");
-        dbCheck = {
-          name: "database",
-          ok: true,
-          message: "Connected",
-        };
-      } catch (error) {
-        dbCheck = {
-          name: "database",
-          ok: false,
-          message: `Connection failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-        };
-      }
-    }
-    checks.push(dbCheck);
-
-    // 2. Clerk secret key check
-    const clerkCheck: HealthCheck = {
-      name: "clerk_secret",
-      ok: !!process.env.CLERK_SECRET_KEY,
-      message: process.env.CLERK_SECRET_KEY
-        ? "Present"
-        : "Missing CLERK_SECRET_KEY",
-    };
-    checks.push(clerkCheck);
-
-    // 3. Stripe secret key check
-    const stripeSecretCheck: HealthCheck = {
-      name: "stripe_secret",
-      ok: !!process.env.STRIPE_SECRET_KEY,
-      message: process.env.STRIPE_SECRET_KEY
-        ? "Present"
-        : "Missing STRIPE_SECRET_KEY",
-    };
-    checks.push(stripeSecretCheck);
-
-    // 4. Stripe webhook secret check
-    const stripeWebhookCheck: HealthCheck = {
-      name: "stripe_webhook_secret",
-      ok: !!process.env.STRIPE_WEBHOOK_SECRET,
-      message: process.env.STRIPE_WEBHOOK_SECRET
-        ? "Present"
-        : "Missing STRIPE_WEBHOOK_SECRET",
-    };
-    checks.push(stripeWebhookCheck);
-
-    // 5. Stripe price IDs check
-    const proPriceOk = !!process.env.STRIPE_PRICE_PRO;
-    const enterprisePriceOk = !!process.env.STRIPE_PRICE_ENTERPRISE;
-    const stripePricesCheck: HealthCheck = {
-      name: "stripe_prices",
-      ok: proPriceOk && enterprisePriceOk,
-      message:
-        proPriceOk && enterprisePriceOk
-          ? "Pro and Enterprise prices configured"
-          : `Missing: ${!proPriceOk ? "STRIPE_PRICE_PRO " : ""}${!enterprisePriceOk ? "STRIPE_PRICE_ENTERPRISE" : ""}`.trim(),
-    };
-    checks.push(stripePricesCheck);
-
-    // 7. Script generation (Pipedream) reachability check
-    let scriptGenCheck: HealthCheck = {
-      name: "script_generation",
-      ok: false,
-      message: "Not configured",
-    };
-
-    if (process.env.SCRIPT_GEN_URL && process.env.SCRIPT_GEN_TOKEN) {
-      try {
-        const service = getScriptGenService();
-        const isHealthy = await service.checkPipedrreamHealth();
-        scriptGenCheck = {
-          name: "script_generation",
-          ok: isHealthy,
-          message: isHealthy ? "Reachable" : "Unreachable",
-        };
-      } catch (error) {
-        scriptGenCheck = {
-          name: "script_generation",
-          ok: false,
-          message: `Health check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-        };
-      }
-    } else {
-      scriptGenCheck = {
-        name: "script_generation",
-        ok: false,
-        message:
-          `Missing: ${!process.env.SCRIPT_GEN_URL ? "SCRIPT_GEN_URL " : ""}${!process.env.SCRIPT_GEN_TOKEN ? "SCRIPT_GEN_TOKEN" : ""}`.trim(),
-      };
-    }
-    checks.push(scriptGenCheck);
-
-    // 6. Database tables check
-    let tablesCheck: HealthCheck = {
-      name: "database_tables",
-      ok: false,
-      message: "Not configured or unable to check",
-    };
-
-    if (process.env.DATABASE_URL && dbCheck.ok) {
-      try {
-        const requiredTables = [
-          "users",
-          "subscriptions",
-          "credit_ledger",
-          "generations",
-        ];
-        const existingTables: string[] = [];
-
-        for (const table of requiredTables) {
-          const result = await queryOne(
-            `SELECT EXISTS (
-              SELECT 1 FROM information_schema.tables 
-              WHERE table_schema = 'public' 
-              AND table_name = $1
-            )`,
-            [table],
-          );
-
-          if (result && result.exists) {
-            existingTables.push(table);
-          }
-        }
-
-        const missingTables = requiredTables.filter(
-          (t) => !existingTables.includes(t),
-        );
-
-        if (missingTables.length === 0) {
-          tablesCheck = {
-            name: "database_tables",
-            ok: true,
-            message: `All required tables exist: ${requiredTables.join(", ")}`,
-          };
-        } else {
-          tablesCheck = {
-            name: "database_tables",
-            ok: false,
-            message: `Missing tables: ${missingTables.join(", ")}`,
-          };
-        }
-      } catch (error) {
-        tablesCheck = {
-          name: "database_tables",
-          ok: false,
-          message: `Check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-        };
-      }
-    }
-    checks.push(tablesCheck);
-
-    const allOk = checks.every((c) => c.ok);
-
-    res.json({
-      ok: allOk,
-      checks,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    logError(
-      { correlationId },
-      "Failed to check integrations",
-      error instanceof Error ? error : new Error(String(error)),
-    );
-    res.status(500).json({
-      error: "Failed to check integrations",
-      checks: [],
-      correlationId,
-    });
-  }
+  res.json({ integrations });
 };
 
 /**
  * GET /api/health/db
- * Protected endpoint for database diagnostics.
- * Gated by ADMIN_TOKEN query param or requireAdminAuth.
+ * Database connectivity check
  */
-export const handleHealthDB: RequestHandler = async (req, res) => {
-  const correlationId = (req as any).correlationId || `health-db-${Date.now()}`;
-  const adminToken = process.env.ADMIN_TOKEN;
-  const adminTokenParam = req.query.adminToken;
-
-  // Check authorization: either valid ADMIN_TOKEN param or admin user (via requireAdminAuth)
-  const hasAdminAuth =
-    (req as any).user &&
-    ((req as any).user.role === "admin" ||
-      (req as any).user.role === "superadmin");
-  const hasAdminToken = adminToken && adminToken === adminTokenParam;
-
-  if (!hasAdminAuth && !hasAdminToken) {
-    return res.status(403).json({
-      ok: false,
-      error: "Forbidden - admin access required",
-      correlationId,
-    });
-  }
-
+export const handleHealthDB: RequestHandler = async (_req, res) => {
   try {
-    const dbUrl = process.env.DATABASE_URL;
-    const dbInfo = parseDatabaseUrl();
-
-    // If DATABASE_URL is set but parsing failed
-    if (dbUrl && !dbInfo) {
-      return res.status(500).json({
-        ok: false,
-        parseError: true,
-        error: "Failed to parse DATABASE_URL",
-        hasDatabaseUrl: true,
-        correlationId,
-        timestamp: new Date().toISOString(),
-      });
+    if (!isDbReady() || !pool) {
+      res.status(503).json({ ok: false, error: "Database not initialized" });
+      return;
     }
 
-    // If no DATABASE_URL at all
-    if (!dbUrl) {
-      return res.status(503).json({
-        ok: false,
-        hasDatabaseUrl: false,
-        error: "DATABASE_URL not configured",
-        correlationId,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    // Try to connect and verify
-    let dbHealthy = false;
-    let connectionError: string | null = null;
-
-    try {
-      await queryOne("SELECT 1");
-      dbHealthy = true;
-    } catch (error) {
-      connectionError =
-        error instanceof Error ? error.message : "Unknown error";
-    }
-
-    res.status(dbHealthy ? 200 : 503).json({
-      ok: dbHealthy,
-      hasDatabaseUrl: true,
-      dbHost: dbInfo?.host || "unknown",
-      dbName: dbInfo?.dbName || "unknown",
-      dbSslMode: dbInfo?.sslMode || "unknown",
-      connectionError: connectionError || undefined,
-      timestamp: new Date().toISOString(),
-      correlationId,
+    const result = await pool.query("SELECT NOW() as timestamp, version() as version");
+    res.json({
+      ok: true,
+      timestamp: result.rows[0].timestamp,
+      version: result.rows[0].version,
     });
-  } catch (error) {
-    logError(
-      { correlationId },
-      "DB health check failed",
-      error instanceof Error ? error : new Error(String(error)),
-    );
-    res.status(500).json({
+  } catch (err) {
+    console.error("[Health] DB query failed:", err);
+    res.status(503).json({
       ok: false,
-      error: "Internal server error",
-      correlationId,
-      timestamp: new Date().toISOString(),
+      error: (err as Error).message,
     });
   }
 };
