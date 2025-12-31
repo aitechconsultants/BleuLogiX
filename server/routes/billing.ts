@@ -2,11 +2,24 @@ import { RequestHandler } from "express";
 import Stripe from "stripe";
 import { queryOne, queryAll, query } from "../db";
 import { LogContext, logWebhookProcessing, logError } from "../logging";
-import { upsertUser, getUserByClerkId } from "../users";
+import { upsertUser, getUserByClerkId, User } from "../users";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-11-20",
 });
+
+// Plan mapping from Stripe price IDs
+const PRICE_TO_PLAN: Record<string, "pro" | "enterprise"> = {
+  [process.env.STRIPE_PRICE_PRO || ""]: "pro",
+  [process.env.STRIPE_PRICE_ENTERPRISE || ""]: "enterprise",
+};
+
+// Credit amounts per plan
+const PLAN_CREDITS: Record<string, number> = {
+  free: 50,
+  pro: 500,
+  enterprise: 9999,
+};
 
 interface Subscription {
   id: string;
@@ -70,6 +83,113 @@ async function grantCredits(
      VALUES ($1, $2, $3)`,
     [userId, delta, reason],
   );
+}
+
+// Helper: Write audit log entry
+async function writeAuditLog(
+  userId: string,
+  eventType: string,
+  previousPlan: string | null,
+  newPlan: string | null,
+  previousStatus: string | null,
+  newStatus: string | null,
+  stripeEventId: string | null,
+  stripeSubscriptionId: string | null,
+  metadata?: Record<string, unknown>,
+): Promise<void> {
+  await query(
+    `INSERT INTO subscription_audit_log 
+     (user_id, event_type, previous_plan, new_plan, previous_status, new_status, stripe_event_id, stripe_subscription_id, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [
+      userId,
+      eventType,
+      previousPlan,
+      newPlan,
+      previousStatus,
+      newStatus,
+      stripeEventId,
+      stripeSubscriptionId,
+      metadata ? JSON.stringify(metadata) : null,
+    ],
+  );
+}
+
+/**
+ * Calculate effective plan based on precedence:
+ * 1. Active plan_override (not expired) → return override
+ * 2. Active Stripe subscription → return Stripe plan
+ * 3. Default → free
+ */
+function calculateEffectivePlan(
+  user: User,
+  stripePlan?: "pro" | "enterprise",
+  stripeStatus?: string,
+): "free" | "pro" | "enterprise" {
+  // Priority 1: Active override (not expired)
+  if (user.plan_override) {
+    if (
+      !user.plan_override_expires_at ||
+      new Date(user.plan_override_expires_at) > new Date()
+    ) {
+      return user.plan_override;
+    }
+  }
+
+  // Priority 2: Active Stripe subscription
+  if (stripeStatus === "active" || stripeStatus === "trialing") {
+    if (stripePlan) {
+      return stripePlan;
+    }
+  }
+
+  // Priority 3: Default to free
+  return "free";
+}
+
+/**
+ * Sync user's effective_plan in users table
+ * Preserves: plan_override, role, clerk_user_id
+ */
+async function syncUserEffectivePlan(
+  userId: string,
+  stripePlan: "free" | "pro" | "enterprise",
+  stripeStatus: string,
+  stripeCustomerId: string | null,
+  stripeSubscriptionId: string | null,
+  periodEnd: Date | null,
+): Promise<{ previousPlan: string; newPlan: string }> {
+  // Get current user state
+  const user = await queryOne<User>("SELECT * FROM users WHERE id = $1", [userId]);
+  
+  if (!user) {
+    throw new Error(`User not found: ${userId}`);
+  }
+
+  const previousPlan = user.effective_plan;
+  const effectivePlan = calculateEffectivePlan(user, stripePlan === "free" ? undefined : stripePlan, stripeStatus);
+
+  // Update user - preserve plan_override, role, clerk_user_id
+  await query(
+    `UPDATE users SET 
+       effective_plan = $1,
+       stripe_customer_id = COALESCE($2, stripe_customer_id),
+       stripe_subscription_id = COALESCE($3, stripe_subscription_id),
+       subscription_status = $4,
+       current_period_end = $5,
+       updated_at = NOW()
+     WHERE id = $6`,
+    [
+      effectivePlan,
+      stripeCustomerId,
+      stripeSubscriptionId,
+      stripeStatus,
+      periodEnd,
+      userId,
+    ],
+  );
+
+  return { previousPlan, newPlan: effectivePlan };
 }
 
 export const handleCreateCheckoutSession: RequestHandler = async (req, res) => {
@@ -233,26 +353,50 @@ export const handleWebhook: RequestHandler = async (req, res) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         userId = session.metadata?.userId;
-        const plan = session.metadata?.plan;
+        const plan = (session.metadata?.plan || "pro") as "pro" | "enterprise";
         subscriptionId = session.subscription as string;
+        const customerId = session.customer as string;
 
-        if (userId && plan) {
-          // Update subscription with period end ~30 days from now
+        if (userId) {
           const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
+          // Update subscriptions table
           await query(
             `UPDATE subscriptions
-             SET stripe_subscription_id = $1, plan = $2, status = 'active', current_period_end = $3, updated_at = NOW()
-             WHERE user_id = $4`,
-            [subscriptionId, plan, periodEnd, userId],
+             SET stripe_subscription_id = $1, stripe_customer_id = $2, plan = $3, status = 'active', current_period_end = $4, updated_at = NOW()
+             WHERE user_id = $5`,
+            [subscriptionId, customerId, plan, periodEnd, userId],
+          );
+
+          // Sync users.effective_plan with precedence logic
+          const { previousPlan, newPlan } = await syncUserEffectivePlan(
+            userId,
+            plan,
+            "active",
+            customerId,
+            subscriptionId,
+            periodEnd,
           );
 
           // Grant initial credits based on plan
-          const creditAmount = plan === "enterprise" ? 9999 : 500;
+          const creditAmount = PLAN_CREDITS[plan] || 500;
           await grantCredits(
             userId,
             creditAmount,
             `${plan.toUpperCase()} plan activation`,
+          );
+
+          // Write audit log
+          await writeAuditLog(
+            userId,
+            "checkout_completed",
+            previousPlan,
+            newPlan,
+            null,
+            "active",
+            event.id,
+            subscriptionId,
+            { credits_granted: creditAmount },
           );
 
           logWebhookProcessing(
@@ -263,7 +407,8 @@ export const handleWebhook: RequestHandler = async (req, res) => {
               stripeSubscriptionId: subscriptionId,
             },
             event.type,
-            "Checkout session processed - credits granted",
+            "Checkout processed - effective_plan synced",
+            { previousPlan, newPlan, creditsGranted: creditAmount },
           );
         }
         break;
@@ -283,11 +428,44 @@ export const handleWebhook: RequestHandler = async (req, res) => {
             | "trialing"
             | "canceled"
             | "past_due";
+          const periodEnd = new Date(subscription.current_period_end * 1000);
+
+          // Get plan from price ID
+          const priceId = subscription.items.data[0]?.price?.id || "";
+          const plan = PRICE_TO_PLAN[priceId] || "pro";
+
+          // Update subscriptions table
           await query(
             `UPDATE subscriptions
-             SET status = $1, current_period_end = $2, updated_at = NOW()
-             WHERE user_id = $3`,
-            [status, new Date(subscription.current_period_end * 1000), userId],
+             SET status = $1, current_period_end = $2, plan = $3, updated_at = NOW()
+             WHERE user_id = $4`,
+            [status, periodEnd, plan, userId],
+          );
+
+          // Get previous state before sync
+          const userBefore = await queryOne<User>("SELECT * FROM users WHERE id = $1", [userId]);
+          const previousStatus = userBefore?.subscription_status || null;
+
+          // Sync users.effective_plan with precedence logic
+          const { previousPlan, newPlan } = await syncUserEffectivePlan(
+            userId,
+            plan,
+            status,
+            customerId,
+            subscriptionId,
+            periodEnd,
+          );
+
+          // Write audit log
+          await writeAuditLog(
+            userId,
+            "subscription_updated",
+            previousPlan,
+            newPlan,
+            previousStatus,
+            status,
+            event.id,
+            subscriptionId,
           );
 
           logWebhookProcessing(
@@ -298,8 +476,8 @@ export const handleWebhook: RequestHandler = async (req, res) => {
               stripeSubscriptionId: subscriptionId,
             },
             event.type,
-            "Subscription status updated",
-            { status },
+            "Subscription updated - effective_plan synced",
+            { status, previousPlan, newPlan },
           );
         }
         break;
@@ -314,11 +492,39 @@ export const handleWebhook: RequestHandler = async (req, res) => {
         userId = (customer as any).metadata?.userId;
 
         if (userId) {
+          // Get previous state before changes
+          const userBefore = await queryOne<User>("SELECT * FROM users WHERE id = $1", [userId]);
+          const previousPlan = userBefore?.effective_plan || "free";
+          const previousStatus = userBefore?.subscription_status || null;
+
+          // Update subscriptions table
           await query(
             `UPDATE subscriptions
              SET plan = 'free', status = 'canceled', stripe_subscription_id = NULL, updated_at = NOW()
              WHERE user_id = $1`,
             [userId],
+          );
+
+          // Sync users.effective_plan - will respect plan_override if set
+          const { newPlan } = await syncUserEffectivePlan(
+            userId,
+            "free",
+            "canceled",
+            customerId,
+            null,
+            null,
+          );
+
+          // Write audit log
+          await writeAuditLog(
+            userId,
+            "subscription_deleted",
+            previousPlan,
+            newPlan,
+            previousStatus,
+            "canceled",
+            event.id,
+            subscriptionId,
           );
 
           logWebhookProcessing(
@@ -329,7 +535,8 @@ export const handleWebhook: RequestHandler = async (req, res) => {
               stripeSubscriptionId: subscriptionId,
             },
             event.type,
-            "Subscription deleted - downgraded to free",
+            "Subscription deleted - effective_plan synced (override preserved)",
+            { previousPlan, newPlan },
           );
         }
         break;
@@ -361,24 +568,36 @@ export const handleWebhook: RequestHandler = async (req, res) => {
               : null;
 
             // Only grant if this is a different billing period
-            // (current_period_end differs from last_credit_grant_period_end)
             if (
               !lastGrantPeriodEnd ||
               lastGrantPeriodEnd.getTime() !== currentPeriodEnd.getTime()
             ) {
-              const creditAmount = sub.plan === "enterprise" ? 9999 : 500;
+              const creditAmount = PLAN_CREDITS[sub.plan] || 500;
               await grantCredits(
                 userId,
                 creditAmount,
                 `${sub.plan.toUpperCase()} plan monthly renewal`,
               );
 
-              // Update the period end to prevent duplicate grants in this period
+              // Update the period end to prevent duplicate grants
               await query(
                 `UPDATE subscriptions
                  SET last_credit_grant_period_end = $1, updated_at = NOW()
                  WHERE user_id = $2`,
                 [currentPeriodEnd, userId],
+              );
+
+              // Write audit log
+              await writeAuditLog(
+                userId,
+                "invoice_paid",
+                sub.plan,
+                sub.plan,
+                sub.status,
+                sub.status,
+                event.id,
+                subscriptionId,
+                { credits_granted: creditAmount, period_end: currentPeriodEnd.toISOString() },
               );
 
               logWebhookProcessing(
