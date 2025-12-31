@@ -52,9 +52,28 @@ const STYLE_TO_MODEL: Record<string, string> = {
   default: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix
 };
 
-// Request validation schemas
+// Episode schema for backward compatibility
+const EpisodeSchema = z.object({
+  text: z.string().optional(),
+  script: z.string().optional(),
+  content: z.string().optional(),
+  title: z.string().optional(),
+}).passthrough();
+
+// Request validation schema - prompts are optional, derived from script/episodes
 const GenerateImagesRequestSchema = z.object({
-  prompts: z.array(z.string().min(1).max(1000)).min(1).max(20),
+  // Primary: explicit prompts
+  prompts: z.array(z.string().min(1).max(1000)).optional(),
+  
+  // Fallback sources for prompt derivation
+  script: z.string().max(50000).optional(),
+  episodes: z.array(EpisodeSchema).optional(),
+  
+  // Metadata (not used for prompts, but accepted for compatibility)
+  scriptLength: z.number().optional(),
+  episodesToGenerateCount: z.number().int().min(1).max(20).optional(),
+  
+  // Image generation options
   imageStyle: z.string().optional().default("realistic"),
   width: z.number().int().min(512).max(1536).optional().default(1024),
   height: z.number().int().min(512).max(1536).optional().default(1024),
@@ -320,7 +339,40 @@ export const handleGenerateImages: RequestHandler = async (req, res) => {
     return;
   }
 
-  const { prompts, imageStyle, width, height, numImages } = parseResult.data;
+  const { 
+    prompts: explicitPrompts, 
+    script, 
+    episodes, 
+    episodesToGenerateCount,
+    imageStyle, 
+    width, 
+    height, 
+    numImages 
+  } = parseResult.data;
+
+  // Derive prompts if not explicitly provided
+  const derivedPrompts = derivePromptsFromPayload({
+    prompts: explicitPrompts,
+    script,
+    episodes,
+    episodesToGenerateCount,
+    imageStyle,
+  });
+
+  if ("error" in derivedPrompts) {
+    console.error(`[${correlationId}] Prompt derivation failed:`, derivedPrompts);
+    res.status(400).json({
+      error: "Unable to derive image prompts",
+      details: derivedPrompts.error,
+      missingFields: derivedPrompts.missingFields,
+      hint: "Provide one of: prompts[], script, or episodes[].text",
+      correlationId,
+    });
+    return;
+  }
+
+  const prompts = derivedPrompts.prompts;
+  console.log(`[${correlationId}] Derived ${prompts.length} prompts, style: ${imageStyle}`);
 
   console.log(`[${correlationId}] Generating ${prompts.length} images with style: ${imageStyle}`);
 
@@ -414,6 +466,70 @@ export const handleExtractImagePrompts: RequestHandler = async (req, res) => {
     correlationId,
   });
 };
+
+// ============================================================================
+// Prompt Derivation (Backward Compatibility Layer)
+// ============================================================================
+
+interface PromptDerivationInput {
+  prompts?: string[];
+  script?: string;
+  episodes?: Array<{ text?: string; script?: string; content?: string; title?: string }>;
+  episodesToGenerateCount?: number;
+  imageStyle: string;
+}
+
+interface PromptDerivationSuccess {
+  prompts: string[];
+  source: "explicit" | "script" | "episodes";
+}
+
+interface PromptDerivationError {
+  error: string;
+  missingFields: string[];
+}
+
+/**
+ * Derives image prompts from request payload.
+ * Priority: 1) explicit prompts, 2) script text, 3) episodes[].text
+ */
+function derivePromptsFromPayload(
+  input: PromptDerivationInput
+): PromptDerivationSuccess | PromptDerivationError {
+  const { prompts, script, episodes, episodesToGenerateCount = 1, imageStyle } = input;
+
+  // Priority 1: Use explicit prompts if provided
+  if (prompts && prompts.length > 0) {
+    return { prompts, source: "explicit" };
+  }
+
+  // Priority 2: Derive from script text
+  if (script && script.trim().length > 0) {
+    const scenes = extractSceneDescriptions(script, episodesToGenerateCount);
+    const formattedPrompts = scenes.map((scene) => formatPromptForStyle(scene, imageStyle));
+    return { prompts: formattedPrompts, source: "script" };
+  }
+
+  // Priority 3: Derive from episodes
+  if (episodes && episodes.length > 0) {
+    const episodeTexts = episodes
+      .map((ep) => ep.text || ep.script || ep.content || ep.title || "")
+      .filter((text) => text.trim().length > 0);
+
+    if (episodeTexts.length > 0) {
+      const formattedPrompts = episodeTexts
+        .slice(0, episodesToGenerateCount)
+        .map((text) => formatPromptForStyle(text.slice(0, 500), imageStyle));
+      return { prompts: formattedPrompts, source: "episodes" };
+    }
+  }
+
+  // No valid source found - return structured error
+  return {
+    error: "No prompt source available. Provide prompts[], script, or episodes with text.",
+    missingFields: ["prompts", "script", "episodes[].text"],
+  };
+}
 
 // ============================================================================
 // Utility Functions
