@@ -1,0 +1,32 @@
+name: Sync to Public Mirror
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sanity check: block obvious secret files (fails if tracked)
+        run: |
+          set -e
+          if git ls-files | grep -E '(^|/)\.env(\.|$)'; then
+            echo "ERROR: .env file is tracked in git. Remove it from repo and rotate secrets."
+            exit 1
+          fi
+
+      - name: Push to mirror
+        env:
+          MIRROR_PUSH_TOKEN: ${{ secrets.MIRROR_PUSH_TOKEN }}
+        run: |
+          set -e
+          git config user.name "bleulogix-sync-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git remote add mirror "https://x-access-token:${MIRROR_PUSH_TOKEN}@github.com/aitechconsultants/BleuLogiX-mirror.git"
+          git push mirror main:main --force
