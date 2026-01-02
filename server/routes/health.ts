@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import { RequestHandler } from "express";
 import { getPool, isDbReady } from "../db";
 
 // ============================================================================
@@ -74,12 +74,10 @@ export const handleHealthRoutes: RequestHandler = (req, res) => {
   const routes: Array<{ method: string; path: string }> = [];
 
   // Extract routes from Express app
-  const stack = app?._router?.stack || [];
+  const stack = app._router?.stack || [];
   for (const layer of stack) {
     if (layer.route) {
-      const methods = Object.keys(layer.route.methods).map((m) =>
-        m.toUpperCase(),
-      );
+      const methods = Object.keys(layer.route.methods).map((m) => m.toUpperCase());
       routes.push({ method: methods.join(","), path: layer.route.path });
     } else if (layer.name === "router" && layer.handle?.stack) {
       for (const subLayer of layer.handle.stack) {
@@ -125,10 +123,7 @@ export const handleHealthDB: RequestHandler = async (_req, res) => {
     }
 
     const pool = getPool();
-    const result = await pool.query(
-      "SELECT NOW() as timestamp, version() as version",
-    );
-
+    const result = await pool.query("SELECT NOW() as timestamp, version() as version");
     res.json({
       ok: true,
       timestamp: result.rows[0].timestamp,
