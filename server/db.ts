@@ -94,3 +94,10 @@ export async function closeDatabase() {
     pool = null;
   }
 }
+
+/**
+ * True when DB is configured (does not validate connectivity).
+ */
+export function isDbReady(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
