@@ -94,3 +94,7 @@ export async function closeDatabase() {
     pool = null;
   }
 }
+export function isDbReady(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
+
