@@ -1,11 +1,16 @@
 import { RequestHandler } from "express";
-import { pool, isDbReady } from "../db";
+import { getPool } from "../db";
 
 // ============================================================================
 // Health Check Routes
 // ============================================================================
 
-const COMMIT_SHA = process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
+const COMMIT_SHA =
+  process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
+
+function hasDbUrl(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
 
 /**
  * GET /api/health
@@ -16,7 +21,7 @@ export const handleHealth: RequestHandler = async (_req, res) => {
   const env = {
     hasLeonardoKey: Boolean(process.env.LEONARDO_API_KEY),
     hasStripeKey: Boolean(process.env.STRIPE_SECRET_KEY),
-    hasDbUrl: Boolean(process.env.DATABASE_URL),
+    hasDbUrl: hasDbUrl(),
   };
 
   // Check service connectivity
@@ -27,7 +32,8 @@ export const handleHealth: RequestHandler = async (_req, res) => {
 
   // Database check
   try {
-    if (isDbReady() && pool) {
+    if (env.hasDbUrl) {
+      const pool = getPool();
       const result = await pool.query("SELECT 1 as ok");
       services.dbOk = result.rows?.[0]?.ok === 1;
     }
@@ -48,7 +54,10 @@ export const handleHealth: RequestHandler = async (_req, res) => {
       });
       services.leonardoOk = response.ok;
     } catch (err) {
-      console.error("[Health] Leonardo check failed:", (err as Error).message);
+      console.error(
+        "[Health] Leonardo check failed:",
+        (err as Error).message,
+      );
       services.leonardoOk = false;
     }
   }
@@ -71,16 +80,19 @@ export const handleHealthRoutes: RequestHandler = (req, res) => {
   const app = req.app;
   const routes: Array<{ method: string; path: string }> = [];
 
-  // Extract routes from Express app
-  const stack = app._router?.stack || [];
+  const stack = (app as any)._router?.stack || [];
   for (const layer of stack) {
     if (layer.route) {
-      const methods = Object.keys(layer.route.methods).map((m) => m.toUpperCase());
+      const methods = Object.keys(layer.route.methods).map((m) =>
+        m.toUpperCase(),
+      );
       routes.push({ method: methods.join(","), path: layer.route.path });
     } else if (layer.name === "router" && layer.handle?.stack) {
       for (const subLayer of layer.handle.stack) {
         if (subLayer.route) {
-          const methods = Object.keys(subLayer.route.methods).map((m) => m.toUpperCase());
+          const methods = Object.keys(subLayer.route.methods).map((m) =>
+            m.toUpperCase(),
+          );
           routes.push({ method: methods.join(","), path: subLayer.route.path });
         }
       }
@@ -101,7 +113,7 @@ export const handleHealthIntegrations: RequestHandler = async (_req, res) => {
     leonardo: Boolean(process.env.LEONARDO_API_KEY),
     openai: Boolean(process.env.OPENAI_API_KEY),
     pipedream: Boolean(process.env.PIPEDREAM_SCRIPT_WORKFLOW_URL),
-    database: Boolean(process.env.DATABASE_URL),
+    database: hasDbUrl(),
   };
 
   res.json({ integrations });
@@ -113,12 +125,16 @@ export const handleHealthIntegrations: RequestHandler = async (_req, res) => {
  */
 export const handleHealthDB: RequestHandler = async (_req, res) => {
   try {
-    if (!isDbReady() || !pool) {
-      res.status(503).json({ ok: false, error: "Database not initialized" });
+    if (!hasDbUrl()) {
+      res.status(503).json({ ok: false, error: "DATABASE_URL not set" });
       return;
     }
 
-    const result = await pool.query("SELECT NOW() as timestamp, version() as version");
+    const pool = getPool();
+    const result = await pool.query(
+      "SELECT NOW() as timestamp, version() as version",
+    );
+
     res.json({
       ok: true,
       timestamp: result.rows[0].timestamp,
