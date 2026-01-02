@@ -14,9 +14,7 @@ export function parseDatabaseUrl(): {
   sslMode: string;
 } | null {
   const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) {
-    return null;
-  }
+  if (!dbUrl) return null;
 
   try {
     const url = new URL(dbUrl);
@@ -27,6 +25,13 @@ export function parseDatabaseUrl(): {
   } catch {
     return null;
   }
+}
+
+/**
+ * Returns whether DATABASE_URL exists (presence check only).
+ */
+export function isDbReady(): boolean {
+  return Boolean(process.env.DATABASE_URL);
 }
 
 export function initializeDatabase() {
@@ -55,12 +60,8 @@ export function initializeDatabase() {
 }
 
 export function getPool(): Pool {
-  if (!pool) {
-    initializeDatabase();
-  }
-  if (!pool) {
-    throw new Error("Database pool not initialized");
-  }
+  if (!pool) initializeDatabase();
+  if (!pool) throw new Error("Database pool not initialized");
   return pool;
 }
 
