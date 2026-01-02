@@ -1,11 +1,12 @@
 import { RequestHandler } from "express";
-import { pool, isDbReady } from "../db";
+import { getPool, isDbReady } from "../db";
 
 // ============================================================================
 // Health Check Routes
 // ============================================================================
 
-const COMMIT_SHA = process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
+const COMMIT_SHA =
+  process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
 
 /**
  * GET /api/health
@@ -27,7 +28,8 @@ export const handleHealth: RequestHandler = async (_req, res) => {
 
   // Database check
   try {
-    if (isDbReady() && pool) {
+    if (isDbReady()) {
+      const pool = getPool();
       const result = await pool.query("SELECT 1 as ok");
       services.dbOk = result.rows?.[0]?.ok === 1;
     }
@@ -68,7 +70,7 @@ export const handleHealth: RequestHandler = async (_req, res) => {
  * Returns list of registered routes (for debugging)
  */
 export const handleHealthRoutes: RequestHandler = (req, res) => {
-  const app = req.app;
+  const app = req.app as any;
   const routes: Array<{ method: string; path: string }> = [];
 
   // Extract routes from Express app
@@ -80,7 +82,9 @@ export const handleHealthRoutes: RequestHandler = (req, res) => {
     } else if (layer.name === "router" && layer.handle?.stack) {
       for (const subLayer of layer.handle.stack) {
         if (subLayer.route) {
-          const methods = Object.keys(subLayer.route.methods).map((m) => m.toUpperCase());
+          const methods = Object.keys(subLayer.route.methods).map((m) =>
+            m.toUpperCase(),
+          );
           routes.push({ method: methods.join(","), path: subLayer.route.path });
         }
       }
@@ -113,11 +117,12 @@ export const handleHealthIntegrations: RequestHandler = async (_req, res) => {
  */
 export const handleHealthDB: RequestHandler = async (_req, res) => {
   try {
-    if (!isDbReady() || !pool) {
-      res.status(503).json({ ok: false, error: "Database not initialized" });
+    if (!isDbReady()) {
+      res.status(503).json({ ok: false, error: "Database not configured" });
       return;
     }
 
+    const pool = getPool();
     const result = await pool.query("SELECT NOW() as timestamp, version() as version");
     res.json({
       ok: true,
