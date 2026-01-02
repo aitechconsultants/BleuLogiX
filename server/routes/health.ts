@@ -1,11 +1,12 @@
 import { RequestHandler } from "express";
-import { pool, isDbReady } from "../db";
+import { getPool, isDbReady } from "../db";
 
 // ============================================================================
 // Health Check Routes
 // ============================================================================
 
-const COMMIT_SHA = process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
+const COMMIT_SHA =
+  process.env.COMMIT_SHA || process.env.FLY_MACHINE_VERSION || "unknown";
 
 /**
  * GET /api/health
@@ -27,7 +28,8 @@ export const handleHealth: RequestHandler = async (_req, res) => {
 
   // Database check
   try {
-    if (isDbReady() && pool) {
+    if (isDbReady()) {
+      const pool = getPool();
       const result = await pool.query("SELECT 1 as ok");
       services.dbOk = result.rows?.[0]?.ok === 1;
     }
@@ -72,16 +74,23 @@ export const handleHealthRoutes: RequestHandler = (req, res) => {
   const routes: Array<{ method: string; path: string }> = [];
 
   // Extract routes from Express app
-  const stack = app._router?.stack || [];
+  const stack = (app as any)?._router?.stack || [];
   for (const layer of stack) {
     if (layer.route) {
-      const methods = Object.keys(layer.route.methods).map((m) => m.toUpperCase());
+      const methods = Object.keys(layer.route.methods).map((m) =>
+        m.toUpperCase(),
+      );
       routes.push({ method: methods.join(","), path: layer.route.path });
     } else if (layer.name === "router" && layer.handle?.stack) {
       for (const subLayer of layer.handle.stack) {
         if (subLayer.route) {
-          const methods = Object.keys(subLayer.route.methods).map((m) => m.toUpperCase());
-          routes.push({ method: methods.join(","), path: subLayer.route.path });
+          const methods = Object.keys(subLayer.route.methods).map((m) =>
+            m.toUpperCase(),
+          );
+          routes.push({
+            method: methods.join(","),
+            path: subLayer.route.path,
+          });
         }
       }
     }
@@ -100,7 +109,10 @@ export const handleHealthIntegrations: RequestHandler = async (_req, res) => {
     stripe: Boolean(process.env.STRIPE_SECRET_KEY),
     leonardo: Boolean(process.env.LEONARDO_API_KEY),
     openai: Boolean(process.env.OPENAI_API_KEY),
-    pipedream: Boolean(process.env.PIPEDREAM_SCRIPT_WORKFLOW_URL),
+    // Keep both names supported; different parts of the codebase may differ.
+    pipedream: Boolean(
+      process.env.SCRIPT_GEN_URL || process.env.PIPEDREAM_SCRIPT_WORKFLOW_URL,
+    ),
     database: Boolean(process.env.DATABASE_URL),
   };
 
@@ -113,12 +125,14 @@ export const handleHealthIntegrations: RequestHandler = async (_req, res) => {
  */
 export const handleHealthDB: RequestHandler = async (_req, res) => {
   try {
-    if (!isDbReady() || !pool) {
-      res.status(503).json({ ok: false, error: "Database not initialized" });
+    if (!isDbReady()) {
+      res.status(503).json({ ok: false, error: "Database not configured" });
       return;
     }
 
+    const pool = getPool();
     const result = await pool.query("SELECT NOW() as timestamp, version() as version");
+
     res.json({
       ok: true,
       timestamp: result.rows[0].timestamp,
